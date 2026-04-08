@@ -1,0 +1,556 @@
+<div id="settings-modal" class="modal">
+    <style>
+        #settings-modal.modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent; /* Hintergrund-Overlay komplett entfernt */
+            display: none; /* Standardmäßig versteckt */
+            align-items: center;
+            justify-content: center;
+            overflow: auto; /* Ermöglicht Scrollen, falls das Fenster kleiner als das Modal ist */
+            z-index: 3000;
+        }
+        #settings-modal.modal.open {
+            display: flex; /* Wird nur bei .open angezeigt */
+        }
+        #settings-modal .settings-container {
+            display: flex;
+            width: 850px;
+            height: 580px;
+            min-width: 850px; /* Verhindert horizontales Schrumpfen */
+            min-height: 580px; /* Verhindert vertikales Schrumpfen */
+            flex-shrink: 0;   /* Zwingt das Modal, seine Größe beizubehalten */
+            background: #18181b; /* Solider, dunkler Hintergrund ohne Transparenz */
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #333; /* Etwas deutlicherer Rand für bessere Trennung */
+            box-shadow: 0 10px 100px rgba(0,0,0,0.8); /* Stärkerer Schatten, da das Overlay fehlt */
+        }
+        #settings-modal .settings-sidebar {
+            width: 220px;
+            background: #111114; /* Solider, dunkler Hintergrund für die Sidebar */
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+        #settings-modal .nav-item {
+            padding: 12px 25px;
+            cursor: pointer;
+            color: var(--muted);
+            transition: 0.2s;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #settings-modal .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+        #settings-modal .nav-item.active {
+            color: var(--accent);
+            background: #27272a; /* Feste Farbe statt Transparenz für aktive Tabs */
+            border-right: 3px solid var(--accent);
+        }
+        #settings-modal .settings-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        #settings-modal .settings-pane { display: none; }
+        #settings-modal .settings-pane.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #settings-modal h2 { margin-top: 0; font-size: 1.5rem; color: var(--text); }
+        #settings-modal h3 { margin: 25px 0 15px; font-size: 0.9rem; text-transform: uppercase; color: var(--accent); letter-spacing: 1px; }
+        
+        .setting-row { margin-bottom: 20px; }
+        .setting-row label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--text); }
+        .setting-row .desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        
+        .setting-controls { display: flex; align-items: center; gap: 15px; }
+        .setting-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 4px; width: 100%; }
+        
+        .settings-footer { margin-top: auto; padding: 20px 25px; display: flex; gap: 10px; border-top: 1px solid var(--border); }
+        
+        /* API Keys Styling */
+        .api-key-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+        .api-key-card .key-display {
+            flex: 1;
+            background: #000;
+            padding: 8px 12px;
+            border-radius: 4px;
+            color: #a3be8c;
+            word-break: break-all;
+            user-select: all;
+        }
+        .api-key-card .key-label {
+            flex: 0 0 auto;
+            color: var(--muted);
+            font-size: 10px;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .api-key-card .btn {
+            padding: 6px 12px;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+        .api-key-card .btn-copy { background: var(--accent); color: #000; }
+        .api-key-card .btn-delete { background: #dc2626; color: white; }
+    </style>
+
+    <div class="settings-container">
+        <aside class="settings-sidebar">
+            <div class="nav-item active" data-target="pane-general">⚙️ Allgemein</div>
+            <div class="nav-item" data-target="pane-editor">📝 Editor & UI</div>
+            <div class="nav-item" data-target="pane-db">💾 Datenbank</div>
+            <div class="nav-item" data-target="pane-api-keys">🔑 API Keys</div>
+            <div class="nav-item" data-target="pane-sync">🔄 Sync-Center</div>
+            <div class="nav-item" data-target="pane-ai">🤖 KI-Assistent</div>
+            <div class="nav-item" data-target="pane-templates">📋 Vorlagen</div>
+            
+            <div class="settings-footer">
+                <button id="settings-save" class="btn btn-primary">Speichern</button>
+                <button id="settings-cancel" class="btn">Abbrechen</button>
+            </div>
+        </aside>
+
+        <main class="settings-content">
+            <!-- Allgemein -->
+            <div id="pane-general" class="settings-pane active">
+                <h2>Allgemein</h2>
+                <div class="setting-row">
+                    <label>Erscheinungsbild</label>
+                    <select id="setting-theme" class="setting-input">
+                        <option value="dark">Dark Mode (Standard)</option>
+                        <option value="light">Light Mode</option>
+                    </select>
+                </div>
+                <h3>Standard-Ansichten</h3>
+                <div class="setting-row checkbox">
+                    <input type="checkbox" id="setting-sidebar">
+                    <label for="setting-sidebar">Sidebar links beim Start öffnen</label>
+                </div>
+                <button id="settings-create-db" class="btn" style="margin-top:20px;">Neue Datenbank erstellen...</button>
+            </div>
+
+            <!-- Editor & UI -->
+            <div id="pane-editor" class="settings-pane">
+                <h2>Editor & UI</h2>
+                <div class="setting-row">
+                    <label>Schriftgröße (px)</label>
+                    <input type="number" id="setting-editor-fontSize" class="setting-input" min="8" max="32">
+                </div>
+                <div class="setting-row checkbox">
+                    <input type="checkbox" id="setting-editor-lineNumbers">
+                    <label for="setting-editor-lineNumbers">Zeilennummern anzeigen</label>
+                </div>
+                <div class="setting-row checkbox">
+                    <input type="checkbox" id="setting-editor-autocomplete">
+                    <label for="setting-editor-autocomplete">Intelligente Autovervollständigung (SQL)</label>
+                </div>
+                <h3>Daten-Tabelle</h3>
+                <div class="setting-row checkbox">
+                    <input type="checkbox" id="setting-ui-virtualScrolling">
+                    <label for="setting-ui-virtualScrolling">Virtual Scrolling (für große Datenmengen)</label>
+                    <div class="desc">Erhöht die Performance bei > 10.000 Zeilen massiv.</div>
+                </div>
+            </div>
+
+            <!-- Datenbank -->
+            <div id="pane-db" class="settings-pane">
+                <h2>Datenbank</h2>
+                <div class="setting-row">
+                    <label>Standard-Limit für Abfragen</label>
+                    <input type="number" id="setting-db-autoLimit" class="setting-input" step="100">
+                    <div class="desc">Verhindert Abstürze bei Millionen von Datensätzen.</div>
+                </div>
+
+                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+                    <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:1px;">Server-Verbindung</h4>
+                    <button class="btn" id="btn-open-sync-center" style="width:100%; display:flex; align-items:center; gap:10px; justify-content:center; padding:10px; font-weight:600;">
+                        ☁️ PostgreSQL für Server
+                    </button>
+                    <p style="font-size:11px; color:var(--muted); margin-top:8px; line-height:1.4;">
+                        Öffnet das Sync-Center, um eine Verbindung zu einem externen PostgreSQL-Server herzustellen.
+                    </p>
+                </div>
+            </div>
+
+            <!-- API Keys -->
+            <div id="pane-api-keys" class="settings-pane">
+                <h2>API Keys & Authentifizierung</h2>
+                <p style="color: var(--muted); font-size: 12px; margin-bottom: 20px;">
+                    Generiere API Keys, um externe Projekte mit dieser Kynto-Instanz zu verbinden.
+                    Teile diese Tokens sicher mit anderen Entwicklern.
+                </p>
+
+                <div class="setting-row">
+                    <button id="btn-generate-api-key" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 600;">
+                        ➕ Neuen API Key generieren
+                    </button>
+                </div>
+
+                <h3 style="margin-top: 30px;">Aktive API Keys</h3>
+                <div id="api-keys-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto;">
+                    <div style="color: var(--muted); font-size: 12px; text-align: center; padding: 40px 20px;">
+                        Noch keine API Keys generiert.
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; text-align: center;">
+                    <button id="btn-api-keys-documentation" class="btn" style="padding: 8px 16px; font-size: 12px; background: var(--surface2); border: 1px solid var(--border);">
+                        📚 API Keys Dokumentation
+                    </button>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+                    <h3>Verwendung in Projekten</h3>
+                    <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+                        <strong>Wichtig:</strong> Jeder API Key wird nach Verwendung mit [VERWENDET] gekennzeichnet. Du kannst ihn dann manuell löschen wenn er nicht mehr nötig ist.
+                    </p>
+                    
+                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;">
+                        <strong>1. Als Bearer Token im Header:</strong>
+                    </p>
+                    <div style="background: #000; border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--accent); overflow-x: auto; border: 1px solid var(--border); margin-bottom: 16px;">
+                        <div>Authorization: Bearer [dein_api_key]</div>
+                    </div>
+
+                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;">
+                        <strong>2. JavaScript Fetch Beispiel:</strong>
+                    </p>
+                    <div style="background: #000; border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 10px; color: var(--accent); overflow-x: auto; border: 1px solid var(--border); line-height: 1.4; margin-bottom: 16px;">
+                        <div>const response = await fetch('http://localhost:54321/data/users', {</div>
+                        <div>  method: 'GET',</div>
+                        <div>  headers: {</div>
+                        <div>    'Authorization': 'Bearer ABC123DEF...'</div>
+                        <div>  }</div>
+                        <div>});</div>
+                    </div>
+
+                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;">
+                        <strong>3. cURL Beispiel:</strong>
+                    </p>
+                    <div style="background: #000; border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 10px; color: var(--accent); overflow-x: auto; border: 1px solid var(--border); margin-bottom: 16px;">
+                        <div>curl -H "Authorization: Bearer ABC123DEF..." \</div>
+                        <div>&nbsp;&nbsp;http://localhost:54321/data/users</div>
+                    </div>
+
+                    <p style="font-size: 11px; color: #dc2626; margin-top: 16px; padding: 12px; background: rgba(220, 38, 38, 0.1); border-radius: 4px; border-left: 3px solid #dc2626;">
+                        ⚠️ <strong>Sicherheit:</strong> Teile deinen API Key niemals öffentlich! Der Key funktioniert wie ein Passwort. Wenn die Verwendung verdächtig aussieht, lösche den Key und generiere einen neuen.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Sync-Center -->
+            <div id="pane-sync" class="settings-pane">
+                <h2>Sync-Center</h2>
+                <div class="sync-body" style="display: flex; flex-direction: column; gap: 20px;">
+                    <!-- Verbindungsstatus -->
+                    <div class="sync-status-card">
+                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;">ProgressSQL-Verbindung</h4>
+                        <div class="conn-input-wrap" style="display:flex; gap:8px; margin-bottom:8px;">
+                            <input id="sync-conn-input" class="setting-input" placeholder="postgresql://user:pass@host:5432/db" type="text">
+                            <button class="btn" id="btn-sync-connect" style="padding:0 15px;">Verbinden</button>
+                        </div>
+                        <div class="status-row" style="margin-top:12px; display:flex; align-items:center; gap:10px; font-size:12px;">
+                            <span class="status-dot" id="sync-status-dot" style="width:8px; height:8px; border-radius:50%; background:var(--muted);"></span>
+                            <span id="sync-status-text" style="color:var(--muted);">Nicht verbunden</span>
+                            <span id="sync-latency" style="font-size:10px; color:var(--muted); margin-left: auto;"></span>
+                        </div>
+                        <div id="sync-server-version" style="font-size:10px; color:var(--muted); margin-top:4px; display:none; border-top: 1px solid rgba(255,255,255,0.05); padding-top:4px;"></div>
+                    </div>
+
+                    <!-- Fortschritt -->
+                    <div id="sync-progress-wrap" style="display:none; background: var(--surface2); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;">Sync läuft…</h4>
+                        <div style="background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; margin-bottom: 8px;">
+                            <div id="sync-progress-fill" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease;"></div>
+                        </div>
+                        <div id="sync-progress-msg" style="font-size: 11px; color: var(--muted);">Bereit...</div>
+                    </div>
+
+                    <!-- Lagerung -->
+                    <div class="sync-storage-card">
+                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;">Lagerung für Bilder und Videos</h4>
+                        <div class="setting-row">
+                            <div style="display:flex; gap:8px;">
+                                <input id="setting-storage-mediaPath" class="setting-input" placeholder="C:/Pfad/zu/deinen/Medien" type="text">
+                                <button class="btn" id="btn-browse-storage" style="padding:0 15px;">Durchsuchen</button>
+                            </div>
+                            <div class="desc">Bestimme den Pfad, an dem Medien lokal gespeichert werden sollen.</div>
+                        </div>
+                    </div>
+
+                    <!-- Log -->
+                    <div id="sync-log" style="display:none; background: #000; border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 10px; color: #a3be8c; max-height: 150px; overflow-y: auto; border: 1px solid var(--border);"></div>
+                </div>
+            </div>
+
+            <!-- AI / KI -->
+            <div id="pane-ai" class="settings-pane">
+                <h2>KI-Assistent</h2>
+                <div class="setting-row checkbox">
+                    <input type="checkbox" id="setting-ai-enabled">
+                    <label for="setting-ai-enabled">Natural Language to SQL aktivieren</label>
+                </div>
+                <div class="setting-row">
+                    <label>Provider</label>
+                    <select id="setting-ai-provider" class="setting-input">
+                        <option value="ollama">Ollama (Lokal - empfohlen)</option>
+                        <option value="openai">OpenAI (Cloud)</option>
+                        <option value="anthropic">Anthropic Claude (Cloud)</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label>API Key / Endpoint</label>
+                    <input type="password" id="setting-ai-apiKey" class="setting-input" placeholder="sk-...">
+                </div>
+                <div class="setting-row">
+                    <label>Modell-Name</label>
+                    <input type="text" id="setting-ai-model" class="setting-input" placeholder="duckdb-nsql oder llama3">
+                </div>
+            </div>
+
+            <!-- SQL Vorlagen -->
+            <div id="pane-templates" class="settings-pane">
+                <h2>SQL Vorlagen</h2>
+                <div class="setting-row checkbox">
+                    <input type="checkbox" id="setting-tpl-showQuickstarts">
+                    <label for="setting-tpl-showQuickstarts">Quickstarts im Dashboard anzeigen</label>
+                    <div class="desc">Legt fest, ob die vordefinierten SQL-Skripte (Quickstarts) auf der Startseite eingeblendet werden sollen.</div>
+                </div>
+
+                <h3>Verbundene Vorlagen</h3>
+                <div class="desc" style="margin-bottom: 10px;">Diese Vorlagen werden aktuell aus der <code>SQLEditor.queries.js</code> geladen:</div>
+                <div id="settings-tpl-list" style="background: #111; border-radius: 8px; padding: 10px; max-height: 200px; overflow-y: auto; border: 1px solid var(--border);"></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- API Keys Dokumentations Modal -->
+<div id="api-keys-docs-modal" class="modal">
+    <style>
+        #api-keys-docs-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3001;
+        }
+        #api-keys-docs-modal.open {
+            display: flex !important;
+        }
+        #api-keys-docs-modal .docs-container {
+            background: #18181b;
+            border: 1px solid #333;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 100px rgba(0,0,0,0.8);
+        }
+        #api-keys-docs-modal .docs-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #api-keys-docs-modal .docs-content {
+            padding: 24px;
+        }
+        #api-keys-docs-modal h2 {
+            color: var(--text);
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+        #api-keys-docs-modal h3 {
+            color: var(--accent);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        #api-keys-docs-modal p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        #api-keys-docs-modal .code-block {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #a3be8c;
+            margin-bottom: 12px;
+            overflow-x: auto;
+        }
+        #api-keys-docs-modal .endpoint {
+            background: var(--surface2);
+            border-left: 3px solid var(--accent);
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+        #api-keys-docs-modal .endpoint-method {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 11px;
+        }
+        #api-keys-docs-modal .warning-box {
+            background: rgba(220, 38, 38, 0.1);
+            border-left: 3px solid #dc2626;
+            padding: 12px;
+            border-radius: 4px;
+            color: #fca5a5;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+        #api-keys-docs-modal .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+        }
+        #api-keys-docs-modal .close-btn:hover {
+            color: var(--text);
+        }
+    </style>
+
+    <div class="docs-container">
+        <div class="docs-header">
+            <h2 style="margin: 0;">API Keys Dokumentation</h2>
+            <button id="close-api-docs" class="close-btn">✕</button>
+        </div>
+
+        <div class="docs-content">
+            <h3>Was ist ein API Key?</h3>
+            <p>
+                Ein API Key ist ein eindeutiger Token, den du generierst, um von externen Anwendungen auf deine Kynto-Instanz zuzugreifen. 
+                Er funktioniert wie ein Passwort und sollte genauso sicher behandelt werden.
+            </p>
+
+            <h3>Was kann ich mit einem API Key tun?</h3>
+            <div class="endpoint">
+                <div class="endpoint-method">GET /data/:table</div>
+                <p>Daten aus einer Tabelle abrufen</p>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-method">POST /data/:table</div>
+                <p>Neue Datensätze in eine Tabelle einfügen</p>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-method">PUT /data/:table/:id</div>
+                <p>Einen Datensatz aktualisieren</p>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-method">DELETE /data/:table/:id</div>
+                <p>Einen Datensatz löschen</p>
+            </div>
+            <div class="endpoint">
+                <div class="endpoint-method">POST /query</div>
+                <p>Benutzerdefinierte SQL Queries ausführen (SELECT, INSERT, UPDATE, DELETE)</p>
+            </div>
+
+            <h3>Wie verwende ich den API Key?</h3>
+            <p><strong>Header:</strong></p>
+            <div class="code-block">Authorization: Bearer YOUR_API_KEY</div>
+
+            <p style="color: #fca5a5; background: rgba(220, 38, 38, 0.1); padding: 8px; border-radius: 4px; font-size: 11px; margin-bottom: 12px;">
+                <strong>ℹ️ Hinweis:</strong> Ersetze YOUR_API_KEY mit deinem generierten Key. 
+                Die Standard-URL ist <code style="color: #a3be8c;">http://127.0.0.1:54321</code>, aber passe Host und Port an falls nötig.
+            </p>
+
+            <p><strong>Vollständiges Fetch-Beispiel (GET):</strong></p>
+            <div class="code-block">const API_URL = 'http://127.0.0.1:54321';
+const API_KEY = 'YOUR_API_KEY';
+
+const response = await fetch(`${API_URL}/data/users`, {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${API_KEY}`
+  }
+});
+const data = await response.json();
+console.log(data);</div>
+
+            <p><strong>Fetch-Beispiel (Daten einfügen POST):</strong></p>
+            <div class="code-block">const API_URL = 'http://127.0.0.1:54321';
+const API_KEY = 'YOUR_API_KEY';
+
+const response = await fetch(`${API_URL}/data/users`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'Max Mustermann',
+    email: 'max@example.com'
+  })
+});
+const data = await response.json();
+console.log(data);</div>
+
+            <h3>Sicherheit</h3>
+            <div class="warning-box">
+                ⚠️ <strong>Wichtig:</strong> Niemals den API Key in öffentlichen Repositories (GitHub, GitLab, etc.) hochladen! 
+                Nutzer mit deinem Key können auf alle deine Daten zugreifen.
+            </div>
+            <p><strong>Best Practices:</strong></p>
+            <ul style="color: var(--muted); font-size: 11px; margin: 0; padding-left: 20px;">
+                <li>Speichere den Key in Umgebungsvariablen (.env)</li>
+                <li>Verwende ihn nicht in Frontend-Code</li>
+                <li>Rotiere Keys regelmäßig (lösche alte, generiere neue)</li>
+                <li>Überwache die "Verwendet"-Spalte auf verdächtige Aktivitäten</li>
+            </ul>
+
+            <h3>Troubleshooting</h3>
+            <p><strong>401 Authentifizierung fehlgeschlagen</strong></p>
+            <p style="margin-bottom: 12px;">Der API Key ist ungültig oder wurde gelöscht. Generiere einen neuen Key.</p>
+
+            <p><strong>403 Zugriff verweigert</strong></p>
+            <p style="margin-bottom: 12px;">Du versuchst eine nicht erlaubte Operation (z.B. DROP TABLE). Nur SELECT, INSERT, UPDATE, DELETE und CALL sind erlaubt.</p>
+
+            <p><strong>500 Server-Fehler</strong></p>
+            <p style="margin-bottom: 12px;">Es gibt ein Problem mit dem Request. Überprüfe die Tabellennamen und Spaltennamen auf Tippfehler.</p>
+
+            <h3>Weitere Features</h3>
+            <p><strong>Row-Level Security (RLS):</strong></p>
+            <p>Daten werden automatisch gefiltert basierend auf dem API Key Besitzer (wenn konfiguriert).</p>
+
+            <p><strong>Realtime Updates:</strong></p>
+            <p>Verbinde dich über WebSocket um Echtzeit-Updates zu erhalten wenn Daten sich ändern.</p>
+        </div>
+    </div>
+</div>

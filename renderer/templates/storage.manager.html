@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <script type="module" src="../../src/main/config/storage.manager.js" defer></script>
+    <style>
+        :root {
+            --bg:          #18181b;
+            --surface:     #1f1f23;
+            --surface2:    #27272c;
+            --surface3:    #2e2e35;
+            --border:      rgba(58, 58, 66, 0.5);
+            --border-med:  rgba(255,255,255,0.11);
+            --text:        #e8e8ee;
+            --muted:       #6b6b7e;
+            --accent:      #c29a40;
+            --accent-hi:   #d4aa50;
+            --accent-lo:   rgba(194,154,64,0.12);
+            --accent-glow: rgba(194,154,64,0.28);
+            --panel-shadow: -8px 0 8px rgba(0,0,0,0.2), -1px 0 0 rgba(255,255,255,0.06);
+            --panel-border: 1px solid rgba(255,255,255,0.11);
+            --success:     #4caf7d;
+            --error:       #e05555;
+            --radius:      8px;
+            --radius-sm:   5px;
+            --radius-md:   6px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { background: transparent !important; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--text); height: 100vh;
+            overflow: hidden; background: transparent !important; font-size: 13px;
+        }
+
+        .sidebar-panel {
+            position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            background: var(--surface); display: flex; flex-direction: column;
+            border-left: var(--panel-border);
+            box-shadow: var(--panel-shadow);
+        }
+        .sidebar-panel::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent) 40%, var(--accent-hi) 60%, transparent 100%);
+            opacity: 0.7; z-index: 1;
+        }
+        .page-content { display: none; flex-direction: column; height: 100%; }
+        .page-content.active { display: flex; }
+
+        .panel-header {
+            padding: 20px 20px 0;
+            background: linear-gradient(180deg, rgba(194,154,64,0.05) 0%, transparent 100%);
+            flex-shrink: 0;
+        }
+        .header-label {
+            display: flex; align-items: center; gap: 7px;
+            color: var(--accent); font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 13px;
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+        h1 { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+        .description { color: var(--muted); font-size: 11px; margin-top: 4px; line-height: 1.5; }
+
+        .close-btn {
+            background: var(--surface2); border: 1px solid var(--border-med);
+            color: var(--muted); font-size: 14px; cursor: pointer;
+            padding: 5px 8px; line-height: 1; border-radius: var(--radius-sm);
+            transition: all 0.15s; flex-shrink: 0;
+        }
+        .close-btn:hover { color: var(--text); background: var(--surface3); }
+
+        .tabs-container {
+            display: flex; border-bottom: 1px solid var(--border);
+            margin: 0 -20px; padding: 0 20px;
+        }
+        .tab {
+            background: none; border: none; color: var(--muted);
+            padding: 0 2px 11px; margin-right: 20px;
+            font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+            position: relative; transition: color 0.15s; margin-bottom: -1px;
+        }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--accent); }
+        .tab.active::after {
+            content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-hi));
+            border-radius: 2px 2px 0 0;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .content-body { flex: 1; padding: 18px; overflow-y: auto; }
+        .content-body::-webkit-scrollbar { width: 4px; }
+        .content-body::-webkit-scrollbar-track { background: transparent; }
+        .content-body::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 4px; }
+        .tab-content { display: none; animation: fadeUp 0.18s ease; }
+        .tab-content.active { display: block; }
+
+        .section-title {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.12em; color: var(--accent); margin-bottom: 12px;
+        }
+
+        .card {
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .card:hover { border-color: rgba(194,154,64,0.2); box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+
+        .empty-placeholder {
+            border: 1px dashed rgba(255,255,255,0.08); border-radius: var(--radius);
+            padding: 48px 24px; text-align: center; color: var(--muted);
+            display: flex; flex-direction: column; align-items: center;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .empty-placeholder:hover { border-color: rgba(194,154,64,0.3); background: rgba(194,154,64,0.03); }
+        .empty-placeholder h3 { margin: 14px 0 7px; color: var(--text); font-weight: 600; font-size: 14px; }
+        .empty-placeholder p { font-size: 12px; margin: 0 0 22px; color: var(--muted); max-width: 230px; line-height: 1.6; }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hi));
+            color: #18181b; border: none; padding: 9px 18px;
+            border-radius: var(--radius-md); font-weight: 700; font-size: 12px;
+            cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px;
+            box-shadow: 0 2px 14px var(--accent-glow);
+            transition: box-shadow 0.2s, transform 0.1s, opacity 0.15s;
+        }
+        .btn-gold:hover { box-shadow: 0 4px 22px var(--accent-glow); transform: translateY(-1px); opacity: 0.92; }
+        .btn-gold:active { transform: translateY(0); }
+
+        .btn-outline {
+            background: transparent; color: var(--accent);
+            border: 1px solid rgba(194,154,64,0.35); padding: 5px 12px;
+            border-radius: var(--radius-md); font-size: 12px; font-weight: 600;
+            cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap;
+        }
+        .btn-outline:hover { background: var(--accent-lo); border-color: var(--accent); }
+
+        .badge {
+            background: rgba(194,154,64,0.15); color: var(--accent);
+            font-size: 10px; font-weight: 700; padding: 2px 8px;
+            border-radius: 10px; letter-spacing: .05em; white-space: nowrap;
+        }
+
+        /* Settings-spezifisch */
+        .settings-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+        .settings-row label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+        .settings-row select,
+        .settings-row input[type="text"],
+        .settings-row input[type="url"],
+        .settings-row input[type="password"] {
+            background: var(--surface3); border: 1px solid var(--border-med);
+            color: var(--text); padding: 7px 10px; border-radius: var(--radius-sm);
+            font-size: 12px; font-family: inherit; outline: none;
+            transition: border-color .15s;
+        }
+        .settings-row select:focus,
+        .settings-row input:focus { border-color: var(--accent); }
+
+        /* Adapter-spezifische Felder */
+        .adapter-fields { display: none; }
+        .adapter-fields.active { display: block; }
+
+        .switch { position: relative; display: inline-block; width: 44px; height: 22px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--surface3); border: 1px solid var(--border-med);
+            transition: 0.25s; border-radius: 24px;
+        }
+        input:checked + .slider { background: var(--success); border-color: var(--success); }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 2px; bottom: 2px; background: var(--muted); transition: 0.25s; border-radius: 50%;
+        }
+        input:checked + .slider:before { transform: translateX(20px); background: #fff; }
+
+        .sidebar-footer {
+            padding: 14px 18px; border-top: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--surface) 0%, rgba(194,154,64,0.03) 100%);
+            flex-shrink: 0; display: flex; gap: 8px; flex-direction: column;
+        }
+        .adapter-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+            padding: 3px 8px; border-radius: 10px;
+            background: rgba(194,154,64,0.12); color: var(--accent);
+        }
+
+        .overlay { display: none !important; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="sidebar-panel">
+        <section id="page-files" class="page-content active">
+            <div class="panel-header">
+                <div class="header-label">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent)">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    DuckStorage
+                    <span id="adapter-badge" class="adapter-badge" style="margin-left:4px;">OPFS</span>
+                </div>
+                <div class="header-top">
+                    <div>
+                        <h1>Dateien</h1>
+                        <div class="description">Bilder, Videos, PDFs und andere Binärdaten</div>
+                    </div>
+                    <button class="close-btn" id="btn-close-sidebar" title="Schließen">✕</button>
+                </div>
+                <div class="tabs-container">
+                    <button class="tab active" data-target="tab-buckets">Container</button>
+                    <button class="tab" data-target="tab-settings">Einstellungen</button>
+                    <button class="tab" data-target="tab-policies">Richtlinien</button>
+                </div>
+            </div>
+
+            <div class="content-body">
+                <!-- TAB: Container (wird dynamisch befüllt) -->
+                <div id="tab-buckets" class="tab-content active">
+                    <div style="color:var(--muted);font-size:12px;padding:8px 0;">Initialisiere Storage...</div>
+                </div>
+
+                <!-- TAB: Einstellungen -->
+                <div id="tab-settings" class="tab-content">
+                    <div class="section-title">Storage-Adapter</div>
+                    <div class="card" style="margin-bottom:16px;">
+                        <div class="settings-row">
+                            <label>Adapter auswählen</label>
+                            <select id="settings-adapter">
+                                <option value="opfs">OPFS – Browser lokal (Standard)</option>
+                                <option value="node">Node – Desktop / Electron</option>
+                                <option value="http">HTTP – Eigener Server</option>
+                            </select>
+                        </div>
+                        <div class="description" style="margin-top:4px;">
+                            OPFS speichert direkt im Browser, kein Server nötig.<br>
+                            Node benötigt Electron. HTTP verbindet sich mit deinem Server.
+                        </div>
+                    </div>
+
+                    <div id="fields-node" class="adapter-fields card" style="margin-bottom:16px;">
+                        <div class="settings-row">
+                            <label>Basis-Pfad (Dateisystem)</label>
+                            <input type="text" id="settings-node-path"
+                                placeholder="z.B. /Users/max/KyntoDB/storage">
+                        </div>
+                    </div>
+
+                    <div id="fields-http" class="adapter-fields card" style="margin-bottom:16px;">
+                        <div class="settings-row">
+                            <label>Server-URL</label>
+                            <input type="url" id="settings-http-url"
+                                placeholder="z.B. http://localhost:9000">
+                        </div>
+                        <div class="settings-row">
+                            <label>API-Key (optional)</label>
+                            <input type="password" id="settings-http-key" placeholder="Leer lassen wenn nicht nötig">
+                        </div>
+                    </div>
+
+                    <div class="section-title" style="margin-top:20px;">Performance</div>
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;">
+                            <div>
+                                <div style="font-weight:600;font-size:13px;margin-bottom:5px;">Bild-Vorschauen in Tabellen</div>
+                                <div class="description">Zeigt Thumbnails in Tabellenzellen die Storage-Referenzen enthalten.</div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="settings-thumb-enabled" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+                        <button class="btn-gold" id="btn-save-settings" style="padding:8px 28px;">Speichern & Neu laden</button>
+                    </div>
+                </div>
+
+                <!-- TAB: Richtlinien -->
+                <div id="tab-policies" class="tab-content">
+                    <div class="section-title">Container-Zugriff</div>
+                    <div class="description" style="margin-bottom:16px;line-height:1.6;">
+                        Zugriffsregeln bestimmen wer Dateien lesen und schreiben darf.
+                    </div>
+                    <div class="card" style="border-style:dashed;background:transparent;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px;">
+                        <div>
+                            <div style="font-weight:600;font-size:13px;margin-bottom:4px;">Kein Bucket vorhanden</div>
+                            <div class="description">Erstelle zuerst einen Container im Container-Tab.</div>
+                        </div>
+                        <span class="badge">Aktion erforderlich</span>
+                    </div>
+                    <div class="section-title">Datenbankschema</div>
+                    <div class="description" style="margin-bottom:16px;">
+                        Metadaten liegen in PGlite – direkt abfragbar.
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <div class="card" style="margin-bottom:0;padding:14px 16px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                                <div style="display:flex;align-items:center;gap:14px;">
+                                    <div style="background:var(--surface);padding:9px;border-radius:6px;border:1px solid var(--border);">
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;font-size:13px;margin-bottom:3px;">kynto_storage_objects</div>
+                                        <div class="description">Datei-Metadaten (Pfad, Größe, MIME, Bucket)</div>
+                                    </div>
+                                </div>
+                                <button class="btn-outline" onclick="navigator.clipboard?.writeText('SELECT * FROM kynto_storage_objects;')">SQL kopieren</button>
+                            </div>
+                        </div>
+                        <div class="card" style="margin-bottom:0;padding:14px 16px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+                                <div style="display:flex;align-items:center;gap:14px;">
+                                    <div style="background:var(--surface);padding:9px;border-radius:6px;border:1px solid var(--border);">
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8">
+                                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                            <line x1="3" y1="9" x2="21" y2="9"/>
+                                            <line x1="9" y1="21" x2="9" y2="9"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;font-size:13px;margin-bottom:3px;">kynto_storage_buckets</div>
+                                        <div class="description">Bucket-Registry (Name, Adapter, öffentlich)</div>
+                                    </div>
+                                </div>
+                                <button class="btn-outline" onclick="navigator.clipboard?.writeText('SELECT * FROM kynto_storage_buckets;')">SQL kopieren</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="overlay" class="overlay"></div>
+
+    <script>
+        // Tab-Navigation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(tab.getAttribute('data-target')).classList.add('active');
+            });
+        });
+
+        // Panel schließen
+        document.getElementById('btn-close-sidebar')?.addEventListener('click', () => {
+            if (window.parent !== window) window.parent.postMessage('close-storage-manager', '*');
+        });
+
+        // Adapter-Auswahl: zeige/verstecke Felder
+        const adapterSelect = document.getElementById('settings-adapter');
+        function updateAdapterFields() {
+            document.querySelectorAll('.adapter-fields').forEach(el => el.classList.remove('active'));
+            const val = adapterSelect?.value;
+            if (val === 'node') document.getElementById('fields-node')?.classList.add('active');
+            if (val === 'http') document.getElementById('fields-http')?.classList.add('active');
+        }
+        adapterSelect?.addEventListener('change', updateAdapterFields);
+
+        // Lade gespeicherte Config
+        try {
+            const cfg = JSON.parse(localStorage.getItem('kynto_storage_config') || '{}');
+            if (cfg.adapter) {
+                adapterSelect.value = cfg.adapter;
+                if (cfg.nodeBasePath) document.getElementById('settings-node-path').value = cfg.nodeBasePath;
+                if (cfg.httpBaseUrl)  document.getElementById('settings-http-url').value  = cfg.httpBaseUrl;
+                document.getElementById('adapter-badge').textContent = cfg.adapter.toUpperCase();
+            }
+        } catch {}
+        updateAdapterFields();
+    </script>
+</body>
+</html>

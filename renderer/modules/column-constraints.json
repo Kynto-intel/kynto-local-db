@@ -1,0 +1,27 @@
+{
+  "_comment": "Spalten-Längenbeschränkungen und Typ-Hints für Data Faker",
+  "_comment2": "Format: { table: { column: max_length_OR_type } }",
+  "_comment3": "Wert 0 = keine Längenbeschränkung, String = exakter Type",
+  
+  "article_similarity": {
+    "similarity_type": 10,
+    "unique_content": 5000,
+    "nli_text": 500
+  },
+  
+  "nutzer": {
+    "benutzername": 50,
+    "email": 100,
+    "passwort_hash": 255
+  },
+  
+  "_defaults": {
+    "character varying": 100,
+    "text": 10000,
+    "varchar": 100,
+    "char": 50,
+    "integer[]": "integer[]",
+    "text[]": "text[]",
+    "uuid[]": "uuid[]"
+  }
+}

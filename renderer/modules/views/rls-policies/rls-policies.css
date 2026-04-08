@@ -1,0 +1,421 @@
+/**
+ * RLS Policies Tab - Styling
+ */
+
+.rls-policies-panel {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.rls-select-table {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+.rls-loading {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+}
+
+.rls-error {
+  background: rgba(224, 85, 85, 0.1);
+  color: #e05555;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.rls-policies-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.rls-policies-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent);
+}
+
+.rls-policies-header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.rls-refresh-icon {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  transition: transform 0.2s;
+}
+
+.rls-refresh-icon:hover {
+  transform: rotate(180deg);
+}
+
+/* Status Bar */
+.rls-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.rls-status-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.rls-status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.rls-status-badge.active {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
+.rls-status-badge.inactive {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.rls-status-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rls-toggle-status {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rls-toggle-status:hover {
+  opacity: 0.8;
+  box-shadow: 0 0 10px rgba(194, 154, 64, 0.3);
+}
+
+/* Policies List */
+.rls-policies-list {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.rls-list-header {
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.rls-policies {
+  display: flex;
+  flex-direction: column;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.rls-policies::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rls-policies::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.rls-policies::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.rls-policy-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+
+.rls-policy-row:last-child {
+  border-bottom: none;
+}
+
+.rls-policy-row:hover {
+  background: rgba(194, 154, 64, 0.1);
+}
+
+.rls-policy-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rls-policy-name {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.rls-policy-command {
+  font-size: 10px;
+  color: var(--accent);
+}
+
+.rls-policy-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.rls-policy-edit,
+.rls-policy-delete {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  transition: all 0.2s;
+}
+
+.rls-policy-edit:hover {
+  background: rgba(255, 193, 7, 0.2);
+}
+
+.rls-policy-delete:hover {
+  background: rgba(244, 67, 54, 0.2);
+}
+
+.rls-no-policies {
+  padding: 20px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Add Section */
+.rls-add-section {
+  display: flex;
+  gap: 8px;
+}
+
+.rls-add-policy-btn {
+  flex: 1;
+  background: rgba(76, 175, 80, 0.85);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rls-add-policy-btn:hover {
+  background: #4caf50;
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+}
+
+/* Policy Editor Modal */
+.rls-policy-editor-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rls-modal-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+
+.rls-modal {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.rls-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+}
+
+.rls-modal-header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.rls-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+
+.rls-modal-close:hover {
+  color: var(--text);
+}
+
+.rls-modal-body {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rls-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rls-form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.rls-form-group input,
+.rls-form-group select,
+.rls-form-group textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  transition: border-color 0.2s;
+}
+
+.rls-form-group input:focus,
+.rls-form-group select:focus,
+.rls-form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(194, 154, 64, 0.2);
+}
+
+.rls-form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.rls-sql-preview {
+  margin-top: 10px;
+}
+
+.rls-sql-code {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  padding: 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  max-height: 100px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+.rls-modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+}
+
+.rls-btn-cancel,
+.rls-btn-save {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.rls-btn-cancel {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.rls-btn-cancel:hover {
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.rls-btn-save {
+  background: var(--accent);
+  color: white;
+}
+
+.rls-btn-save:hover {
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(194, 154, 64, 0.4);
+}

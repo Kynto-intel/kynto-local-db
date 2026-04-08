@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Kynto Intel README Editor</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <style>
+        :root {
+            --bg:          #18181b;
+            --surface:     #1f1f23;
+            --surface2:    #27272c;
+            --surface3:    #2e2e35;
+            --border:      rgba(58, 58, 66, 0.5);
+            --border-med:  rgba(255,255,255,0.11);
+            --text:        #e8e8ee;
+            --muted:       #7a7a8c;
+            --accent:      #c29a40;
+            --accent-hi:   #d4aa50;
+            --accent-lo:   rgba(194,154,64,0.12);
+            --accent-glow: rgba(194,154,64,0.28);
+            --panel-shadow: -8px 0 8px rgba(0,0,0,0.2), -1px 0 0 rgba(255,255,255,0.06);
+            --panel-border: 1px solid rgba(255,255,255,0.11);
+            --success:     #4caf7d;
+            --warning:     #e6a817;
+            --radius:      8px;
+            --radius-sm:   5px;
+            --radius-md:   6px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            background: transparent !important; height: 100vh; overflow: hidden;
+            font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; color: var(--text);
+        }
+
+        /* ── PANEL ──────────────────────────────────────────────────────── */
+        .sidebar {
+            position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            background: var(--surface); display: flex; flex-direction: column;
+            border-left: var(--panel-border);
+            box-shadow: var(--panel-shadow);
+        }
+        .sidebar::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent) 40%, var(--accent-hi) 60%, transparent 100%);
+            opacity: 0.7; z-index: 1;
+        }
+
+        /* ── HEADER ─────────────────────────────────────────────────────── */
+        .sidebar-header {
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: stretch;
+            justify-content: space-between;
+            flex-shrink: 0; gap: 0;
+            background: linear-gradient(180deg, rgba(194,154,64,0.04) 0%, transparent 100%);
+        }
+
+        .tabs { display: flex; gap: 0; flex: 1; align-items: stretch; }
+
+        .tab-btn {
+            background: none; border: none; color: var(--muted);
+            padding: 14px 16px; font-size: 12px; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            position: relative; transition: color 0.15s;
+            display: flex; align-items: center; gap: 6px;
+            border-bottom: 2px solid transparent; margin-bottom: -1px;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            /* Glow unter dem aktiven Tab */
+            filter: drop-shadow(0 2px 4px var(--accent-glow));
+        }
+
+        .close-btn {
+            background: none; border: none; color: var(--muted); font-size: 18px;
+            cursor: pointer; padding: 0 4px; line-height: 1;
+            border-radius: var(--radius-sm); transition: all 0.15s;
+            align-self: center; flex-shrink: 0; margin-left: 8px;
+        }
+        .close-btn:hover { color: var(--text); background: var(--surface2); }
+
+        /* ── TOOLBAR ────────────────────────────────────────────────────── */
+        .toolbar {
+            display: flex; align-items: center; gap: 3px;
+            padding: 7px 14px; border-bottom: 1px solid var(--border);
+            flex-shrink: 0; flex-wrap: wrap; background: var(--surface2);
+        }
+        .toolbar-group { display: flex; gap: 1px; }
+        .toolbar-sep { width: 1px; height: 16px; background: var(--border-med); margin: 0 5px; flex-shrink: 0; }
+
+        .tb-btn {
+            background: none; border: 1px solid transparent;
+            color: var(--muted); padding: 4px 8px; font-size: 12px;
+            border-radius: var(--radius-sm); cursor: pointer; font-family: inherit;
+            transition: all 0.12s; white-space: nowrap; line-height: 1.4;
+        }
+        .tb-btn:hover { color: var(--text); background: var(--surface3); border-color: var(--border-med); }
+        .tb-btn.active, .log-filter-btn.active {
+            color: var(--accent); background: var(--accent-lo); border-color: rgba(194,154,64,0.3);
+        }
+        .tb-img { color: var(--accent); font-weight: 600; }
+
+        .log-search {
+            background: var(--surface3); border: 1px solid var(--border);
+            color: var(--text); padding: 4px 9px; border-radius: var(--radius-sm);
+            font-size: 12px; font-family: inherit; outline: none;
+            transition: border-color 0.15s; flex: 1; min-width: 100px;
+        }
+        .log-search:focus { border-color: rgba(194,154,64,0.5); box-shadow: 0 0 0 2px var(--accent-lo); }
+
+        /* ── CONTENT ────────────────────────────────────────────────────── */
+        .sidebar-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+        .pane { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+        .pane.active { display: flex; }
+
+        /* ── GALLERY ────────────────────────────────────────────────────── */
+        .gallery-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 7px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+            background: var(--surface2);
+        }
+        .gallery-title { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.05em; }
+        .gallery-hint  { font-size: 10px; color: var(--muted); }
+        .image-gallery {
+            display: flex; gap: 8px; padding: 8px 16px; overflow-x: auto; flex-shrink: 0;
+            border-bottom: 1px solid var(--border); background: var(--surface2);
+        }
+        .image-gallery::-webkit-scrollbar { height: 3px; }
+        .image-gallery::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 2px; }
+
+        /* ── TEXTAREA ───────────────────────────────────────────────────── */
+        #markdown-input {
+            flex: 1; width: 100%; background: var(--surface); border: none; outline: none; resize: none;
+            color: var(--text); font-family: 'Cascadia Code','Fira Code','Consolas',monospace;
+            font-size: 13px; line-height: 1.75; padding: 20px 22px; caret-color: var(--accent);
+        }
+        #markdown-input::placeholder { color: var(--muted); font-style: italic; }
+        #markdown-input::selection { background: var(--accent-lo); }
+
+        .editor-footer {
+            display: flex; align-items: center; gap: 12px; padding: 7px 16px;
+            border-top: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap;
+            background: var(--surface2);
+        }
+        .char-counter { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+        .save-status  { font-size: 11px; }
+        .save-saved   { color: var(--success); }
+        .save-unsaved { color: var(--warning); }
+        .shortcuts-hint { font-size: 10px; color: var(--muted); margin-left: auto; opacity: 0.7; }
+
+        /* ── PREVIEW ────────────────────────────────────────────────────── */
+        .markdown-body {
+            flex: 1; overflow-y: auto; padding: 22px 24px;
+            font-size: 13px; line-height: 1.75; color: var(--text);
+        }
+        .markdown-body::-webkit-scrollbar { width: 4px; }
+        .markdown-body::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 4px; }
+        .markdown-body h1,.markdown-body h2,.markdown-body h3 { color: var(--accent); margin: 1.4em 0 0.5em; font-weight: 700; }
+        .markdown-body h1 { font-size: 20px; } .markdown-body h2 { font-size: 16px; } .markdown-body h3 { font-size: 14px; }
+        .markdown-body code { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 12px; border: 1px solid var(--border-med); }
+        .markdown-body pre { background: var(--surface2); padding: 14px 16px; border-radius: var(--radius); overflow-x: auto; border: 1px solid var(--border); }
+        .markdown-body pre code { background: none; border: none; padding: 0; }
+        .markdown-body a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(194,154,64,0.3); transition: border-color 0.15s; }
+        .markdown-body a:hover { border-color: var(--accent); }
+        .markdown-body blockquote { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; color: var(--muted); background: var(--accent-lo); border-radius: 0 4px 4px 0; margin: 8px 0; }
+        .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 1.8em 0; }
+        .markdown-body table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+        .markdown-body th { background: var(--surface2); padding: 8px 12px; border: 1px solid var(--border-med); color: var(--muted); font-size: 11px; text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .markdown-body td { padding: 8px 12px; border: 1px solid var(--border); font-size: 12px; }
+        .markdown-body tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* ── LOGS ───────────────────────────────────────────────────────── */
+        .log-dropzone {
+            border: 1px dashed rgba(255,255,255,0.1); border-radius: var(--radius);
+            margin: 16px; padding: 32px; text-align: center; color: var(--muted);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .log-dropzone:hover { border-color: rgba(194,154,64,0.4); background: rgba(194,154,64,0.04); }
+        .log-dropzone-inner { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .log-drop-icon { font-size: 28px; opacity: 0.4; }
+        .log-dropzone small { font-size: 11px; color: var(--muted); opacity: 0.7; }
+        .log-list { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+        .log-list::-webkit-scrollbar { width: 4px; }
+        .log-list::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 4px; }
+
+        /* ── FOOTER ─────────────────────────────────────────────────────── */
+        .sidebar-footer {
+            padding: 12px 16px; border-top: 1px solid var(--border);
+            flex-shrink: 0; display: flex; gap: 8px; align-items: center;
+            background: linear-gradient(180deg, var(--surface) 0%, rgba(194,154,64,0.03) 100%);
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-hi));
+            color: #18181b; border: none; padding: 8px 18px;
+            border-radius: var(--radius-md); font-weight: 700; font-size: 12px;
+            cursor: pointer; font-family: inherit; margin-left: auto;
+            box-shadow: 0 2px 14px var(--accent-glow);
+            transition: box-shadow 0.2s, transform 0.1s, opacity 0.15s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .primary-btn:hover { box-shadow: 0 4px 22px var(--accent-glow); transform: translateY(-1px); opacity: 0.92; }
+        .primary-btn:active { transform: translateY(0); }
+
+        .secondary-btn {
+            background: var(--surface2); color: var(--text);
+            border: 1px solid var(--border-med); padding: 7px 12px;
+            border-radius: var(--radius-md); font-size: 12px; cursor: pointer;
+            font-family: inherit; transition: all 0.15s;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .secondary-btn:hover { border-color: rgba(194,154,64,0.4); color: var(--accent); background: var(--surface3); }
+
+        .overlay { display: none !important; }
+    </style>
+</head>
+<body>
+    <aside id="readme-sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="tabs">
+                <button id="tab-write"   class="tab-btn active">✏️ Schreiben</button>
+                <button id="tab-preview" class="tab-btn">👁 Vorschau</button>
+                <button id="tab-logs"    class="tab-btn">📋 Logs</button>
+            </div>
+            <button id="close-readme" class="close-btn" title="Schließen">✕</button>
+        </div>
+
+        <div class="toolbar" id="write-toolbar">
+            <div class="toolbar-group">
+                <button data-fmt="h2"  class="tb-btn" title="H2">H2</button>
+                <button data-fmt="h3"  class="tb-btn" title="H3">H3</button>
+            </div>
+            <div class="toolbar-sep"></div>
+            <div class="toolbar-group">
+                <button data-fmt="bold"   class="tb-btn" title="Fett"><b>B</b></button>
+                <button data-fmt="italic" class="tb-btn" title="Kursiv"><i>I</i></button>
+                <button data-fmt="code"   class="tb-btn" title="Code">`c`</button>
+                <button data-fmt="cb"     class="tb-btn" title="Code-Block">{ }</button>
+            </div>
+            <div class="toolbar-sep"></div>
+            <div class="toolbar-group">
+                <button data-fmt="link"  class="tb-btn" title="Link">🔗</button>
+                <button data-fmt="ul"    class="tb-btn" title="Liste">• –</button>
+                <button data-fmt="ol"    class="tb-btn" title="Numm. Liste">1.</button>
+                <button data-fmt="table" class="tb-btn" title="Tabelle">⊞</button>
+                <button data-fmt="hr"    class="tb-btn" title="Trennlinie">—</button>
+            </div>
+            <div class="toolbar-sep"></div>
+            <div class="toolbar-group">
+                <button id="btn-add-image" class="tb-btn tb-img" title="Bild einfügen">🖼️ Bild</button>
+                <input type="file" id="image-input" accept="image/*" style="display:none">
+            </div>
+        </div>
+
+        <div class="toolbar" id="log-toolbar" style="display:none">
+            <div class="toolbar-group">
+                <button class="tb-btn log-filter-btn active" data-filter="all">Alle</button>
+                <button class="tb-btn log-filter-btn" data-filter="ok">✅ OK</button>
+                <button class="tb-btn log-filter-btn" data-filter="error">❌ Fehler</button>
+                <button class="tb-btn log-filter-btn" data-filter="warn">⚠️ Warn</button>
+                <button class="tb-btn log-filter-btn" data-filter="info">ℹ️ Info</button>
+            </div>
+            <div class="toolbar-sep"></div>
+            <input type="text" id="log-search" class="log-search" placeholder="Logs durchsuchen…">
+            <div class="toolbar-sep"></div>
+            <button id="btn-import-log" class="tb-btn tb-img">📂 Import</button>
+            <input type="file" id="log-file-input" accept=".log,.txt,.json" style="display:none">
+        </div>
+
+        <div class="sidebar-content">
+            <div id="pane-write" class="pane active">
+                <div id="gallery-section" style="display:none">
+                    <div class="gallery-header">
+                        <span class="gallery-title">📎 Eingefügte Bilder</span>
+                        <span class="gallery-hint">Klick → nochmals einfügen</span>
+                    </div>
+                    <div id="image-gallery" class="image-gallery"></div>
+                </div>
+                <textarea id="markdown-input" placeholder="Dokumentiere deine Datenbank...&#10;&#10;Tipp: Bilder per Drag &amp; Drop · Logs aus dem Logs-Tab in den Editor ziehen!"></textarea>
+                <div class="editor-footer">
+                    <span id="char-counter" class="char-counter"></span>
+                    <span id="save-status" class="save-status save-saved">💾 Gespeichert</span>
+                    <span class="shortcuts-hint">Strg+B Fett · Strg+I Kursiv · Strg+K Link</span>
+                </div>
+            </div>
+
+            <div id="pane-preview" class="pane">
+                <div id="render-target" class="markdown-body"></div>
+            </div>
+
+            <div id="pane-logs" class="pane">
+                <div id="log-dropzone" class="log-dropzone">
+                    <div class="log-dropzone-inner">
+                        <span class="log-drop-icon">📂</span>
+                        <span>.log / .txt Datei hier ablegen</span>
+                        <small>oder "Import" oben klicken</small>
+                    </div>
+                </div>
+                <div id="log-list" class="log-list"></div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <button id="btn-copy-md"     class="secondary-btn">📋 MD kopieren</button>
+            <button id="btn-link-html"   class="secondary-btn">🔗 HTML verknüpfen</button>
+            <input  type="file" id="html-link-input" accept=".html" style="display:none">
+            <button id="btn-export-html" class="primary-btn">💾 HTML exportieren</button>
+        </div>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+    <script src="readme-editor.js"></script>
+</body>
+</html>
