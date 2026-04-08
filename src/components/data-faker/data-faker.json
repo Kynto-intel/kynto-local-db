@@ -1,0 +1,279 @@
+{
+  "person": {
+    "vornamen_maennlich": [
+      "Max", "Lukas", "Felix", "Moritz", "Jakob", "Tom", "Noah", "Elias", "Jonas", "Leon",
+      "Luca", "Tim", "Finn", "Ben", "Julian", "David", "Simon", "Nico", "Tobias", "Patrick",
+      "Stefan", "Markus", "Andreas", "Christian", "Michael", "Thomas", "Daniel", "Alexander",
+      "Florian", "Sebastian", "Jan", "Philipp", "Oliver", "Kevin", "Fabian", "Dominik"
+    ],
+    "vornamen_weiblich": [
+      "Julia", "Sophie", "Emma", "Marie", "Lena", "Laura", "Anna", "Sarah", "Lisa", "Hannah",
+      "Lea", "Mia", "Clara", "Nina", "Katharina", "Jana", "Alina", "Vanessa", "Sandra", "Sabine",
+      "Nicole", "Stefanie", "Melanie", "Jessica", "Christina", "Claudia", "Petra", "Monika",
+      "Franziska", "Johanna", "Theresa", "Maria", "Elena", "Nele", "Lara", "Amelie"
+    ],
+    "nachnamen": [
+      "Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer", "Wagner", "Becker",
+      "Schulz", "Hoffmann", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Schröder", "Neumann",
+      "Schwarz", "Zimmermann", "Braun", "Krüger", "Hofmann", "Hartmann", "Lange", "Schmitt",
+      "Werner", "Schmitz", "Krause", "Meier", "Lehmann", "Huber", "Mayer", "Herrmann", "Kaiser",
+      "Fuchs", "Lang", "Stein", "Roth", "Frank", "Berger", "Keller", "Böhm", "Haas", "Vogt"
+    ],
+    "titel": ["Dr.", "Prof. Dr.", "Dipl.-Ing.", "M.Sc.", "B.A.", "M.A.", "Dr. med.", "Prof."],
+    "benutzernamen_prefix": [
+      "user", "dev", "neo", "the", "xX", "mr", "pro", "super", "mega",
+      "dark", "cool", "fast", "real", "old", "new", "best"
+    ],
+    "benutzernamen_suffix": [
+      "42", "99", "123", "2024", "007", "de", "01", "pro", "xyz", "_dev", "_net"
+    ]
+  },
+
+  "kontakt": {
+    "email_domains": [
+      "gmail.com", "outlook.de", "web.de", "gmx.net", "gmx.de", "yahoo.de",
+      "t-online.de", "freenet.de", "posteo.de", "protonmail.com", "icloud.com",
+      "kynto.io", "testmail.de", "mail.org", "mailbox.org"
+    ],
+    "tlds": [".de", ".com", ".net", ".org", ".io", ".app", ".eu", ".info", ".biz"],
+    "strassen": [
+      "Hauptstraße", "Schulstraße", "Gartenstraße", "Bahnhofstraße", "Birkenweg",
+      "Amselweg", "Kirchplatz", "Goethestraße", "Ringstraße", "Bergstraße",
+      "Waldstraße", "Rosenweg", "Lindenstraße", "Friedrichstraße", "Bismarckstraße",
+      "Mozartstraße", "Schillerstraße", "Kantstraße", "Beethovenstraße", "Lessingstraße",
+      "Am Markt", "Kirchgasse", "Mühlweg", "Fasanenstraße", "Uhlandstraße",
+      "Dorfstraße", "Wiesenweg", "Tannenstraße", "Eibenweg", "Buchenallee"
+    ],
+    "staedte": [
+      "Berlin", "Hamburg", "München", "Köln", "Frankfurt am Main", "Stuttgart",
+      "Düsseldorf", "Leipzig", "Dortmund", "Essen", "Bremen", "Dresden", "Hannover",
+      "Nürnberg", "Duisburg", "Bochum", "Wuppertal", "Bonn", "Bielefeld", "Münster",
+      "Karlsruhe", "Mannheim", "Augsburg", "Wiesbaden", "Gelsenkirchen", "Mönchengladbach",
+      "Braunschweig", "Chemnitz", "Kiel", "Aachen", "Halle", "Magdeburg", "Freiburg",
+      "Krefeld", "Lübeck", "Oberhausen", "Erfurt", "Rostock", "Mainz", "Kassel"
+    ],
+    "bundeslaender": [
+      "Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg",
+      "Hessen", "Mecklenburg-Vorpommern", "Niedersachsen", "Nordrhein-Westfalen",
+      "Rheinland-Pfalz", "Saarland", "Sachsen", "Sachsen-Anhalt",
+      "Schleswig-Holstein", "Thüringen"
+    ],
+    "postleitzahlen_prefix": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+    "telefon_vorwahlen": [
+      "030", "040", "089", "0221", "069", "0711", "0211", "0341", "0231", "0201",
+      "0421", "0351", "0511", "0911", "0203", "0234", "0202", "0228", "0521", "0251"
+    ]
+  },
+
+  "business": {
+    "firmen_prefix": [
+      "Alpha", "Beta", "Delta", "Omega", "Nova", "Prime", "Next", "Smart", "Digital",
+      "Green", "Blue", "Red", "Gold", "Silver", "Tech", "Net", "Web", "Cloud", "Cyber",
+      "Kynto", "Velo", "Aero", "Infra", "Data", "Open", "Fast", "Global", "Euro"
+    ],
+    "firmen_suffix": [
+      "GmbH", "AG", "UG", "GmbH & Co. KG", "e.K.", "KG", "OHG", "GbR",
+      "Solutions", "Systems", "Technologies", "Media", "Digital", "Group",
+      "Services", "Consulting", "Engineering", "Software", "Networks"
+    ],
+    "abteilungen": [
+      "IT", "Marketing", "HR", "Sales", "Finance", "Support", "R&D", "Logistics",
+      "Vertrieb", "Einkauf", "Buchhaltung", "Recht", "Compliance", "Sicherheit",
+      "Produktion", "Qualitätssicherung", "Projektmanagement", "Strategie",
+      "Kundenservice", "Öffentlichkeitsarbeit", "Business Development"
+    ],
+    "positionen": [
+      "Manager", "Senior Developer", "Junior Developer", "Designer", "CEO", "CTO", "CFO",
+      "Consultant", "Analyst", "Team Lead", "Scrum Master", "Product Owner", "DevOps Engineer",
+      "Data Scientist", "UX Designer", "Marketing Manager", "Vertriebsleiter",
+      "Projektleiter", "Systemadministrator", "Datenbankadministrator", "Sachbearbeiter",
+      "Buchhalter", "Jurist", "Praktikant", "Werkstudent", "Abteilungsleiter"
+    ],
+    "branchen": [
+      "Software", "E-Commerce", "Finanzen", "Gesundheit", "Bildung", "Medien",
+      "Logistik", "Immobilien", "Energie", "Automotive", "Tourismus", "Gastronomie",
+      "Handel", "Industrie", "Beratung", "Telekommunikation", "Versicherung"
+    ],
+    "produkte": [
+      "Laptop", "Smartphone", "Tablet", "Monitor", "Tastatur", "Maus", "Drucker",
+      "Kamera", "Kopfhörer", "Lautsprecher", "Router", "Server", "SSD", "Festplatte",
+      "Stuhl", "Schreibtisch", "Rucksack", "Notizbuch", "Stift", "Kaffeebecher"
+    ],
+    "preise": [
+      9.99, 14.99, 19.99, 24.99, 29.99, 39.99, 49.99, 59.99, 79.99, 99.99,
+      119.99, 149.99, 199.99, 249.99, 299.99, 399.99, 499.99, 699.99, 999.99
+    ]
+  },
+
+  "system": {
+    "status_allgemein": ["active", "inactive", "pending", "archived", "deleted", "blocked", "draft", "published", "paused", "expired"],
+    "status_moderation": ["offen", "in_bearbeitung", "erledigt", "abgelehnt", "eskaliert", "geloescht", "freigegeben"],
+    "status_zahlung": ["pending", "paid", "failed", "refunded", "cancelled", "processing", "disputed"],
+    "status_versand": ["pending", "processing", "shipped", "delivered", "returned", "lost"],
+    "prioritaet": ["low", "medium", "high", "critical", "blocker"],
+    "rollen": ["superadmin", "admin", "moderator", "editor", "author", "viewer", "guest", "banned"],
+    "sprachen": ["de", "en", "fr", "es", "it", "nl", "pl", "pt", "ru", "zh"],
+    "waehrungen": ["EUR", "USD", "GBP", "CHF", "JPY", "CAD"],
+    "file_ext": ["jpg", "jpeg", "png", "gif", "webp", "svg", "pdf", "docx", "xlsx", "pptx", "txt", "csv", "json", "xml", "zip", "tar.gz", "mp4", "mp3"],
+    "mime_types": [
+      "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
+      "application/pdf", "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel", "text/plain", "text/csv",
+      "application/json", "application/xml", "application/zip", "video/mp4", "audio/mpeg"
+    ],
+    "fehler_codes": ["ERR_001", "ERR_404", "ERR_500", "WARN_002", "INFO_010", "AUTH_FAIL", "DB_TIMEOUT", "RATE_LIMIT"],
+    "log_level": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+    "umgebungen": ["development", "staging", "production", "testing", "local"]
+  },
+
+  "web": {
+    "farben_hex": [
+      "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD", "#98D8C8",
+      "#F7DC6F", "#BB8FCE", "#85C1E9", "#82E0AA", "#F0B27A", "#AED6F1", "#A9DFBF",
+      "#FF0000", "#00FF00", "#0000FF", "#FFFFFF", "#000000", "#F0F0F0", "#333333",
+      "#1ABC9C", "#2ECC71", "#3498DB", "#9B59B6", "#F39C12", "#E74C3C", "#ECF0F1"
+    ],
+    "farben_namen": [
+      "Rot", "Grün", "Blau", "Gelb", "Orange", "Lila", "Pink", "Türkis",
+      "Schwarz", "Weiß", "Grau", "Braun", "Gold", "Silber", "Beige"
+    ],
+    "user_agents": [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+      "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/109.0 Firefox/115.0",
+      "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+    ],
+    "keywords_de": [
+      "Technologie", "Nachrichten", "Update", "Release", "Sicherheit", "Performance",
+      "Tutorial", "Guide", "Tipps", "Tricks", "Anleitung", "Vergleich", "Test",
+      "Bewertung", "Empfehlung", "Analyse", "Bericht", "Interview", "Review"
+    ],
+    "keywords_en": [
+      "tech", "news", "update", "release", "fix", "feature", "security", "performance",
+      "tutorial", "guide", "tips", "review", "analysis", "comparison", "opinion"
+    ],
+    "http_methoden": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    "http_status": [200, 201, 204, 301, 302, 400, 401, 403, 404, 409, 422, 429, 500, 502, 503],
+    "protokolle": ["https", "http"],
+    "subdomain_prefix": ["www", "api", "app", "dev", "staging", "mail", "blog", "shop", "cdn", "static", "admin", "docs"],
+    "url_pfade": [
+      "/", "/home", "/about", "/contact", "/blog", "/news", "/products", "/services",
+      "/api/v1/users", "/api/v1/posts", "/api/v2/data", "/dashboard", "/profile",
+      "/settings", "/login", "/register", "/search", "/faq", "/impressum", "/datenschutz"
+    ],
+    "hash_zeichen": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+  },
+
+  "inhalt": {
+    "lorem_woerter_de": [
+      "Schnell", "Einfach", "Elegant", "Modern", "Sicher", "Zuverlässig", "Innovativ",
+      "Effizient", "Nachhaltig", "Professionell", "Kreativ", "Dynamisch", "Flexibel",
+      "Intelligent", "Automatisch", "Digital", "Vernetzt", "Integriert", "Skalierbar",
+      "Benutzerfreundlich", "Transparent", "Stabil", "Robust", "Performant", "Reaktiv"
+    ],
+    "saetze_de": [
+      "Das System verarbeitet die Anfrage automatisch.",
+      "Der Benutzer hat erfolgreich die Aktion abgeschlossen.",
+      "Die Daten wurden korrekt gespeichert.",
+      "Eine neue Version ist verfügbar.",
+      "Das Passwort wurde erfolgreich geändert.",
+      "Die E-Mail wurde gesendet.",
+      "Der Account wurde aktiviert.",
+      "Die Verbindung wurde hergestellt.",
+      "Das Update wird installiert.",
+      "Die Sicherheitsprüfung war erfolgreich.",
+      "Der Prozess läuft im Hintergrund.",
+      "Die Konfiguration wurde gespeichert.",
+      "Das Backup wurde erstellt.",
+      "Die Synchronisierung ist abgeschlossen.",
+      "Der Cache wurde geleert."
+    ],
+    "kategorien": [
+      "Politik", "Wirtschaft", "Sport", "Technologie", "Wissenschaft", "Kultur",
+      "Unterhaltung", "Reisen", "Gesundheit", "Bildung", "Umwelt", "Lifestyle",
+      "Automobil", "Finanzen", "Immobilien", "Gastronomie", "Mode", "Gaming"
+    ],
+    "tags": [
+      "wichtig", "dringend", "neu", "aktuell", "beliebt", "empfohlen", "trending",
+      "featured", "premium", "kostenlos", "beta", "alpha", "stable", "deprecated",
+      "archived", "pinned", "verified", "sponsored", "breaking", "exklusiv"
+    ],
+    "kommentare": [
+      "Sehr hilfreicher Beitrag, danke!",
+      "Interessante Perspektive, aber ich sehe das anders.",
+      "Wann wird das Problem behoben?",
+      "Super erklärt, genau was ich gesucht habe.",
+      "Gibt es dazu weitere Informationen?",
+      "Das funktioniert bei mir leider nicht.",
+      "Vielen Dank für die schnelle Hilfe!",
+      "Bitte mehr solche Inhalte!",
+      "Ich habe dasselbe Problem, habt ihr eine Lösung?",
+      "Toller Artikel, weiter so!",
+      "Das sollte dringend überarbeitet werden.",
+      "Hat mir sehr geholfen, danke!",
+      "Wäre schön, wenn das auch auf Deutsch verfügbar wäre.",
+      "Funktioniert einwandfrei, top Qualität!",
+      "Wo finde ich dazu die Dokumentation?"
+    ],
+    "grund_meldung": [
+      "Spam", "Beleidigung", "Falsche Informationen", "Urheberrechtsverletzung",
+      "Unangemessener Inhalt", "Werbung", "Betrug", "Hassrede", "Off-Topic",
+      "Doppelter Beitrag", "Veraltete Informationen", "Technischer Fehler"
+    ],
+    "verstoss_typ": [
+      "spam", "abuse", "hate_speech", "misinformation", "copyright", "fraud",
+      "harassment", "off_topic", "duplicate", "inappropriate"
+    ]
+  },
+
+  "geo": {
+    "laender": [
+      {"name": "Deutschland", "code": "DE"},
+      {"name": "Österreich", "code": "AT"},
+      {"name": "Schweiz", "code": "CH"},
+      {"name": "Frankreich", "code": "FR"},
+      {"name": "Niederlande", "code": "NL"},
+      {"name": "Belgien", "code": "BE"},
+      {"name": "Polen", "code": "PL"},
+      {"name": "Italien", "code": "IT"},
+      {"name": "Spanien", "code": "ES"},
+      {"name": "USA", "code": "US"}
+    ],
+    "zeitzone": [
+      "Europe/Berlin", "Europe/Vienna", "Europe/Zurich", "Europe/London",
+      "America/New_York", "America/Los_Angeles", "Asia/Tokyo", "Asia/Shanghai"
+    ],
+    "koordinaten_de": [
+      {"city": "Berlin",    "lat": 52.5200, "lng": 13.4050},
+      {"city": "Hamburg",   "lat": 53.5753, "lng": 10.0153},
+      {"city": "München",   "lat": 48.1351, "lng": 11.5820},
+      {"city": "Köln",      "lat": 50.9333, "lng": 6.9500},
+      {"city": "Frankfurt", "lat": 50.1109, "lng": 8.6821},
+      {"city": "Stuttgart", "lat": 48.7758, "lng": 9.1829},
+      {"city": "Düsseldorf","lat": 51.2217, "lng": 6.7762},
+      {"city": "Leipzig",   "lat": 51.3397, "lng": 12.3731}
+    ]
+  },
+
+  "suchmaschine": {
+    "suchbegriffe": [
+      "wie macht man", "was ist", "wo finde ich", "wann ist", "warum",
+      "bester", "günstigster", "Test", "Vergleich", "Kaufen",
+      "Anleitung", "Tutorial", "Hilfe", "Problem", "Fehler lösen",
+      "Alternative zu", "besser als", "kostenlos", "gratis", "download"
+    ],
+    "suchkategorien": [
+      "Web", "Bilder", "Videos", "News", "Shopping", "Maps", "Bücher"
+    ],
+    "suchergebnis_typen": [
+      "organisch", "bezahlt", "featured_snippet", "knowledge_panel",
+      "local_pack", "image_pack", "video_carousel", "news_box"
+    ]
+  }
+}
