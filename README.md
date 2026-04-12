@@ -26,6 +26,9 @@ Kynto is currently in Beta, and I’m looking for feedback from anyone who wants
 
 **We're just getting started.** Expect rough edges, but also expect simplicity.
 
+
+![Screenshot 2026-04-12 025651.png][img_1dbwz7l]
+
 ---
 
 ## Why Local First?
