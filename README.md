@@ -10,23 +10,24 @@ Kynto is a lightweight database client built for developers who want control. Ru
 
 ---
 
-## What is Kynto?
+## The Freedom of Development: Kynto
+Kynto combines the power of enterprise-grade open source with the absolute independence of a local infrastructure. We transform the principles of cloud-based services like Firebase or Supabase into an open ecosystem that remains entirely under your control.
 
-Tired of cloud databases taking a cut? Kynto runs entirely on your laptop. Connect to **PostgreSQL**, use embedded **PGlite**, or sync local data. Write SQL, explore schemas, generate APIs—no terminal wizardry required.
+What Drives Us:
+Open Source at the Core: We orchestrate world-class tools and actively support their communities. We rely on permissive licenses that guarantee maximum flexibility without vendor lock-in.
 
-Supabase started as the open-source alternative to Firebase, but they eventually ended up in the same place: the Cloud. If you want real control, you still have to rent their infrastructure.
+Innovation through Initiative: Where standards are missing, we create them. We develop the missing pieces ourselves and share them with the world as open source.
 
-**The Problem:** Platforms like Firebase and Supabase tie you to their servers. You are trading vendor lock-in for cloud dependency. The latency remains, monthly costs scale with your success, and your data sovereignty ends at their API.
+Local Sovereignty: While others rely on the cloud, Kynto is designed from the ground up for local operation. We provide a workflow as intuitive as Firebase, but one that lives directly on your own hardware.
 
-**The Solution:** Kynto is the local-first alternative.
+Maximum Database Flexibility
+The heart of your data stays flexible at all times. With Kynto, you decide how you want to leverage PostgreSQL:
 
-I built Kynto to bring the speed and simplicity of these platforms to your own machine (or your own server). You can use your own PostgreSQL instance without a third party sitting between you and your data.
+Self-Hosted Power: Run PostgreSQL traditionally on your own server or locally within your preferred environment.
 
-This isn't just about being another database tool—it's about decoupling the modern developer workflow from the cloud and making it available locally. Full infrastructure control, zero cloud latency, and true data sovereignty.
+Native Local-First Experience: For an uncompromising local experience, we support PGlite. This allows your database to run directly and light-weight—perfect for seamless development without any hurdles.
 
-Kynto is currently in Beta, and I’m looking for feedback from anyone who wants to own their infrastructure again. What is your biggest pain point when trying to move away from managed cloud databases?
-
-**We're just getting started.** Expect rough edges, but also expect simplicity.
+Kynto is more than just a toolbox. It is the promise to make modern app development fast, straightforward, and, above all, completely autonomous.
 
 ---
 
