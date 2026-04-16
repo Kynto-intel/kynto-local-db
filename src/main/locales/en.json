@@ -1,0 +1,486 @@
+{
+    "modals":  {
+                   "cell_details_title":  "Cell Details",
+                   "close":  "Close",
+                   "save_favorite_title":  "Save as Favorite",
+                   "query_name_placeholder":  "Query name…",
+                   "cancel":  "Cancel",
+                   "save":  "Save",
+                   "rename_db_title":  "Rename Database",
+                   "display_name_placeholder":  "Display name…",
+                   "rename":  "Rename",
+                   "rename_table_title":  "Rename Table",
+                   "new_name_placeholder":  "New name…"
+               },
+    "sidebar":  {
+                    "databases":  "Databases",
+                    "open_db_tooltip":  "Open DB file",
+                    "settings_tooltip":  "Settings",
+                    "tables":  "Tables",
+                    "favorites":  "Favorites",
+                    "sql_history":  "SQL History",
+                    "clear_history":  "Clear",
+                    "import_csv":  "Import CSV"
+                },
+    "header":  {
+                   "dashboard_tooltip":  "Dashboard (Database Overview)",
+                   "toggle_sql_tooltip":  "Toggle SQL Editor",
+                   "open_storage_tooltip":  "Open Storage Manager",
+                   "open_readme_tooltip":  "Open Readme Editor",
+                   "magic_search_tooltip":  "Magic Search (Ctrl+K)",
+                   "ready":  "Ready.",
+                   "theme_toggle_tooltip":  "Toggle Theme"
+               },
+    "editor":  {
+                   "sql_placeholder":  "Enter SQL here…",
+                   "run_btn":  "Run",
+                   "run_selection":  "Run Selection",
+                   "favorite_btn":  "Favorite",
+                   "kbd_run":  "run",
+                   "kbd_autocomplete":  "autocomplete"
+               },
+    "results":  {
+                    "tabs":  {
+                                 "table":  "Table",
+                                 "chart":  "Chart",
+                                 "schema":  "Schema",
+                                 "rls":  "RLS Policies"
+                             },
+                    "status":  {
+                                   "no_result":  "No results.",
+                                   "empty_table":  "Run a query to see results.",
+                                   "empty_chart":  "Run a query first.",
+                                   "empty_schema":  "Select a table in the sidebar.",
+                                   "empty_rls":  "Select a table in the sidebar to manage policies.",
+                                   "loading":  "Loading…",
+                                   "aborted":  "Aborted.",
+                                   "executing_selection":  "Executing selection…",
+                                   "success_ddl":  "Executed successfully."
+                               },
+                    "footer":  {
+                                   "prev_page":  "Previous Page",
+                                   "next_page":  "Next Page",
+                                   "page":  "Page",
+                                   "of":  "of",
+                                   "rows":  "Rows",
+                                   "entries_total":  "Total Entries",
+                                   "definition":  "Definition"
+                               }
+                },
+    "storage":  {
+                    "title":  "Storage Manager",
+                    "loading_buckets":  "Loading containers…",
+                    "loading_files":  "Loading files…",
+                    "containers":  "Containers",
+                    "upload":  "Upload",
+                    "no_buckets":  "No containers available",
+                    "placeholder_bucket_name":  "e.g. my-images",
+                    "public_access":  "Publicly accessible (no authentication)",
+                    "create_bucket":  "Create Container",
+                    "create":  "Create",
+                    "error":  "Error"
+                },
+    "api":  {
+                "title":  "Instant API",
+                "documentation":  "Kynto Instant API - Documentation",
+                "subtitle":  "REST API for all your PostgreSQL tables",
+                "rest_api":  "REST API",
+                "get":  "GET",
+                "post":  "POST",
+                "put":  "PUT",
+                "delete":  "DELETE",
+                "patch":  "PATCH",
+                "e_commerce": "E-Commerce"
+            },
+    "ai":  {
+                "title": "AI Assistant",
+                "mode_chat": "Chat",
+                "mode_query": "Query",
+                "welcome_msg": "Welcome! 👋 I am your AI assistant. Use me for data analysis or SQL.",
+                "input_placeholder": "Ask a question...",
+                "input_placeholder_query": "Describe the SQL query...",
+                "send_btn": "Send Request",
+                "status_chat_active": "Chat mode activated",
+                "status_query_active": "Query mode activated"
+            },
+    "maintenance":  {
+                        "title":  "Database Maintenance",
+                        "last_hour":  "⏱ Last Hour",
+                        "last_2h":  "⏱ Last 2 Hours",
+                        "last_6h":  "⏱ Last 6 Hours"
+                    },
+    "policies":  {
+                     "title":  "RLS Policies",
+                     "open_editor":  "Open Policy Editor for table: {{tableName}}"
+                 },
+    "settings":  {
+                     "nav":  {
+                                 "general":  "⚙️ General",
+                                 "editor":  "📝 Editor \u0026 UI",
+                                 "database":  "💾 Database",
+                                 "api_keys":  "🔑 API Keys",
+                                 "sync":  "🔄 Sync-Center",
+                                 "ai":  "🤖 AI Assistant",
+                                 "templates":  "📋 Templates",
+                                 "shortcuts":  "⌨️ Shortcuts",
+                                 "maintenance":  "🧹 Maintenance"
+                             },
+                     "general":  {
+                                     "heading":  "General",
+                                     "title":  "General",
+                                     "appearance":  "Appearance",
+                                     "appearance_dark":  "Dark Mode (Default)",
+                                     "appearance_light":  "Light Mode",
+                                     "language":  "Language",
+                                     "default_views":  "Default Views",
+                                     "sidebar_on_startup":  "Open sidebar on startup",
+                                     "create_database":  "Create new database..."
+                                 },
+                     "editor":  {
+                                    "heading":  "Editor \u0026 UI",
+                                    "title":  "Editor \u0026 UI",
+                                    "font_size":  "Font size (px)",
+                                    "line_numbers":  "Show line numbers",
+                                    "autocomplete":  "Intelligent autocomplete (SQL)",
+                                    "data_table":  "Data Table",
+                                    "virtual_scrolling":  "Virtual scrolling (for large datasets)",
+                                    "virtual_scrolling_desc":  "Massively improves performance with \u003e 10,000 rows."
+                                },
+                     "database":  {
+                                      "heading":  "Database",
+                                      "title":  "Database",
+                                      "query_limit":  "Default query limit",
+                                      "query_limit_desc":  "Prevents crashes with millions of records.",
+                                      "server_connection":  "Server Connection",
+                                      "postgresql_server":  "PostgreSQL for server",
+                                      "open_sync_center":  "Opens Sync-Center to connect to an external PostgreSQL server."
+                                  },
+                     "api_keys":  {
+                                      "heading":  "API Keys \u0026 Authentication",
+                                      "title":  "API Keys \u0026 Authentication",
+                                      "description":  "Generate API Keys to connect external projects to this Kynto instance. Share these tokens securely with other developers.",
+                                      "generate":  "Generate new API Key",
+                                      "active_keys":  "Active API Keys",
+                                      "no_keys":  "No API keys generated yet.",
+                                      "documentation":  "API Keys Documentation",
+                                      "usage_title":  "Usage in Projects",
+                                      "usage_important":  "Important",
+                                      "usage_note":  "Each API Key is marked with [USED] after use. You can then manually delete it when no longer needed.",
+                                      "bearer_token":  "As Bearer Token in header",
+                                      "code_header":  "Authorization: Bearer [your_api_key]",
+                                      "fetch_example":  "JavaScript Fetch Example",
+                                      "curl_example":  "cURL Example",
+                                      "security_warning":  "Security",
+                                      "security_message":  "Never share your API key publicly! The key works like a password. If usage looks suspicious, delete the key and generate a new one.",
+                                      "docs":  {
+                                                   "title":  "API Keys Documentation",
+                                                   "what_is":  "What is an API Key?",
+                                                   "what_is_desc":  "An API Key is a unique token you generate to access your Kynto instance from external applications. It works like a password and should be treated with the same security.",
+                                                   "what_can_do":  "What can I do with an API Key?",
+                                                   "endpoint_get":  "Retrieve data from a table",
+                                                   "endpoint_post":  "Insert new records into a table",
+                                                   "endpoint_put":  "Update a record",
+                                                   "endpoint_delete":  "Delete a record",
+                                                   "endpoint_query":  "Execute custom SQL queries (SELECT, INSERT, UPDATE, DELETE)",
+                                                   "how_to_use":  "How do I use the API Key?",
+                                                   "header_label":  "Header",
+                                                   "replace_key":  "Replace YOUR_API_KEY with your generated key. The default URL is http://127.0.0.1:54321, but adjust host and port if necessary.",
+                                                   "fetch_full_example":  "Complete Fetch example (GET)",
+                                                   "fetch_insert_example":  "Fetch example (Insert data POST)",
+                                                   "security_title":  "Security",
+                                                   "never_upload_public":  "Never upload the API key to public repositories (GitHub, GitLab, etc.)! Users with your key can access all your data.",
+                                                   "best_practices":  "Best Practices",
+                                                   "env_variables":  "Store the key in environment variables (.env)",
+                                                   "not_frontend":  "Do not use it in frontend code",
+                                                   "rotate_keys":  "Rotate keys regularly (delete old, generate new)",
+                                                   "monitor_usage":  "Monitor the \"Used\" column for suspicious activities",
+                                                   "troubleshooting":  "Troubleshooting",
+                                                   "error_401":  "401 Authentication failed",
+                                                   "error_401_desc":  "The API key is invalid or has been deleted. Generate a new key.",
+                                                   "error_403":  "403 Access denied",
+                                                   "error_403_desc":  "You are trying a forbidden operation (e.g., DROP TABLE). Only SELECT, INSERT, UPDATE, DELETE, and CALL are allowed.",
+                                                   "error_500":  "500 Server error",
+                                                   "error_500_desc":  "There is a problem with the request. Check table names and column names for typos.",
+                                                   "features":  "Additional Features",
+                                                   "rls_title":  "Row-Level Security (RLS)",
+                                                   "rls_desc":  "Data is automatically filtered based on the API key owner (if configured).",
+                                                   "realtime_title":  "Realtime Updates",
+                                                   "realtime_desc":  "Connect via WebSocket to get real-time updates when data changes."
+                                               }
+                                  },
+                     "sync":  {
+                                  "heading":  "Sync-Center",
+                                  "title":  "Sync-Center",
+                                  "connection_status":  "PostgreSQL Connection",
+                                  "connection_placeholder":  "postgresql://user:pass@host:5432/db",
+                                  "connect_button":  "Connect",
+                                  "not_connected":  "Not connected",
+                                  "sync_running":  "Sync running…",
+                                  "ready":  "Ready...",
+                                  "storage_title":  "Storage for images and videos",
+                                  "storage_path_placeholder":  "C:/path/to/your/media",
+                                  "browse_button":  "Browse",
+                                  "storage_desc":  "Specify the path where media should be stored locally.",
+                                  "placeholder":  "postgresql://user:pass@host:5432/db"
+                              },
+                     "ai":  {
+                                "heading":  "AI Assistant",
+                                "title":  "AI Assistant",
+                                "enable_nl_to_sql":  "Enable Natural Language to SQL",
+                                "provider":  "Provider",
+                                "provider_ollama":  "Ollama (Local - recommended)",
+                                "provider_openai":  "OpenAI (Cloud)",
+                                "provider_anthropic":  "Anthropic Claude (Cloud)",
+                                "api_key_or_endpoint":  "API Key / Endpoint",
+                                "api_key_placeholder":  "sk-...",
+                                "model_name":  "Model Name",
+                                "model_placeholder":  "duckdb-nsql or llama3"
+                            },
+                     "templates":  {
+                                       "heading":  "SQL Templates",
+                                       "title":  "SQL Templates",
+                                       "show_quickstarts":  "Show quickstarts on dashboard",
+                                       "quickstarts_desc":  "Determines whether predefined SQL scripts (quickstarts) should be displayed on the home page.",
+                                       "connected_templates":  "Connected Templates",
+                                       "loaded_from":  "These templates are currently loaded from SQLEditor.queries.js"
+                                   },
+                     "shortcuts":  {
+                                       "heading":  "Shortcuts",
+                                       "title":  "Shortcuts",
+                                       "magic_search":  "Magic Search"
+                                   },
+                     "maintenance":  {
+                                         "heading":  "Database Maintenance",
+                                         "title":  "Database Maintenance",
+                                         "description":  "Optimize the performance of your local database by cleaning up old logs and caches.",
+                                         "stats_cache":  "Cache",
+                                         "stats_logs":  "Logs",
+                                         "stats_archive":  "Archive",
+                                         "stats_size":  "Size",
+                                         "select_tables":  "Select tables",
+                                         "api_cache":  "API Cache",
+                                         "request_logs":  "Logs",
+                                         "timeframe":  "Timeframe",
+                                         "preset_24h":  "24h",
+                                         "preset_30d":  "30 days",
+                                         "preset_90d":  "90 days",
+                                         "preset_wipe_all":  "Delete all",
+                                         "cleanup":  "Cleanup",
+                                         "preview_prompt":  "Click preview...",
+                                         "preview_button":  "Calculate preview",
+                                         "delete_button":  "Delete now",
+                                         "auto_cleanup":  "Automatic Cleanup",
+                                         "auto_cleanup_enabled":  "Active",
+                                         "auto_cleanup_every":  "every",
+                                         "auto_cleanup_hours":  "hrs",
+                                         "auto_cleanup_save":  "Save",
+                                         "auto_cleanup_inactive":  "Inactive"
+                                     },
+                     "footer":  {
+                                    "save":  "Save",
+                                    "cancel":  "Cancel"
+                                },
+                     "apikeys":  {
+                                     "usage_heading":  "Usage in Projects",
+                                     "description":  "Generate API Keys to connect external projects with this Kynto instance. Share tokens securely with other developers.",
+                                     "security_warning":  "<strong>Security:</strong> Never share your API Key publicly! The key works like a password. If usage looks suspicious, delete the key and generate a new one.",
+                                     "curl_example":  "\u003cstrong\u003e3. cURL Example:\u003c/strong\u003e",
+                                     "js_example":  "\u003cstrong\u003e2. JavaScript Fetch Example:\u003c/strong\u003e",
+                                     "no_keys":  "No API Keys generated yet.",
+                                     "usage_note":  "\u003cstrong\u003eImportant:\u003c/strong\u003e Each API Key is marked as [USED] after usage. You can then manually delete it when it is no longer needed.",
+                                     "generate_button":  "Generate new API Key",
+                                     "heading":  "API Keys \u0026 Authentication",
+                                     "documentation":  "API Keys Documentation",
+                                     "bearer_header":  "\u003cstrong\u003e1. As Bearer Token in Header:\u003c/strong\u003e",
+                                     "active_keys":  "Active API Keys"
+                                 }
+                 },
+    "instant_api":  {
+                        "title":  "Instant API",
+                        "status":  "Status",
+                        "inactive":  "Inactive",
+                        "api_not_started":  "API not started",
+                        "configuration":  "Configuration",
+                        "network_port":  "Network Port",
+                        "enable_on_startup":  "Enable on startup",
+                        "control":  "Control",
+                        "start":  "▶ Start",
+                        "stop":  "⏹ Stop",
+                        "open_in_browser":  "🌐 Open API in browser",
+                        "connection_info":  "Connection Info",
+                        "url":  "URL",
+                        "port":  "Port",
+                        "endpoints":  "Endpoints",
+                        "api_not_active":  "API not active",
+                        "starting":  "⏳ Starting...",
+                        "stopping":  "⏳ Stopping...",
+                        "checking":  "⚠️ Checking...",
+                        "connecting":  "Connecting...",
+                        "api_running":  "Active",
+                        "error":  "Error",
+                        "running_on_port":  "Running on port {{port}}",
+                        "api_stopped":  "API stopped",
+                        "api_being_started":  "API is being started",
+                        "no_active_database_connection":  "No active database connection",
+                        "main_process_unreachable":  "Main process unreachable",
+                        "api_start_failed":  "API start failed",
+                        "port_change":  "Port change",
+                        "new_port_restart_required":  "New port: {{port}} (restart required)"
+                    },
+    "io":  {
+               "status":  {
+                              "importing":  "Importing…",
+                              "reading_csv":  "📥 Reading CSV from \"{fileName}\"...",
+                              "creating_table":  "✅ Creating table \"{name}\"...",
+                              "table_created":  "✅ Table \"{name}\" created",
+                              "importing_rows":  "📥 Importing {{rows}} rows...",
+                              "batch_progress":  "📥 Batch {{batch}}/{{total}}: {{current}}/{{rows}} rows",
+                              "dialog_opening":  "📂 CSV import dialog opening...",
+                              "refreshing_tables":  "📋 Updating table list...",
+                              "done":  "✅ Done!"
+                          },
+               "error":  {
+                             "csv_parsing_failed":  "❌ CSV could not be parsed",
+                             "csv_empty":  "❌ CSV is empty (0 rows)",
+                             "no_columns":  "❌ No columns found (invalid CSV header?)",
+                             "table_creation_failed":  "❌ Table could not be created: {{message}}",
+                             "import_failed":  "❌ Import error: {{message}}",
+                             "format_not_supported":  "⚠️ Only CSV import is supported (not {{format}})"
+                         },
+               "success":  {
+                               "import_with_errors":  "✅ \"{{name}}\" imported! {{success}}/{{total}} rows ({{errors}} errors)",
+                               "import_complete":  "✅ \"{{name}}\" imported! {{rows}} rows",
+                               "import_with_target":  "✅ Successfully imported ({{target}})"
+                           },
+               "warning":  {
+                               "batch_errors":  "⚠️ Batch {{batch}} had errors - continuing..."
+                           }
+           },
+    "executor":  {
+                     "button":  {
+                                    "execute":  "▶ Execute",
+                                    "execute_selection":  "▶ Execute selection",
+                                    "cancel":  "⏹ Cancel",
+                                    "verify":  "⚠️ Verify..."
+                                },
+                     "status":  {
+                                    "executing_selection":  "Execute selection…",
+                                    "query_cancelled":  "Query cancelled.",
+                                    "loading":  "Loading…"
+                                },
+                     "success":  {
+                                     "ddl_executed":  "Successfully executed.",
+                                     "rows_displayed":  "Showing {{count}} of {{total}} rows.",
+                                     "rows_loaded":  "{{count}} row(s){{columns}} loaded in {{duration}}ms."
+                                 },
+                     "error":  {
+                                   "no_results":  "No results.",
+                                   "sql_error":  "SQL error: {{message}}"
+                               }
+                 },
+    "query_builder":  {
+                          "sort_column":  "Column…",
+                          "asc":  "ASC",
+                          "desc":  "DESC",
+                          "count":  "COUNT",
+                          "select_table":  "Select a table.",
+                          "select_column":  "Select a column."
+                      },
+    "dashboard":  {
+                      "title":  "Kynto Intel",
+                      "no_database":  "No Database",
+                      "unknown":  "Unknown",
+                      "stats":  {
+                                    "active_db":  "Active DB",
+                                    "connected":  "Connected",
+                                    "tables":  "Tables",
+                                    "ping_latency":  "Ping / Latency",
+                                    "history":  "SQL History",
+                                    "favorites":  "Favorites",
+                                    "connections":  "Connections",
+                                    "max":  "Max"
+                                },
+                      "storage":  {
+                                      "title":  "💾 File Size \u0026 Storage",
+                                      "total":  "Total",
+                                      "database_size":  "📊 Database Size",
+                                      "dead_tuples":  "☠️ Dead Tuples",
+                                      "tables_affected":  "tables affected",
+                                      "no_tables":  "No table data"
+                                  },
+                      "bloat":  {
+                                    "title":  "☠️ Data Bloat Analysis (PostgreSQL)",
+                                    "dead_tuples_count":  "dead tuples",
+                                    "last_vacuum":  "Last VACUUM",
+                                    "never":  "never",
+                                    "bloat_percent":  "bloat",
+                                    "cleanup_button":  "🗑️ Clean all (VACUUM ANALYZE)"
+                                },
+                      "distribution":  {
+                                           "title":  "📊 Memory Distribution",
+                                           "bytes":  "Byte size",
+                                           "row_count":  "Row count"
+                                       },
+                      "history_section":  {
+                                              "title":  "🕐 Recent Queries",
+                                              "empty":  "No queries executed yet."
+                                          },
+                      "actions":  {
+                                      "title":  "⚡ Actions",
+                                      "sql_editor":  "✍️ SQL Editor",
+                                      "schema":  "🔧 Schema",
+                                      "refresh":  "🔄 Reload",
+                                      "vacuum":  "🧹 VACUUM",
+                                      "analyze":  "📐 ANALYZE",
+                                      "export_sql":  "📥 Export SQL",
+                                      "clear_history":  "🗑️ Clear History",
+                                      "first_table":  "📋 First Table"
+                                  },
+                      "messages":  {
+                                       "postgres_vacuum":  "PostgreSQL VACUUM ANALYZE…",
+                                       "postgres_optimized":  "PostgreSQL optimized!",
+                                       "vacuum_failed":  "VACUUM failed: {{message}}",
+                                       "cleaning":  "⏳ Cleaning…",
+                                       "vacuum_full":  "VACUUM FULL ANALYZE for all tables (may take time)…",
+                                       "tables_cleaned":  "{{count}} tables completely cleaned!",
+                                       "analyze_running":  "ANALYZE running…",
+                                       "analyze_complete":  "ANALYZE complete.",
+                                       "no_history_export":  "No history to export.",
+                                       "history_exported":  "SQL history exported.",
+                                       "confirm_clear_history":  "Really clear SQL history?",
+                                       "history_cleared":  "History cleared.",
+                                       "sql_loaded":  "SQL loaded into editor.",
+                                       "error":  "Error",
+                                       "tip":  "Tip"
+                                   },
+                      "all_databases":  {
+                                            "title":  "🏠 Kynto Intel",
+                                            "database_count":  "{{count}} Database{{plural}}",
+                                            "section_title":  "Databases",
+                                            "unknown_name":  "Unknown",
+                                            "click_tip":  "Click on a database to see the complete overview.",
+                                            "size":  "Storage",
+                                            "ping":  "Ping",
+                                            "rows":  "Rows"
+                                        }
+                  },
+    "settings_ui":  {
+                        "api_button_found":  "✅ FOUND",
+                        "api_button_not_found":  "❌ NOT FOUND",
+                        "api_clicked":  "Clicked!",
+                        "custom_tpl_styles":  "Custom template styles"
+                    },
+    "placeholder":  {
+                        "settings":  {
+                                         "sync":  {
+                                                      "placeholder":  "postgresql://user:pass@host:5432/db"
+                                                  },
+                                         "ai":  {
+                                                    "model_placeholder":  "duckdb-nsql or llama3"
+                                                }
+                                     }
+                    },
+    "sync":  {
+
+             }
+}

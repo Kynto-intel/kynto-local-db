@@ -26,14 +26,18 @@ function injectRefreshAnimation() {
 }
 
 export function setupRefreshButton(btn) {
-    btn.style.color = '#ffffff';
-    btn.style.borderColor = 'var(--border)';
-    btn.style.display = 'flex';
-    btn.style.alignItems = 'center';
+    btn.style.cssText      = '';
+    btn.style.background   = 'transparent';
+    btn.style.border       = 'none';
+    btn.style.boxShadow    = 'none';
+    btn.style.padding      = '4px 6px';
+    btn.style.borderRadius = '6px';
+    btn.style.display      = 'inline-flex';
+    btn.style.alignItems   = 'center';
     btn.style.justifyContent = 'center';
-    btn.style.transition = 'all 0.2s ease';
-    btn.style.padding = '4px 8px';
-    btn.style.background = 'transparent';
+    btn.style.transition   = 'all 0.2s ease';
+    btn.style.color        = 'var(--muted, #a1a1aa)';
+    btn.style.cursor       = 'pointer';
 
     // Animation injizieren
     injectRefreshAnimation();
@@ -49,12 +53,12 @@ export function setupRefreshButton(btn) {
 
     btn.addEventListener('mouseenter', () => {
         btn.style.background = 'rgba(255,255,255,0.05)';
-        btn.style.borderColor = 'rgba(255,255,255,0.3)';
+        btn.style.color = 'var(--text, #ffffff)';
     });
     
     btn.addEventListener('mouseleave', () => {
         btn.style.background = 'transparent';
-        btn.style.borderColor = 'var(--border)';
+        btn.style.color = 'var(--muted, #a1a1aa)';
     });
 
     btn.addEventListener('click', async () => {

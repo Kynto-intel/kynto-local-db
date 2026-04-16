@@ -4,28 +4,32 @@
       "Max", "Lukas", "Felix", "Moritz", "Jakob", "Tom", "Noah", "Elias", "Jonas", "Leon",
       "Luca", "Tim", "Finn", "Ben", "Julian", "David", "Simon", "Nico", "Tobias", "Patrick",
       "Stefan", "Markus", "Andreas", "Christian", "Michael", "Thomas", "Daniel", "Alexander",
-      "Florian", "Sebastian", "Jan", "Philipp", "Oliver", "Kevin", "Fabian", "Dominik"
+      "Florian", "Sebastian", "Jan", "Philipp", "Oliver", "Kevin", "Fabian", "Dominik",
+      "Erik", "Hendrik", "Kai", "Lars", "Nils", "René", "Sven", "Uwe", "Björn", "Klaus"
     ],
     "vornamen_weiblich": [
       "Julia", "Sophie", "Emma", "Marie", "Lena", "Laura", "Anna", "Sarah", "Lisa", "Hannah",
       "Lea", "Mia", "Clara", "Nina", "Katharina", "Jana", "Alina", "Vanessa", "Sandra", "Sabine",
       "Nicole", "Stefanie", "Melanie", "Jessica", "Christina", "Claudia", "Petra", "Monika",
-      "Franziska", "Johanna", "Theresa", "Maria", "Elena", "Nele", "Lara", "Amelie"
+      "Franziska", "Johanna", "Theresa", "Maria", "Elena", "Nele", "Lara", "Amelie",
+      "Birgit", "Dagmar", "Gabi", "Heike", "Inge", "Karin", "Renate", "Ursula", "Yvonne"
     ],
     "nachnamen": [
       "Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer", "Wagner", "Becker",
       "Schulz", "Hoffmann", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Schröder", "Neumann",
       "Schwarz", "Zimmermann", "Braun", "Krüger", "Hofmann", "Hartmann", "Lange", "Schmitt",
       "Werner", "Schmitz", "Krause", "Meier", "Lehmann", "Huber", "Mayer", "Herrmann", "Kaiser",
-      "Fuchs", "Lang", "Stein", "Roth", "Frank", "Berger", "Keller", "Böhm", "Haas", "Vogt"
+      "Fuchs", "Lang", "Stein", "Roth", "Frank", "Berger", "Keller", "Böhm", "Haas", "Vogt",
+      "Sommer", "Winter", "Berg", "Vogel", "Brandt", "Schäfer", "Köhler", "Winkler", "Peters"
     ],
-    "titel": ["Dr.", "Prof. Dr.", "Dipl.-Ing.", "M.Sc.", "B.A.", "M.A.", "Dr. med.", "Prof."],
+    "titel": ["Dr.", "Prof. Dr.", "Dipl.-Ing.", "M.Sc.", "B.A.", "M.A.", "Dr. med.", "Prof.", "Dipl.-Kfm.", "MBA"],
+    "anreden": ["Herr", "Frau"],
     "benutzernamen_prefix": [
-      "user", "dev", "neo", "the", "xX", "mr", "pro", "super", "mega",
-      "dark", "cool", "fast", "real", "old", "new", "best"
+      "user", "dev", "neo", "the", "mr", "pro", "super", "mega",
+      "dark", "cool", "fast", "real", "old", "new", "best", "dr", "max", "it"
     ],
     "benutzernamen_suffix": [
-      "42", "99", "123", "2024", "007", "de", "01", "pro", "xyz", "_dev", "_net"
+      "42", "99", "123", "2024", "2025", "007", "de", "01", "pro", "xyz", "_dev", "_net", "_it", "911"
     ]
   },
 
@@ -33,7 +37,7 @@
     "email_domains": [
       "gmail.com", "outlook.de", "web.de", "gmx.net", "gmx.de", "yahoo.de",
       "t-online.de", "freenet.de", "posteo.de", "protonmail.com", "icloud.com",
-      "kynto.io", "testmail.de", "mail.org", "mailbox.org"
+      "kynto.io", "testmail.de", "mail.org", "mailbox.org", "online.de", "arcor.de"
     ],
     "tlds": [".de", ".com", ".net", ".org", ".io", ".app", ".eu", ".info", ".biz"],
     "strassen": [
@@ -42,7 +46,8 @@
       "Waldstraße", "Rosenweg", "Lindenstraße", "Friedrichstraße", "Bismarckstraße",
       "Mozartstraße", "Schillerstraße", "Kantstraße", "Beethovenstraße", "Lessingstraße",
       "Am Markt", "Kirchgasse", "Mühlweg", "Fasanenstraße", "Uhlandstraße",
-      "Dorfstraße", "Wiesenweg", "Tannenstraße", "Eibenweg", "Buchenallee"
+      "Dorfstraße", "Wiesenweg", "Tannenstraße", "Eibenweg", "Buchenallee",
+      "Marktplatz", "Rathausplatz", "Industriestraße", "Gewerbepark", "Hafenstraße"
     ],
     "staedte": [
       "Berlin", "Hamburg", "München", "Köln", "Frankfurt am Main", "Stuttgart",
@@ -50,7 +55,9 @@
       "Nürnberg", "Duisburg", "Bochum", "Wuppertal", "Bonn", "Bielefeld", "Münster",
       "Karlsruhe", "Mannheim", "Augsburg", "Wiesbaden", "Gelsenkirchen", "Mönchengladbach",
       "Braunschweig", "Chemnitz", "Kiel", "Aachen", "Halle", "Magdeburg", "Freiburg",
-      "Krefeld", "Lübeck", "Oberhausen", "Erfurt", "Rostock", "Mainz", "Kassel"
+      "Krefeld", "Lübeck", "Oberhausen", "Erfurt", "Rostock", "Mainz", "Kassel",
+      "Regensburg", "Ingolstadt", "Heilbronn", "Ulm", "Pforzheim", "Wolfsburg",
+      "Würzburg", "Göttingen", "Recklinghausen", "Saarbrücken"
     ],
     "bundeslaender": [
       "Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", "Hamburg",
@@ -61,47 +68,106 @@
     "postleitzahlen_prefix": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     "telefon_vorwahlen": [
       "030", "040", "089", "0221", "069", "0711", "0211", "0341", "0231", "0201",
-      "0421", "0351", "0511", "0911", "0203", "0234", "0202", "0228", "0521", "0251"
-    ]
+      "0421", "0351", "0511", "0911", "0203", "0234", "0202", "0228", "0521", "0251",
+      "0431", "0385", "0381", "0361", "0395", "03834"
+    ],
+    "mobil_vorwahlen": ["0151", "0152", "0157", "0160", "0162", "0163", "0170", "0171", "0172", "0173", "0174", "0175", "0176", "0177", "0178", "0179"]
   },
 
   "business": {
     "firmen_prefix": [
       "Alpha", "Beta", "Delta", "Omega", "Nova", "Prime", "Next", "Smart", "Digital",
       "Green", "Blue", "Red", "Gold", "Silver", "Tech", "Net", "Web", "Cloud", "Cyber",
-      "Kynto", "Velo", "Aero", "Infra", "Data", "Open", "Fast", "Global", "Euro"
+      "Kynto", "Velo", "Aero", "Infra", "Data", "Open", "Fast", "Global", "Euro",
+      "Apex", "Core", "Edge", "Flux", "Grid", "Hub", "Infra", "Logic", "Mesh", "Nexus",
+      "Peak", "Quantum", "Rapid", "Solid", "Terra", "Unity", "Vault", "Zenith"
     ],
     "firmen_suffix": [
       "GmbH", "AG", "UG", "GmbH & Co. KG", "e.K.", "KG", "OHG", "GbR",
       "Solutions", "Systems", "Technologies", "Media", "Digital", "Group",
-      "Services", "Consulting", "Engineering", "Software", "Networks"
+      "Services", "Consulting", "Engineering", "Software", "Networks",
+      "Ventures", "Labs", "Studio", "Werk", "Handel", "Logistik"
     ],
     "abteilungen": [
       "IT", "Marketing", "HR", "Sales", "Finance", "Support", "R&D", "Logistics",
       "Vertrieb", "Einkauf", "Buchhaltung", "Recht", "Compliance", "Sicherheit",
       "Produktion", "Qualitätssicherung", "Projektmanagement", "Strategie",
-      "Kundenservice", "Öffentlichkeitsarbeit", "Business Development"
+      "Kundenservice", "Öffentlichkeitsarbeit", "Business Development",
+      "Controlling", "Revision", "Fuhrpark", "Facility Management"
     ],
     "positionen": [
       "Manager", "Senior Developer", "Junior Developer", "Designer", "CEO", "CTO", "CFO",
       "Consultant", "Analyst", "Team Lead", "Scrum Master", "Product Owner", "DevOps Engineer",
       "Data Scientist", "UX Designer", "Marketing Manager", "Vertriebsleiter",
       "Projektleiter", "Systemadministrator", "Datenbankadministrator", "Sachbearbeiter",
-      "Buchhalter", "Jurist", "Praktikant", "Werkstudent", "Abteilungsleiter"
+      "Buchhalter", "Jurist", "Praktikant", "Werkstudent", "Abteilungsleiter",
+      "Controller", "Revisor", "Einkäufer", "Logistiker", "Kundenberater"
     ],
     "branchen": [
       "Software", "E-Commerce", "Finanzen", "Gesundheit", "Bildung", "Medien",
       "Logistik", "Immobilien", "Energie", "Automotive", "Tourismus", "Gastronomie",
-      "Handel", "Industrie", "Beratung", "Telekommunikation", "Versicherung"
+      "Handel", "Industrie", "Beratung", "Telekommunikation", "Versicherung",
+      "Pharma", "Chemie", "Maschinenbau", "Bauwesen", "Landwirtschaft", "Mode"
     ],
     "produkte": [
       "Laptop", "Smartphone", "Tablet", "Monitor", "Tastatur", "Maus", "Drucker",
       "Kamera", "Kopfhörer", "Lautsprecher", "Router", "Server", "SSD", "Festplatte",
-      "Stuhl", "Schreibtisch", "Rucksack", "Notizbuch", "Stift", "Kaffeebecher"
+      "Stuhl", "Schreibtisch", "Rucksack", "Notizbuch", "Stift", "Kaffeebecher",
+      "Webcam", "Mikrofon", "USB-Hub", "Docking Station", "Netzteil", "Bildschirmhalter"
     ],
     "preise": [
-      9.99, 14.99, 19.99, 24.99, 29.99, 39.99, 49.99, 59.99, 79.99, 99.99,
-      119.99, 149.99, 199.99, 249.99, 299.99, 399.99, 499.99, 699.99, 999.99
+      4.99, 9.99, 14.99, 19.99, 24.99, 29.99, 39.99, 49.99, 59.99, 79.99, 99.99,
+      119.99, 149.99, 199.99, 249.99, 299.99, 399.99, 499.99, 699.99, 999.99,
+      1299.99, 1499.99, 1999.99, 2499.99, 4999.99
+    ],
+    "iban_prefix": ["DE", "AT", "CH"],
+    "bank_namen": [
+      "Deutsche Bank", "Commerzbank", "Sparkasse", "Volksbank", "DKB",
+      "ING", "Comdirect", "N26", "Postbank", "HypoVereinsbank",
+      "Raiffeisenbank", "Targobank", "Santander", "BNP Paribas", "UniCredit"
+    ]
+  },
+
+  "buchhaltung": {
+    "belegnummer_prefix": ["BELEG", "RE", "RG", "GS", "AB", "BU", "EZ", "AZ", "UW", "KR", "AR", "ER", "LF", "ZA"],
+    "transaktionsarten": [
+      "Einzahlung", "Auszahlung", "Überweisung", "Lastschrift", "Gutschrift",
+      "Rückbuchung", "Dauerauftrag", "Kartenabbuchung", "Sammelüberweisung",
+      "Kontogebühr", "Zinsgutschrift", "Bareinzahlung", "Barauszahlung",
+      "Wertpapierverkauf", "Wertpapierkauf", "Dividende", "Steuerrückzahlung",
+      "Gehaltszahlung", "Mietzahlung", "Versicherungsprämie", "Lieferantenzahlung",
+      "Kundenzahlung", "Steuervorauszahlung", "Sozialversicherungsbeitrag"
+    ],
+    "buchungsarten": ["Soll", "Haben"],
+    "kostenstellen": [
+      "KST-100", "KST-110", "KST-120", "KST-200", "KST-210",
+      "KST-300", "KST-400", "KST-410", "KST-500", "KST-600",
+      "KST-700", "KST-800", "KST-900"
+    ],
+    "kostenarten": [
+      "Personalkosten", "Materialkosten", "Mietkosten", "Reisekosten",
+      "Marketingkosten", "IT-Kosten", "Versicherungskosten", "Fahrzeugkosten",
+      "Bürokosten", "Fremdleistungen", "Abschreibungen", "Zinskosten"
+    ],
+    "zahlungsarten": ["Überweisung", "Lastschrift", "Kreditkarte", "Bar", "PayPal", "Rechnung", "SEPA", "Vorkasse", "Nachnahme"],
+    "zahlungsziele": ["sofort", "7 Tage netto", "14 Tage netto", "30 Tage netto", "14 Tage 2% Skonto", "60 Tage netto"],
+    "steuerarten": ["MwSt. 19%", "MwSt. 7%", "steuerfrei", "innergemeinschaftlich"],
+    "konten_skr03": [
+      "1000 Kasse", "1200 Bank", "1400 Forderungen", "1600 Verbindlichkeiten",
+      "4000 Umsatzerlöse", "5000 Materialaufwand", "6000 Personalaufwand",
+      "6300 Mietaufwand", "6800 Werbeaufwand", "7000 Zinsaufwand"
+    ],
+    "verwendungszweck": [
+      "Rechnung Nr. {nr} vom {datum}",
+      "Bestellung {nr}",
+      "Miete {monat}",
+      "Gehalt {monat}",
+      "Reparatur Auftrag {nr}",
+      "Wartungsvertrag {nr}",
+      "Projektkosten {nr}",
+      "Nachlieferung {nr}",
+      "Anzahlung Auftrag {nr}",
+      "Abschlusszahlung {nr}"
     ]
   },
 
@@ -110,6 +176,8 @@
     "status_moderation": ["offen", "in_bearbeitung", "erledigt", "abgelehnt", "eskaliert", "geloescht", "freigegeben"],
     "status_zahlung": ["pending", "paid", "failed", "refunded", "cancelled", "processing", "disputed"],
     "status_versand": ["pending", "processing", "shipped", "delivered", "returned", "lost"],
+    "status_auftrag": ["neu", "bestätigt", "in_bearbeitung", "abgeschlossen", "storniert", "auf_hold", "teilgeliefert"],
+    "status_ticket": ["open", "in_progress", "waiting", "resolved", "closed", "escalated", "on_hold"],
     "prioritaet": ["low", "medium", "high", "critical", "blocker"],
     "rollen": ["superadmin", "admin", "moderator", "editor", "author", "viewer", "guest", "banned"],
     "sprachen": ["de", "en", "fr", "es", "it", "nl", "pl", "pt", "ru", "zh"],
@@ -124,7 +192,8 @@
     ],
     "fehler_codes": ["ERR_001", "ERR_404", "ERR_500", "WARN_002", "INFO_010", "AUTH_FAIL", "DB_TIMEOUT", "RATE_LIMIT"],
     "log_level": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-    "umgebungen": ["development", "staging", "production", "testing", "local"]
+    "umgebungen": ["development", "staging", "production", "testing", "local"],
+    "api_versionen": ["v1", "v2", "v3", "v1.0", "v2.1", "v3.0-beta"]
   },
 
   "web": {
@@ -139,15 +208,16 @@
       "Schwarz", "Weiß", "Grau", "Braun", "Gold", "Silber", "Beige"
     ],
     "user_agents": [
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0",
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-      "Mozilla/5.0 (Android 13; Mobile; rv:109.0) Gecko/109.0 Firefox/115.0",
-      "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (X11; Linux x86_64; rv:123.0) Gecko/20100101 Firefox/123.0",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1",
+      "Mozilla/5.0 (Android 14; Mobile; rv:123.0) Gecko/123.0 Firefox/123.0",
+      "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Edge/122.0.0.0 Safari/537.36"
     ],
     "keywords_de": [
       "Technologie", "Nachrichten", "Update", "Release", "Sicherheit", "Performance",
@@ -194,6 +264,18 @@
       "Die Synchronisierung ist abgeschlossen.",
       "Der Cache wurde geleert."
     ],
+    "notizen_de": [
+      "Bitte bis Ende der Woche erledigen.",
+      "Kunde wurde telefonisch informiert.",
+      "Rückruf vereinbart für nächste Woche.",
+      "Unterlagen wurden per Post verschickt.",
+      "Termin steht noch aus.",
+      "Intern zu klären.",
+      "Dringend: Antwort erforderlich.",
+      "Erledigt, Ablage erfolgt.",
+      "In Bearbeitung bei Kollegin Schmidt.",
+      "Warte auf Freigabe durch Vorgesetzten."
+    ],
     "kategorien": [
       "Politik", "Wirtschaft", "Sport", "Technologie", "Wissenschaft", "Kultur",
       "Unterhaltung", "Reisen", "Gesundheit", "Bildung", "Umwelt", "Lifestyle",
@@ -235,29 +317,29 @@
   "geo": {
     "laender": [
       {"name": "Deutschland", "code": "DE"},
-      {"name": "Österreich", "code": "AT"},
-      {"name": "Schweiz", "code": "CH"},
-      {"name": "Frankreich", "code": "FR"},
+      {"name": "Österreich",  "code": "AT"},
+      {"name": "Schweiz",     "code": "CH"},
+      {"name": "Frankreich",  "code": "FR"},
       {"name": "Niederlande", "code": "NL"},
-      {"name": "Belgien", "code": "BE"},
-      {"name": "Polen", "code": "PL"},
-      {"name": "Italien", "code": "IT"},
-      {"name": "Spanien", "code": "ES"},
-      {"name": "USA", "code": "US"}
+      {"name": "Belgien",     "code": "BE"},
+      {"name": "Polen",       "code": "PL"},
+      {"name": "Italien",     "code": "IT"},
+      {"name": "Spanien",     "code": "ES"},
+      {"name": "USA",         "code": "US"}
     ],
     "zeitzone": [
       "Europe/Berlin", "Europe/Vienna", "Europe/Zurich", "Europe/London",
       "America/New_York", "America/Los_Angeles", "Asia/Tokyo", "Asia/Shanghai"
     ],
     "koordinaten_de": [
-      {"city": "Berlin",    "lat": 52.5200, "lng": 13.4050},
-      {"city": "Hamburg",   "lat": 53.5753, "lng": 10.0153},
-      {"city": "München",   "lat": 48.1351, "lng": 11.5820},
-      {"city": "Köln",      "lat": 50.9333, "lng": 6.9500},
-      {"city": "Frankfurt", "lat": 50.1109, "lng": 8.6821},
-      {"city": "Stuttgart", "lat": 48.7758, "lng": 9.1829},
-      {"city": "Düsseldorf","lat": 51.2217, "lng": 6.7762},
-      {"city": "Leipzig",   "lat": 51.3397, "lng": 12.3731}
+      {"city": "Berlin",      "lat": 52.5200, "lng": 13.4050},
+      {"city": "Hamburg",     "lat": 53.5753, "lng": 10.0153},
+      {"city": "München",     "lat": 48.1351, "lng": 11.5820},
+      {"city": "Köln",        "lat": 50.9333, "lng":  6.9500},
+      {"city": "Frankfurt",   "lat": 50.1109, "lng":  8.6821},
+      {"city": "Stuttgart",   "lat": 48.7758, "lng":  9.1829},
+      {"city": "Düsseldorf",  "lat": 51.2217, "lng":  6.7762},
+      {"city": "Leipzig",     "lat": 51.3397, "lng": 12.3731}
     ]
   },
 

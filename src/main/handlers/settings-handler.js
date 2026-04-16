@@ -71,24 +71,22 @@ function registerSettingsHandlers(app, defaultSettings, CURRENT_SETTINGS_VERSION
             console.error('Fehler beim Laden der Benutzereinstellungen:', e);
         }
 
+        // Start mit den Defaults
         const merged = { ...defaultSettings, version: CURRENT_SETTINGS_VERSION };
 
-        Object.keys(defaultSettings).forEach(key => {
-            if (key === 'ui' && userSettings.ui) {
-                merged.ui = { ...defaultSettings.ui };
-                Object.keys(defaultSettings.ui).forEach(uiKey => {
-                    if (userSettings.ui.hasOwnProperty(uiKey)) merged.ui[uiKey] = userSettings.ui[uiKey];
-                });
-            } else if (key === 'editor' && userSettings.editor) {
-                merged.editor = { ...defaultSettings.editor };
-                Object.keys(defaultSettings.editor).forEach(edKey => {
-                    if (userSettings.editor.hasOwnProperty(edKey)) merged.editor[edKey] = userSettings.editor[edKey];
-                });
-            } else if (userSettings.hasOwnProperty(key)) {
+        // Merge User Settings über Defaults (überschreibe / ergänze)
+        Object.keys(userSettings).forEach(key => {
+            // Special handling für nested Objects: Merge statt Replace
+            if ((key === 'ui' || key === 'editor' || key === 'database' || key === 'ai' || key === 'apis' || key === 'shortcuts') && typeof userSettings[key] === 'object' && userSettings[key] !== null) {
+                merged[key] = { ...(defaultSettings[key] || {}), ...userSettings[key] };
+            } else {
+                // Top-level Werte einfach überschreiben
                 merged[key] = userSettings[key];
             }
         });
 
+        console.log('[settings:load] PostgreSQL Connection:', merged.database?.postgresqlConnectionString ? '✅' : '❌');
+        console.log('[settings:load] Language:', merged.language);
         return merged;
     });
 
@@ -98,18 +96,45 @@ function registerSettingsHandlers(app, defaultSettings, CURRENT_SETTINGS_VERSION
             if (fs.existsSync(SETTINGS_FILE)) {
                 current = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
             }
+            
+            // 🔧 WICHTIG: Nur ungültige "setting-*" FormData-Keys ENTFERNEN
+            // Der Rest wird normalerweise zusammengeführt
+            const incomingData = {};
+            
+            Object.keys(data).forEach(key => {
+                // Ignoriere "setting-*", "shortcut-*", "sync-*", "maint*" FormData-Keys
+                if (!key.startsWith('setting-') && 
+                    !key.startsWith('shortcut-') && 
+                    !key.startsWith('sync-') &&
+                    !key.startsWith('maint')) {
+                    incomingData[key] = data[key];
+                }
+            });
+            
+            // Merge: Current Settings + Incoming Data (vollständiges Merge, nicht selektiv)
             const merged = {
-                ...current, ...data,
-                ui:       { ...(current.ui       || {}), ...(data.ui       || {}) },
-                database: { ...(current.database || {}), ...(data.database || {}) },
+                ...current,
+                ...incomingData,
+                // Nested Object Merges
+                ui:       { ...(current.ui       || {}), ...(incomingData.ui       || {}) },
+                database: { ...(current.database || {}), ...(incomingData.database || {}) },
+                editor:   { ...(current.editor   || {}), ...(incomingData.editor   || {}) },
+                ai:       { ...(current.ai       || {}), ...(incomingData.ai       || {}) },
+                apis:     { ...(current.apis     || {}), ...(incomingData.apis     || {}) },
+                templates: { ...(current.templates || {}), ...(incomingData.templates || {}) },
+                storage:  { ...(current.storage  || {}), ...(incomingData.storage  || {}) },
+                shortcuts: { ...(current.shortcuts || {}), ...(incomingData.shortcuts || {}) },
                 version: CURRENT_SETTINGS_VERSION
             };
+            
+            console.log('[settings:save] Speichere Settings:', Object.keys(merged));
             fs.writeFileSync(SETTINGS_FILE, JSON.stringify(merged, null, 2), 'utf8');
 
-            if (data.database?.activeType || data.database?.postgresqlConnectionString) {
-                if (data.database?.activeType === 'postgresql' && data.database?.postgresqlConnectionString) {
-                    console.log('[settings:save] DB-Konfiguration gespeichert');
-                }
+            if (merged.database?.postgresqlConnectionString) {
+                console.log('[settings:save] PostgreSQL Connection gespeichert');
+            }
+            if (merged.language) {
+                console.log('[settings:save] Sprache gespeichert:', merged.language);
             }
 
             return true;

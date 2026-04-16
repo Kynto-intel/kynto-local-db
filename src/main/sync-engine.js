@@ -42,6 +42,9 @@ function mapTypeToPGlite(pgType) {
     if (!pgType) return 'text';
     const t = pgType.toLowerCase().trim();
 
+    // Datetime conversion (Postgres uses TIMESTAMP)
+    if (t === 'datetime') return 'timestamp';
+
     // ARRAY-Typen: PostgreSQL "ARRAY" oder "integer[]" → text (als JSON speichern)
     if (t === 'array' || t.endsWith('[]') || t.startsWith('_')) return 'text';
 

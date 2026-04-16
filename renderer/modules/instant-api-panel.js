@@ -10,7 +10,8 @@ class InstantAPIPanel {
     this._injectHTML();
     this._injectStyles();
 
-    // Elements
+    // 🌍 i18n wird zentral durch app.js nach vollständiger Initialisierung aufgerufen
+    // updateDOM() hier nicht aufrufen - zu früh!
     this.panel = document.getElementById('api-panel');
     this.closeBtn = document.getElementById('api-panel-close');
     this.statusBtn = document.getElementById('api-btn-instant'); // Wird in index.html definiert
@@ -71,61 +72,61 @@ class InstantAPIPanel {
       <div class="api-panel-header">
         <div class="api-panel-title">
           <span class="api-icon">⚡</span>
-          <span>Instant API</span>
+          <span data-i18n="instant_api.title">Instant API</span>
         </div>
-        <button class="api-close-btn" id="api-panel-close" title="Schließen">✕</button>
+        <button class="api-close-btn" id="api-panel-close" data-i18n-title="modals.close" title="Close">✕</button>
       </div>
       <div class="api-panel-content">
         <div class="api-section">
-          <h3 class="api-section-title">Status</h3>
+          <h3 class="api-section-title" data-i18n="api.rest_api">Status</h3>
           <div class="api-status-box" id="api-status-box">
             <div class="api-status-indicator" id="api-status-indicator">⚫</div>
             <div class="api-status-text">
-              <div class="api-status-label" id="api-status-label">Inaktiv</div>
-              <div class="api-status-detail" id="api-status-detail">API nicht gestartet</div>
+              <div class="api-status-label" id="api-status-label" data-i18n="instant_api.inactive">Inactive</div>
+              <div class="api-status-detail" id="api-status-detail" data-i18n="instant_api.api_not_started">API not started</div>
             </div>
           </div>
         </div>
         <div class="api-section">
-          <h3 class="api-section-title">Konfiguration</h3>
+          <h3 class="api-section-title" data-i18n="instant_api.configuration">Configuration</h3>
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div class="api-form-group">
-              <div style="font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase;">Netzwerk Port</div>
+              <div style="font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase;" data-i18n="instant_api.network_port">Network Port</div>
               <input type="number" id="api-port-input" class="api-input" value="3001" min="1024" max="65535">
             </div>
             <label class="api-checkbox" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
               <input type="checkbox" id="api-autostart-check">
-              <span style="font-size: 11px; color: var(--muted);">Mit App-Start aktivieren</span>
+              <span style="font-size: 11px; color: var(--muted);" data-i18n="instant_api.enable_on_startup">Enable on startup</span>
             </label>
           </div>
         </div>
         <div class="api-section">
-          <h3 class="api-section-title">Steuerung</h3>
+          <h3 class="api-section-title" data-i18n="instant_api.control">Control</h3>
           <div class="api-button-group">
-            <button class="api-btn api-btn-primary" id="api-start-btn">▶ Starten</button>
-            <button class="api-btn api-btn-secondary" id="api-stop-btn" disabled>⏹ Stoppen</button>
+            <button class="api-btn api-btn-primary" id="api-start-btn" data-i18n="instant_api.start">▶ Start</button>
+            <button class="api-btn api-btn-secondary" id="api-stop-btn" data-i18n="instant_api.stop" disabled>⏹ Stop</button>
           </div>
-          <button class="api-btn api-btn-outline" id="api-open-browser" style="width: 100%; margin-top: 8px; display: none;">🌐 API im Browser öffnen</button>
+          <button class="api-btn api-btn-outline" id="api-open-browser" style="width: 100%; margin-top: 8px; display: none;" data-i18n="instant_api.open_in_browser">🌐 Open API in browser</button>
         </div>
         <div class="api-section" id="api-info-grid" style="display: none;">
-          <h3 class="api-section-title">Verbindungs-Info</h3>
+          <h3 class="api-section-title" data-i18n="instant_api.connection_info">Connection Info</h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
             <div class="api-endpoint-item">
-              <span style="font-size: 9px; opacity: 0.6;">URL</span>
+              <span style="font-size: 9px; opacity: 0.6;" data-i18n="instant_api.url">URL</span>
               <code id="api-info-url">-</code>
             </div>
             <div class="api-endpoint-item">
-              <span style="font-size: 9px; opacity: 0.6;">Port</span>
+              <span style="font-size: 9px; opacity: 0.6;" data-i18n="instant_api.port">Port</span>
               <code id="api-info-port">-</code>
             </div>
           </div>
         </div>
         <div class="api-section">
           <h3 class="api-section-title">
-            Endpoints <span id="api-endpoint-count" style="margin-left: auto; background: var(--accent-lo); color: var(--accent); padding: 1px 6px; border-radius: 10px; font-size: 9px;">0</span>
+            <span data-i18n="instant_api.endpoints">Endpoints</span> <span id="api-endpoint-count" style="margin-left: auto; background: var(--accent-lo); color: var(--accent); padding: 1px 6px; border-radius: 10px; font-size: 9px;">0</span>
           </h3>
           <div class="api-endpoints-list" id="api-endpoints-list">
-            <div class="api-empty-message">API nicht aktiv</div>
+            <div class="api-empty-message" data-i18n="instant_api.api_not_active">API not active</div>
           </div>
         </div>
       </div>
@@ -516,22 +517,28 @@ class InstantAPIPanel {
   async startAPI() {
     try {
       this.startBtn.disabled = true;
-      this.startBtn.textContent = '⏳ Starte...';
-      this.updateStatus('connecting', 'Verbinde...', 'API wird gestartet');
+      this.startBtn.textContent = window.i18n?.t?.('instant_api.starting') || '⏳ Starting...';
+      this.updateStatus('connecting', 
+        window.i18n?.t?.('instant_api.connecting') || 'Connecting...', 
+        window.i18n?.t?.('instant_api.api_being_started') || 'API is being started'
+      );
 
-      // Hole aktuelle Connection String falls nicht vorhanden
+      // Get current connection string if not available
       if (!this.connectionString) {
         await this.getActiveConnectionString();
       }
 
       if (!this.connectionString) {
-        this.updateStatus('error', 'Fehler', 'Keine Datenbankverbindung aktiv');
+        this.updateStatus('error', 
+          window.i18n?.t?.('instant_api.error') || 'Error', 
+          window.i18n?.t?.('instant_api.no_active_database_connection') || 'No active database connection'
+        );
         this.startBtn.disabled = false;
-        this.startBtn.textContent = '▶ Starten';
+        this.startBtn.textContent = window.i18n?.t?.('instant_api.start') || '▶ Start';
         return;
       }
 
-      // Sende Signal an Main-Prozess über IPC
+      // Send signal to main process via IPC
       if (window.api && typeof window.api.instantApiStart === 'function') {
         const result = await window.api.instantApiStart(this.connectionString, this.apiPort);
         
@@ -539,7 +546,7 @@ class InstantAPIPanel {
           this.apiUrl = result.url;
           this.apiPort = result.port;
           
-          // Warte bis API verfügbar ist
+          // Wait until API is available
           await this.waitForAPI(5000);
           
           this.setAPIRunning(true);
@@ -548,20 +555,27 @@ class InstantAPIPanel {
           }
           await this.loadEndpoints();
           
-          this.updateStatus('running', 'Aktiv', `Läuft auf Port ${this.apiPort}`);
+          const statusText = window.i18n?.t?.('instant_api.running_on_port', { port: this.apiPort }) || `Running on port ${this.apiPort}`;
+          this.updateStatus('running', window.i18n?.t?.('instant_api.api_running') || 'Active', statusText);
         } else {
-          this.updateStatus('error', 'Fehler', result?.error || 'API-Start fehlgeschlagen');
+          this.updateStatus('error', 
+            window.i18n?.t?.('instant_api.error') || 'Error', 
+            result?.error || window.i18n?.t?.('instant_api.api_start_failed') || 'API start failed'
+          );
         }
       } else {
-        console.warn('[API Panel] window.api.instantApiStart nicht verfügbar');
-        this.updateStatus('error', 'Fehler', 'Hauptprozess nicht erreichbar');
+        console.warn('[API Panel] window.api.instantApiStart not available');
+        this.updateStatus('error', 
+          window.i18n?.t?.('instant_api.error') || 'Error', 
+          window.i18n?.t?.('instant_api.main_process_unreachable') || 'Main process unreachable'
+        );
       }
     } catch (err) {
-      this.updateStatus('error', 'Fehler', err.message);
+      this.updateStatus('error', window.i18n?.t?.('instant_api.error') || 'Error', err.message);
       console.error('[API Panel] Start error:', err);
     } finally {
       this.startBtn.disabled = false;
-      this.startBtn.textContent = '▶ Starten';
+      this.startBtn.textContent = window.i18n?.t?.('instant_api.start') || '▶ Start';
     }
   }
 
@@ -571,10 +585,13 @@ class InstantAPIPanel {
   async stopAPI() {
     try {
       this.stopBtn.disabled = true;
-      this.stopBtn.textContent = '⏳ Stoppe...';
-      this.updateStatus('stopping', 'Werden gestoppt...', 'API wird beendet');
+      this.stopBtn.textContent = window.i18n?.t?.('instant_api.stopping') || '⏳ Stopping...';
+      this.updateStatus('stopping', 
+        window.i18n?.t?.('instant_api.stopping') || '⏳ Stopping...', 
+        window.i18n?.t?.('instant_api.api_being_started') || 'API is stopping'
+      );
 
-      // Sende Signal an Main-Prozess
+      // Send signal to main process
       if (window.api && typeof window.api.instantApiStop === 'function') {
         await window.api.instantApiStop(this.connectionString || 'postgresql://localhost:5432');
       }
@@ -583,10 +600,13 @@ class InstantAPIPanel {
       if (this.openBrowserBtn) {
         this.openBrowserBtn.style.display = 'none';
       }
-      this.updateStatus('stopped', 'Inaktiv', 'API wurde gestoppt');
+      this.updateStatus('stopped', 
+        window.i18n?.t?.('instant_api.inactive') || 'Inactive', 
+        window.i18n?.t?.('instant_api.api_stopped') || 'API stopped'
+      );
       this.clearEndpoints();
     } catch (err) {
-      this.updateStatus('error', 'Fehler', err.message);
+      this.updateStatus('error', window.i18n?.t?.('instant_api.error') || 'Error', err.message);
       console.error('[API Panel] Stop error:', err);
     } finally {
       this.stopBtn.disabled = false;
@@ -818,9 +838,13 @@ class InstantAPIPanel {
     if (this.stopBtn) this.stopBtn.disabled = !running;
     
     if (running) {
-      this.updateStatus('running', 'Aktiv', `Läuft auf Port ${this.apiPort}`);
+      const statusText = window.i18n?.t?.('instant_api.running_on_port', { port: this.apiPort }) || `Running on port ${this.apiPort}`;
+      this.updateStatus('running', window.i18n?.t?.('instant_api.api_running') || 'Active', statusText);
     } else {
-      this.updateStatus('stopped', 'Inaktiv', 'API nicht gestartet');
+      this.updateStatus('stopped', 
+        window.i18n?.t?.('instant_api.inactive') || 'Inactive', 
+        window.i18n?.t?.('instant_api.api_not_started') || 'API not started'
+      );
     }
   }
 
@@ -835,7 +859,8 @@ class InstantAPIPanel {
       this.apiPort = newPort;
       this.apiUrl = `http://127.0.0.1:${newPort}`;
       this.saveSettings();
-      this.updateStatus('info', 'Port-Änderung', `Neuer Port: ${newPort} (Neustart erforderlich)`);
+      const statusText = window.i18n?.t?.('instant_api.new_port_restart_required', { port: newPort }) || `New port: ${newPort} (restart required)`;
+      this.updateStatus('info', window.i18n?.t?.('instant_api.port_change') || 'Port change', statusText);
     } else {
       this.portInput.value = this.apiPort;
     }

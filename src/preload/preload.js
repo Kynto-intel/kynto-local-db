@@ -112,6 +112,44 @@ contextBridge.exposeInMainWorld('api', {
     policyGetTemplate:             (id) => ipcRenderer.invoke('policy:get-template', id),
     policyGenerateFromTemplate:    (id, schema, table, values) => ipcRenderer.invoke('policy:generate-from-template', id, schema, table, values),
 
+    // ── Sovereign API-Bridge ────────────────────────────────────────────
+    apiBridge_call:         (...a) => ipcRenderer.invoke('apiBridge:call',         ...a),
+    apiBridge_weather:      (...a) => ipcRenderer.invoke('apiBridge:weather',      ...a),
+    apiBridge_forecast:     (...a) => ipcRenderer.invoke('apiBridge:forecast',     ...a),
+    apiBridge_search:       (...a) => ipcRenderer.invoke('apiBridge:search',       ...a),
+    apiBridge_news:         (...a) => ipcRenderer.invoke('apiBridge:news',         ...a),
+    apiBridge_geocode:      (...a) => ipcRenderer.invoke('apiBridge:geocode',      ...a),
+    apiBridge_translate:    (...a) => ipcRenderer.invoke('apiBridge:translate',    ...a),
+    apiBridge_stockQuote:   (...a) => ipcRenderer.invoke('apiBridge:stockQuote',   ...a),
+    apiBridge_list:         (...a) => ipcRenderer.invoke('apiBridge:list',         ...a),
+    apiBridge_stats:        (...a) => ipcRenderer.invoke('apiBridge:stats',        ...a),
+    apiBridge_setKey:       (...a) => ipcRenderer.invoke('apiBridge:setKey',       ...a),
+    apiBridge_hasKey:       (...a) => ipcRenderer.invoke('apiBridge:hasKey',       ...a),
+    apiBridge_deleteKey:    (...a) => ipcRenderer.invoke('apiBridge:deleteKey',    ...a),
+    apiBridge_clearCache:   (...a) => ipcRenderer.invoke('apiBridge:clearCache',   ...a),
+    apiBridge_setRetention: (...a) => ipcRenderer.invoke('apiBridge:setRetention', ...a),
+    apiBridge_getRetention: (...a) => ipcRenderer.invoke('apiBridge:getRetention', ...a),
+    apiBridge_getCacheSize: (...a) => ipcRenderer.invoke('apiBridge:getCacheSize', ...a),
+    apiBridge_getHistory:   (...a) => ipcRenderer.invoke('apiBridge:getHistory',   ...a),
+    apiBridge_register:     (...a) => ipcRenderer.invoke('apiBridge:register',     ...a),
+    apiBridge_setMapping:   (...a) => ipcRenderer.invoke('apiBridge:setMapping',   ...a),
+    apiBridge_startGSCAuth:  ()     => ipcRenderer.invoke('apiBridge:startGSCAuth'),
+    apiBridge_finishGSCAuth: (code) => ipcRenderer.invoke('apiBridge:finishGSCAuth', code),
+    apiBridge_startShopifyOAuth: (payload) => ipcRenderer.invoke('apiBridge:startShopifyOAuth', payload),
+    apiBridge_getShopifyDomain:  () => ipcRenderer.invoke('apiBridge:getShopifyDomain'),
+
+    // ── GSC Daten-Export ────────────────────────────────────────────
+    gsc_getTables:        ()           => ipcRenderer.invoke('gsc:getTables'),
+    gsc_getTableColumns:  (tableName)  => ipcRenderer.invoke('gsc:getTableColumns', tableName),
+    gsc_fetchData:        (payload)    => ipcRenderer.invoke('gsc:fetchData', payload),
+    gsc_exportToDb:       (payload)    => ipcRenderer.invoke('gsc:exportToDb', payload),
+    gsc_saveJson:         (payload)    => ipcRenderer.invoke('gsc:saveJson', payload),
+
+    // ── Shopify Daten-Export ────────────────────────────────────────
+    shopify_fetchData:    (payload)    => ipcRenderer.invoke('shopify:fetchData', payload),
+    shopify_exportToDb:   (payload)    => ipcRenderer.invoke('shopify:exportToDb', payload),
+    shopify_saveJson:     (payload)    => ipcRenderer.invoke('shopify:saveJson', payload),
+
     // ── README Editor API (Integriert in Haupt-API) ─────────────────────
     /** Speichert den gesamten Editor-Zustand nach DATA_DIR/editor-data.json */
     editorSaveData: (data) => ipcRenderer.invoke('editor:saveData', data),
@@ -127,6 +165,33 @@ contextBridge.exposeInMainWorld('api', {
 
     /** Öffnet einen Speichern-Dialog für eine neue HTML-Datei. */
     editorSaveHtmlFile: (content) => ipcRenderer.invoke('editor:saveHtmlFile', content),
+
+    // ── Database Maintenance ───────────────────────────────────────────
+    maintenance_stats:           ()  => ipcRenderer.invoke('maintenance:stats'),
+    maintenance_preview:         (o) => ipcRenderer.invoke('maintenance:preview', o),
+    maintenance_run:             (o) => ipcRenderer.invoke('maintenance:run', o),
+    maintenance_schedulerStatus: ()  => ipcRenderer.invoke('maintenance:schedulerStatus'),
+    maintenance_schedulerUpdate: (c) => ipcRenderer.invoke('maintenance:schedulerUpdate', c),
+
+    // ── Recipe Engine ──────────────────────────────────────────────────
+    recipeRunJob:    (payload) => ipcRenderer.invoke('recipe-run-job',    payload),
+    recipeCancelJob: (jobId)   => ipcRenderer.invoke('recipe-cancel-job', { jobId }),
+    recipeCommitDraft: (payload) => ipcRenderer.invoke('recipe-commit-draft', payload),
+
+    // ── Web Tools ──────────────────────────────────────────────────────
+    webFetch:  (url, keywords) => ipcRenderer.invoke('web-fetch',  { url, keywords }),
+    webSearch: (query)         => ipcRenderer.invoke('web-search', { query }),
+
+    // ── Event Listener (für Recipe Progress u.a.) ──────────────────────
+    on: (channel, callback) => {
+        const validChannels = ['recipe-job-progress'];
+        if (validChannels.includes(channel)) {
+            ipcRenderer.on(channel, (event, ...args) => callback(...args));
+        }
+    },
+    off: (channel, callback) => {
+        ipcRenderer.removeListener(channel, callback);
+    },
 });
 
 // Exponiere das electronAPI-Objekt für Storage-Manager-Events, wie vom Renderer erwartet

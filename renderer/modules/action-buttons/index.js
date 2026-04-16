@@ -13,7 +13,6 @@ import { setupViewSecurityButton } from './view-security.js';
 import { setupIndexAdvisorButton } from './index-advisor.js';
 import { setupRealtimeToggleButton } from './realtime-toggle.js';
 import { setupRefreshButton } from './refresh.js';
-import { setupDataCheckButton } from './data-check.js';
 
 /**
  * Initialisiert alle Action-Bar Buttons mit ihren entsprechenden Handler-Funktionen
@@ -43,9 +42,7 @@ export function initActionBar() {
         { id: 'btn-rls-toggle', text: 'RLS', visible: isTable, disabled: isProtected, handler: setupRlsToggleButton },
         { id: 'btn-view-security', text: 'View Schutz', visible: isView, handler: setupViewSecurityButton },
         { id: 'btn-idx-guide', text: 'Indexberater', visible: isTable || isView, disabled: isProtected, handler: setupIndexAdvisorButton },
-        { id: 'btn-realtime', text: 'Echtzeit', visible: true, handler: setupRealtimeToggleButton },
-        { id: 'btn-refresh', text: '', visible: true, handler: setupRefreshButton },
-        { id: 'btn-data-check', text: '', visible: isTable || isView, handler: setupDataCheckButton }
+        { id: 'btn-realtime', text: 'Echtzeit', visible: true, handler: setupRealtimeToggleButton }
     ];
 
     // 4. Buttons erstellen und Handler aufrufen

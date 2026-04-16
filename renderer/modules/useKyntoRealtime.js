@@ -24,8 +24,9 @@
    ────────────────────────────────────────────────────────────────────────── */
 
 import { state }    from './state.js';
-import { setStatus } from './utils.js';
+import { setStatus, esc } from './utils.js';
 import { KyntoEvents, buildNotifyTriggerSql, buildDropTriggerSql } from '../../src/lib/kynto-events.js';
+import { RealtimeConnection } from './realtime/realtime-connection.js';
 
 // ── Interne State-Variablen ────────────────────────────────────────────────
 
@@ -58,7 +59,7 @@ export const KyntoRealtime = {
         console.log('[KyntoRealtime.start] Startet mit table:', table, 'schema:', schema, 'interval:', interval);
         
         // Vorherige Session stoppen
-        this.stop();
+        await this.stop();
 
         if (!table) {
             console.warn('[KyntoRealtime.start] Keine Tabelle angegeben');
@@ -72,21 +73,22 @@ export const KyntoRealtime = {
 
         console.info(`[KyntoRealtime] Gestartet: ${schema}.${table} (Intervall: ${interval}ms)`);
 
-        // ── Schritt 1: LISTEN/NOTIFY aktivieren ────────────────────────
+        // ── Schritt 1: LISTEN/NOTIFY mit Auto-Reconnect aktivieren ──────
         const connStr = _getConnectionString();
         console.log('[KyntoRealtime] ConnectionString verfügbar:', !!connStr);
         
         if (connStr) {
             try {
-                await KyntoEvents.startListen(connStr);
-                console.log('[KyntoRealtime] LISTEN gestartet');
+                // Nutze RealtimeConnection für Auto-Reconnect
+                await RealtimeConnection.start(connStr);
+                console.log('[KyntoRealtime] LISTEN mit Auto-Reconnect gestartet');
 
                 // NOTIFY-Trigger optional installieren
                 if (installTrigger && !_triggerInstalled) {
                     await _installTrigger(schema, table);
                 }
             } catch (err) {
-                console.warn('[KyntoRealtime] LISTEN fehlgeschlagen:', err.message);
+                console.warn('[KyntoRealtime] RealtimeConnection Start fehlgeschlagen:', err.message);
             }
         } else {
             console.log('[KyntoRealtime] Keine ConnectionString – nutze nur Polling');
@@ -123,7 +125,7 @@ export const KyntoRealtime = {
     /**
      * Stoppt alle Realtime-Aktivitäten für die aktuelle Tabelle.
      */
-    stop() {
+    async stop() {
         if (!_isRunning && !_pollTimer) return;
 
         _isRunning = false;
@@ -140,8 +142,9 @@ export const KyntoRealtime = {
             _unsubscribeEvent = null;
         }
 
-        // LISTEN stoppen (nur wenn kein anderes Modul es nutzt)
-        KyntoEvents.stopListen();
+        // LISTEN und Realtime Connection stoppen
+        await KyntoEvents.stopListen();
+        await RealtimeConnection.stop();
 
         // Trigger NICHT automatisch deinstallieren – bleibt für nächste Session
         _triggerInstalled = false;
@@ -150,6 +153,7 @@ export const KyntoRealtime = {
         _activeTable  = null;
         _activeSchema = 'public';
         _lastHash     = null;
+        _lastSyncedCtid = null; // Sicherstellen, dass auch der Zeilen-Pointer gelöscht wird
 
         if (prev) console.info(`[KyntoRealtime] Gestoppt: ${prev}`);
     },
@@ -203,7 +207,7 @@ async function _checkForChanges(schema, table) {
                     COUNT(*)::text                          AS cnt,
                     COALESCE(MAX(ctid::text), 'none')       AS last_ctid,
                     COALESCE(MAX(xmax::text), '0')          AS last_xmax
-                FROM "${schema}"."${table}"
+                FROM ${esc(schema)}.${esc(table)}
             `;
             
             // Map dbMode zu dbType für database-engine
@@ -226,7 +230,7 @@ async function _checkForChanges(schema, table) {
 
         } else {
             // DuckDB: kein ctid, nutze COUNT + rowid falls vorhanden
-            const sql = `SELECT COUNT(*)::TEXT AS cnt FROM "${schema}"."${table}"`;
+            const sql = `SELECT COUNT(*)::TEXT AS cnt FROM ${esc(schema)}.${esc(table)}`;
             const rows = await window.api.query(sql, dbId);
             hashVal = rows?.[0]?.cnt ?? '0';
         }
@@ -270,8 +274,9 @@ async function _fetchIncrementalChanges(schema, table) {
             // Nutzt ctid für PostgreSQL - das ist die Zeilen-Adresse und ändert sich bei Einfügungen
             let sql;
             if (_lastSyncedCtid) {
+                // Sicher escaped ctid verwenden (als Literal)
                 sql = `
-                    SELECT * FROM "${schema}"."${table}"
+                    SELECT * FROM ${esc(schema)}.${esc(table)}
                     WHERE ctid > '${_lastSyncedCtid}'::tid
                     ORDER BY ctid ASC
                     LIMIT 100
@@ -279,7 +284,7 @@ async function _fetchIncrementalChanges(schema, table) {
             } else {
                 // Erste Synchronisation - hole die letzten 100 Zeilen
                 sql = `
-                    SELECT * FROM "${schema}"."${table}"
+                    SELECT * FROM ${esc(schema)}.${esc(table)}
                     ORDER BY ctid DESC
                     LIMIT 100
                 `;
@@ -287,7 +292,7 @@ async function _fetchIncrementalChanges(schema, table) {
             
             console.log('[KyntoRealtime] Hole neue Zeilen:', sql.substring(0, 70) + '...');
             const newRows = await window.api.dbQuery(sql, null, dbType);
-            console.log('[KyntoRealtime] Kehabenen neue Zeilen:', newRows?.length || 0);
+            console.log('[KyntoRealtime] Erhalten neue Zeilen:', newRows?.length || 0);
             
             if (newRows && newRows.length > 0) {
                 // Update die letzte synced ctid

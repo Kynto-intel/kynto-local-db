@@ -235,9 +235,9 @@ export const KyntoDashboard = {
         const dbPath  = isRemote ? state.remoteConnectionString : state.pgId;
         const realPath = isPg ? state.pgId : null;
 
-        let dbName = 'Keine Datenbank';
+        let dbName = window.i18n?.t?.('dashboard.no_database') || 'No Database';
         if (isRemote) dbName = (state.remoteConnectionString || '').split('@')[1]?.split('/')[0] || 'Remote DB';
-        else if (dbPath) dbName = String(dbPath).split(/[/\\]/).pop() || 'Unbekannt';
+        else if (dbPath) dbName = String(dbPath).split(/[/\\]/).pop() || window.i18n?.t?.('dashboard.unknown') || 'Unknown';
 
         // Universelle Query-Funktion - nutze neue database-engine API
         const query = async (sql) => {
@@ -358,13 +358,13 @@ export const KyntoDashboard = {
         <div class="kd">
 
         <!-- ── Header ───────────────────────────────────────────── -->
-        <h1 class="kd-h1">Kynto Intel</h1>
+        <h1 class="kd-h1" data-i18n="dashboard.title">Kynto Intel</h1>
         <div class="kd-badge-row">
             <div class="kd-badge">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-                Aktive DB: <code>${escH(dbName)}</code>
+                <span data-i18n="dashboard.stats.active_db">Active DB:</span> <code>${escH(dbName)}</code>
             </div>
-            ${dbPath ? `<div class="kd-live"><div class="kd-dot"></div>Verbunden</div>` : ''}
+            ${dbPath ? `<div class="kd-live"><div class="kd-dot"></div><span data-i18n="dashboard.stats.connected">Connected</span></div>` : ''}
             ${dbVersion ? `<div class="kd-badge" style="font-family:monospace;font-size:11px">${escH(dbVersion.substring(0,45))}</div>` : ''}
         </div>
 
@@ -373,29 +373,29 @@ export const KyntoDashboard = {
             <div class="kd-card">
                 <div class="kd-icon" id="kd-tables-icon"><img src="../image/Vorlage.png?t=${Date.now()}" style="width:26px;height:26px;object-fit:contain"></div>
                 <div class="kd-val">${state.knownTables?.filter(t=>t&&t!=='undefined').length || 0}</div>
-                <div class="kd-lbl">Tabellen</div>
+                <div class="kd-lbl" data-i18n="dashboard.stats.tables">Tables</div>
             </div>
             <div class="kd-card">
                 <div class="kd-icon">⚡</div>
                 <div class="kd-val acc">${durationText}</div>
-                <div class="kd-lbl">Ping / Latenz</div>
+                <div class="kd-lbl" data-i18n="dashboard.stats.ping_latency">Ping / Latency</div>
                 <div class="kd-sub">${isRemote?'Remote PG':isPg?'PGlite':'DuckDB'} · live</div>
             </div>
             <div class="kd-card">
                 <div class="kd-icon">📜</div>
                 <div class="kd-val">${state.history?.length || 0}</div>
-                <div class="kd-lbl">SQL-Verlauf</div>
+                <div class="kd-lbl" data-i18n="dashboard.stats.history">SQL History</div>
             </div>
             <div class="kd-card">
                 <div class="kd-icon">⭐</div>
                 <div class="kd-val">${state.favorites?.length || 0}</div>
-                <div class="kd-lbl">Favoriten</div>
+                <div class="kd-lbl" data-i18n="dashboard.stats.favorites">Favorites</div>
             </div>
             ${activeConn !== null ? `
             <div class="kd-card">
                 <div class="kd-icon">🔌</div>
                 <div class="kd-val ${Number(activeConn) / Number(maxConn) > 0.8 ? 'red' : 'grn'}">${activeConn}</div>
-                <div class="kd-lbl">Verbindungen</div>
+                <div class="kd-lbl" data-i18n="dashboard.stats.connections">Connections</div>
                 ${maxConn ? `
                 <div class="kd-track"><div class="kd-fill ${Number(activeConn)/Number(maxConn)>.8?'red':'grn'}" style="width:${Math.min(100,(Number(activeConn)/Number(maxConn)*100)).toFixed(1)}%"></div></div>
                 <div class="kd-sub">Max: ${maxConn}</div>` : ''}
@@ -405,33 +405,33 @@ export const KyntoDashboard = {
         <!-- ── Dateigröße Dual-Panel ──────────────────────────── -->
         <div class="kd-chart-card">
             <div class="kd-chart-head">
-                <h4 class="kd-chart-title">💾 Dateigröße & Speicher</h4>
-                <span class="kd-chip">Gesamt: ${totalFmt.formatted}</span>
+                <h4 class="kd-chart-title" data-i18n="dashboard.storage.title">💾 File Size & Storage</h4>
+                <span class="kd-chip"><span data-i18n="dashboard.storage.total">Total</span>: ${totalFmt.formatted}</span>
             </div>
             <div class="kd-storage-row">
                 ${dbBytes > 0 ? `
                 <div class="kd-storage-chip">
-                    <div class="label">📊 Datenbankgröße</div>
+                    <div class="label" data-i18n="dashboard.storage.database_size">📊 Database Size</div>
                     <div class="value">${dbFmt.formatted}</div>
                     <div style="font-size:10px;color:var(--muted);margin-top:4px">${dbFmt.raw}</div>
                 </div>` : ''}
                 ${totalDeadTup > 0 ? `
                 <div class="kd-storage-chip">
-                    <div class="label">☠️ Tote Tupel</div>
-                    <div class="value red">${totalDeadTup.toLocaleString('de-DE')}</div>
-                    <div style="font-size:10px;color:var(--muted);margin-top:4px">${bloatTables.length} Tabellen betroffen</div>
+                    <div class="label" data-i18n="dashboard.storage.dead_tuples">☠️ Dead Tuples</div>
+                    <div class="value red">${totalDeadTup.toLocaleString('en-US')}</div>
+                    <div style="font-size:10px;color:var(--muted);margin-top:4px">${bloatTables.length} <span data-i18n="dashboard.storage.tables_affected">tables affected</span></div>
                 </div>` : ''}
             </div> <!-- .kd-storage-row -->
             ${(isPg || isRemote) ? `
-            <button class="kd-opt" id="kd-vacuum-pg" style="margin-top:8px">🧹 PostgreSQL VACUUM ANALYZE</button>` : ''}
+            <button class="kd-opt" id="kd-vacuum-pg" style="margin-top:8px" data-i18n="dashboard.actions.vacuum">🧹 VACUUM</button>` : ''}
         </div>
 
         <!-- ── Bloat-Tabellen (nur PG) ────────────────────────── -->
         ${bloatTables.length > 0 ? `
         <div class="kd-chart-card">
             <div class="kd-chart-head">
-                <h4 class="kd-chart-title">☠️ Datenmüll-Analyse (PostgreSQL)</h4>
-                <span class="kd-chip">${totalDeadTup.toLocaleString('de-DE')} tote Tupel</span>
+                <h4 class="kd-chart-title" data-i18n="dashboard.bloat.title">☠️ Data Bloat Analysis (PostgreSQL)</h4>
+                <span class="kd-chip">${totalDeadTup.toLocaleString('en-US')} <span data-i18n="dashboard.bloat.dead_tuples_count">dead tuples</span></span>
             </div>
             <div class="kd-bloat-list">
                 ${bloatTables.map(r => {
@@ -446,21 +446,21 @@ export const KyntoDashboard = {
                     </div>`;
                 }).join('')}
             </div>
-            <button class="kd-opt danger" id="kd-vacuum-bloat" style="margin-top:12px">🗑️ Alle bereinigen (VACUUM ANALYZE)</button>
+            <button class="kd-opt danger" id="kd-vacuum-bloat" style="margin-top:12px" data-i18n="dashboard.bloat.cleanup_button">🗑️ Clean all (VACUUM ANALYZE)</button>
         </div>` : ''}
 
         <!-- ── Speicherverteilung Chart ───────────────────────── -->
         <div class="kd-chart-card">
             <div class="kd-chart-head">
-                <h4 class="kd-chart-title">📊 Speicherverteilung</h4>
-                <span class="kd-chip">${chartIsBytes ? 'Bytegröße' : 'Zeilenanzahl'}</span>
+                <h4 class="kd-chart-title" data-i18n="dashboard.distribution.title">📊 Memory Distribution</h4>
+                <span class="kd-chip">${chartIsBytes ? window.i18n?.t?.('dashboard.distribution.bytes') || 'Byte size' : window.i18n?.t?.('dashboard.distribution.row_count') || 'Row count'}</span>
             </div>
             <div id="kd-chart-wrap" style="height:${Math.max(180, topTables.length * 36 + 40)}px">
                 ${topTables.length > 0
                     ? '<canvas id="kd-chart"></canvas>'
                     : `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--muted);opacity:.5;gap:8px;font-size:13px">
                            <div style="font-size:1.8rem">📊</div>
-                           <div>Keine Tabellen-Daten</div>
+                           <div data-i18n="dashboard.storage.no_tables">No table data</div>
                        </div>`}
             </div>
         </div>
@@ -471,7 +471,7 @@ export const KyntoDashboard = {
             <!-- Letzte Abfragen -->
             <div class="kd-chart-card" style="margin-bottom:0">
                 <div class="kd-chart-head">
-                    <h4 class="kd-chart-title">🕐 Letzte Abfragen</h4>
+                    <h4 class="kd-chart-title" data-i18n="dashboard.history_section.title">🕐 Recent Queries</h4>
                     <span class="kd-chip">${recentHistory.length}</span>
                 </div>
                 ${recentHistory.length > 0 ? `
@@ -488,28 +488,28 @@ export const KyntoDashboard = {
                             ${ago ? `<span class="kd-feed-time">${ago}</span>` : ''}
                         </div>`;
                     }).join('')}
-                </div>` : `<div style="color:var(--muted);font-size:12px;opacity:.5;padding:12px 0">Noch keine Abfragen ausgeführt.</div>`}
+                </div>` : `<div style="color:var(--muted);font-size:12px;opacity:.5;padding:12px 0" data-i18n="dashboard.history_section.empty">No queries executed yet.</div>`}
             </div>
 
             <!-- Quick Actions -->
             <div class="kd-chart-card" style="margin-bottom:0">
                 <div class="kd-chart-head">
-                    <h4 class="kd-chart-title">⚡ Aktionen</h4>
+                    <h4 class="kd-chart-title" data-i18n="dashboard.actions.title">⚡ Actions</h4>
                 </div>
                 <div class="kd-qa">
-                    <button class="kd-qa-btn" id="kd-a-sql">✍️ SQL Editor</button>
-                    <button class="kd-qa-btn" id="kd-a-schema">🔧 Schema</button>
-                    <button class="kd-qa-btn" id="kd-a-refresh">🔄 Neu laden</button>
-                    ${!isRemote ? `<button class="kd-qa-btn" id="kd-a-vacuum2">🧹 VACUUM</button>` : ''}
-                    ${(isPg||isRemote) ? `<button class="kd-qa-btn" id="kd-a-analyze">📐 ANALYZE</button>` : ''}
-                    <button class="kd-qa-btn" id="kd-a-export-sql">📥 SQL exportieren</button>
-                    <button class="kd-qa-btn danger" id="kd-a-clear-hist">🗑️ Verlauf leeren</button>
-                    ${state.knownTables?.filter(t=>t&&t!=='undefined').length > 0 ? `<button class="kd-qa-btn" id="kd-a-first">📋 Erste Tabelle</button>` : ''}
+                    <button class="kd-qa-btn" id="kd-a-sql" data-i18n="dashboard.actions.sql_editor">✍️ SQL Editor</button>
+                    <button class="kd-qa-btn" id="kd-a-schema" data-i18n="dashboard.actions.schema">🔧 Schema</button>
+                    <button class="kd-qa-btn" id="kd-a-refresh" data-i18n="dashboard.actions.refresh">🔄 Reload</button>
+                    ${!isRemote ? `<button class="kd-qa-btn" id="kd-a-vacuum2" data-i18n="dashboard.actions.vacuum">🧹 VACUUM</button>` : ''}
+                    ${(isPg||isRemote) ? `<button class="kd-qa-btn" id="kd-a-analyze" data-i18n="dashboard.actions.analyze">📐 ANALYZE</button>` : ''}
+                    <button class="kd-qa-btn" id="kd-a-export-sql" data-i18n="dashboard.actions.export_sql">📥 Export SQL</button>
+                    <button class="kd-qa-btn danger" id="kd-a-clear-hist" data-i18n="dashboard.actions.clear_history">🗑️ Clear History</button>
+                    ${state.knownTables?.filter(t=>t&&t!=='undefined').length > 0 ? `<button class="kd-qa-btn" id="kd-a-first" data-i18n="dashboard.actions.first_table">📋 First Table</button>` : ''}
                 </div>
 
                 <!-- Top Tabellen Schnellzugriff -->
                 ${topTables.length > 0 ? `
-                <div style="margin-top:16px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:8px">Top Tabellen</div>
+                <div style="margin-top:16px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;margin-bottom:8px">Top Tables</div>
                 <div class="kd-tlist">
                     ${topTables.slice(0,5).map(t => `
                     <div class="kd-trow" data-table="${escH(t.display_name||t.table_name)}" data-short="${escH(t.table_name)}">
@@ -517,7 +517,7 @@ export const KyntoDashboard = {
                         <div class="kd-trow-size">${
                             chartIsBytes
                                 ? formatBytes(Number(t.size_bytes)).formatted
-                                : Number(t.size_bytes).toLocaleString('de-DE') + ' Zeilen'
+                                : Number(t.size_bytes).toLocaleString('en-US') + ' rows'
                         }</div>
                     </div>`).join('')}
                 </div>` : ''}
@@ -532,20 +532,20 @@ export const KyntoDashboard = {
         // VACUUM PG (nur für PGlite/ProgressSQL, kein DuckDB mehr)
         const vacPg = container.querySelector('#kd-vacuum-pg');
         if (vacPg) vacPg.addEventListener('click', async () => {
-            vacPg.disabled = true; vacPg.textContent = '⏳ PG VACUUM…';
-            setStatus('PostgreSQL VACUUM ANALYZE…', 'info');
+            vacPg.disabled = true; vacPg.textContent = window.i18n?.t?.('dashboard.messages.cleaning') || '⏳ Cleaning…';
+            setStatus(window.i18n?.t?.('dashboard.messages.postgres_vacuum') || 'PostgreSQL VACUUM ANALYZE…', 'info');
             try {
                 await query('VACUUM ANALYZE');
-                setStatus('PostgreSQL optimiert!', 'success');
-            } catch (e) { setStatus('VACUUM fehlgeschlagen: ' + e.message, 'error'); }
+                setStatus(window.i18n?.t?.('dashboard.messages.postgres_optimized') || 'PostgreSQL optimized!', 'success');
+            } catch (e) { setStatus((window.i18n?.t?.('dashboard.messages.vacuum_failed', { message: e.message }) || 'VACUUM failed: ') + e.message, 'error'); }
             KyntoDashboard.render(container);
         });
 
         // VACUUM Bloat
         const vacBloat = container.querySelector('#kd-vacuum-bloat');
         if (vacBloat) vacBloat.addEventListener('click', async () => {
-            vacBloat.disabled = true; vacBloat.textContent = '⏳ Bereinige…';
-            setStatus('VACUUM FULL ANALYZE für alle Tabellen (kann dauern)…', 'info');
+            vacBloat.disabled = true; vacBloat.textContent = window.i18n?.t?.('dashboard.messages.cleaning') || '⏳ Cleaning…';
+            setStatus(window.i18n?.t?.('dashboard.messages.vacuum_full') || 'VACUUM FULL ANALYZE for all tables (may take time)…', 'info');
             try {
                 for (const t of bloatTables) {
                     // VACUUM FULL entfernt tote Tupel wirklich und gibt Speicher frei (nicht nur markiert)
@@ -553,12 +553,12 @@ export const KyntoDashboard = {
                 }
                 // Global ANALYZE für pg_stat_user_tables aktualisieren
                 await query('ANALYZE').catch(()=>{});
-                setStatus(`${bloatTables.length} Tabellen vollständig bereinigt!`, 'success');
+                setStatus(window.i18n?.t?.('dashboard.messages.tables_cleaned', { count: bloatTables.length }) || `${bloatTables.length} tables completely cleaned!`, 'success');
                 // WICHTIG: Längere Verzögerung damit PostgreSQL Statistiken vollständig aktualisiert
                 setTimeout(() => {
                     KyntoDashboard.render(container);
                 }, 3000);
-            } catch (e) { setStatus('Fehler: ' + e.message, 'error'); }
+            } catch (e) { setStatus((window.i18n?.t?.('dashboard.messages.error') || 'Error') + ': ' + e.message, 'error'); }
         });
 
         // Quick Actions
@@ -575,21 +575,21 @@ export const KyntoDashboard = {
         });
         container.querySelector('#kd-a-vacuum2')?.addEventListener('click', () => vacPg?.click());
         container.querySelector('#kd-a-analyze')?.addEventListener('click', async () => {
-            setStatus('ANALYZE läuft…', 'info');
-            try { await query('ANALYZE'); setStatus('ANALYZE abgeschlossen.', 'success'); } catch (e) { setStatus('Fehler: ' + e.message, 'error'); }
+            setStatus(window.i18n?.t?.('dashboard.messages.analyze_running') || 'ANALYZE running…', 'info');
+            try { await query('ANALYZE'); setStatus(window.i18n?.t?.('dashboard.messages.analyze_complete') || 'ANALYZE complete.', 'success'); } catch (e) { setStatus((window.i18n?.t?.('dashboard.messages.error') || 'Error') + ': ' + e.message, 'error'); }
         });
         container.querySelector('#kd-a-export-sql')?.addEventListener('click', () => {
             const hist = (state.history || []).map(h => (h.sql||h||'').trim()).filter(Boolean).join(';\n\n');
-            if (!hist) { setStatus('Kein Verlauf zum Exportieren.', 'error'); return; }
+            if (!hist) { setStatus(window.i18n?.t?.('dashboard.messages.no_history_export') || 'No history to export.', 'error'); return; }
             const url = URL.createObjectURL(new Blob([hist], { type: 'text/sql' }));
             Object.assign(document.createElement('a'), { href: url, download: 'kynto-history.sql' }).click();
             URL.revokeObjectURL(url);
-            setStatus('SQL-Verlauf exportiert.', 'success');
+            setStatus(window.i18n?.t?.('dashboard.messages.history_exported') || 'SQL history exported.', 'success');
         });
         container.querySelector('#kd-a-clear-hist')?.addEventListener('click', () => {
-            if (!confirm('SQL-Verlauf wirklich leeren?')) return;
+            if (!confirm(window.i18n?.t?.('dashboard.messages.confirm_clear_history') || 'Really clear SQL history?')) return;
             state.history = [];
-            setStatus('Verlauf geleert.', 'info');
+            setStatus(window.i18n?.t?.('dashboard.messages.history_cleared') || 'History cleared.', 'info');
             KyntoDashboard.render(container);
         });
         container.querySelector('#kd-a-first')?.addEventListener('click', () => {
@@ -640,6 +640,8 @@ export const KyntoDashboard = {
         container.removeEventListener('click', container.__topTableRowClickHandler);
         container.__topTableRowClickHandler = handleTopTableRowClick;
         container.addEventListener('click', handleTopTableRowClick);
+
+        // ⏸️ updateDOM() nicht hier aufrufen - wird nach vollständiger Initialisierung durch app.js aufgerufen
 
         // ── Chart ─────────────────────────────────────────────────────────
         if (topTables.length > 0 && typeof Chart !== 'undefined') {
@@ -771,7 +773,7 @@ export const KyntoDashboard = {
         // HTML generieren
         const html = `
         <div class="kd">
-            <h1 class="kd-h1">🏠 Kynto Intel</h1>
+            <h1 class="kd-h1">Kynto Intel</h1>
             <div class="kd-badge-row">
                 <div class="kd-badge"><strong>${allDbs.length}</strong> Datenbank${allDbs.length !== 1 ? 'en' : ''}</div>
                 <div class="kd-badge">💾 <code>${sizeFmt}</code></div>
@@ -783,8 +785,8 @@ export const KyntoDashboard = {
                 </div>
             </div>
 
-            <h2 style="font-size:16px; font-weight:700; color:var(--text); margin:28px 0 14px; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted);">
-                Datenbanken
+            <h2 style="font-size:16px; font-weight:700; color:var(--text); margin:28px 0 14px; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted);" data-i18n="dashboard.all_databases.section_title">
+                Databases
             </h2>
 
             <div style="
@@ -805,21 +807,23 @@ export const KyntoDashboard = {
                         ${escH(s.dbName)}
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:12px; color:var(--muted);">
-                        <div><span style="color:var(--text); font-weight:600;">${s.tableCount}</span> Tabellen</div>
-                        <div><span style="color:var(--text); font-weight:600;">${s.rowCount.toLocaleString('de-DE')}</span> Zeilen</div>
-                        <div style="grid-column:1/-1;"><span style="color:var(--text); font-weight:600;">${formatBytes(s.dbSize).formatted}</span> Größe • ${s.ping} Ping</div>
+                        <div><span style="color:var(--text); font-weight:600;">${s.tableCount}</span> ${window.i18n?.t?.('dashboard.stats.tables') || 'Tables'}</div>
+                        <div><span style="color:var(--text); font-weight:600;">${s.rowCount.toLocaleString('en-US')}</span> ${window.i18n?.t?.('dashboard.all_databases.rows') || 'Rows'}</div>
+                        <div style="grid-column:1/-1;"><span style="color:var(--text); font-weight:600;">${formatBytes(s.dbSize).formatted}</span> ${window.i18n?.t?.('dashboard.all_databases.size') || 'Storage'} • ${s.ping} ${window.i18n?.t?.('dashboard.all_databases.ping') || 'Ping'}</div>
                     </div>
                 </div>
                 `).join('')}
             </div>
 
             <div style="margin-top:28px; padding:14px 16px; background:var(--surface2); border-radius:12px; border:1px solid var(--border); color:var(--muted); font-size:12px; line-height:1.6;">
-                <strong style="color:var(--accent);">Tipp:</strong> Klicke auf eine Datenbank um die komplette Übersicht zu sehen.
+                <strong style="color:var(--accent);">${window.i18n?.t?.('dashboard.messages.tip') || 'Tip'}:</strong> ${window.i18n?.t?.('dashboard.all_databases.click_tip') || 'Click on a database to see the complete overview.'}
             </div>
         </div>
         `;
 
         container.innerHTML = html;
+
+        // ⏸️ updateDOM() nicht hier aufrufen - wird nach vollständiger Initialisierung durch app.js aufgerufen
 
         // Event-Delegation für DB-Karten
         const handleDbCardClick = (e) => {

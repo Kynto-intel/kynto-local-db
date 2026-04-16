@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import Papa from 'papaparse';
 import dayjs from 'dayjs';
 import { toast } from 'sonner';
+import { DataFormatter } from '../modules/DataFormatter.js';
 
 /**
  * Import Dialog - Vereinfachte Version basierend auf echten SpreadsheetImport Komponenten
@@ -251,7 +252,14 @@ export function ImportDialog({
                             <tr key={ridx}>
                               {selectedHeaders.map((h) => {
                                 const colIdx = headers.indexOf(h);
-                                return <td key={h}>{row[colIdx] || '—'}</td>;
+                                const cellValue = row[colIdx];
+                                // Nutze DataFormatter für korrekte Datumsformatierung
+                                const formatted = DataFormatter.format(cellValue);
+                                return (
+                                  <td key={h}>
+                                    {formatted ? <div dangerouslySetInnerHTML={{ __html: formatted }} /> : '—'}
+                                  </td>
+                                );
                               })}
                             </tr>
                           ))}

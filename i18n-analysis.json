@@ -1,0 +1,898 @@
+{
+  "io_js": {
+    "file": "renderer/modules/io.js",
+    "strings_found": 18,
+    "categories": {
+      "status_messages": [
+        {
+          "line": 33,
+          "key": "io.status.importing",
+          "english": "Importing…",
+          "german": "Importiere…",
+          "context": "setStatus() - initial CSV import start"
+        },
+        {
+          "line": 48,
+          "key": "io.status.reading_csv",
+          "english": "📥 Reading CSV from \"{fileName}\"...",
+          "german": "📥 Lese CSV von \"{fileName}\"...",
+          "context": "setStatus() - CSV file being read with filename"
+        },
+        {
+          "line": 90,
+          "key": "io.status.creating_table",
+          "english": "✅ Creating table \"{name}\"...",
+          "german": "✅ Erstelle Tabelle \"{name}\"...",
+          "context": "setStatus() - table creation in progress"
+        },
+        {
+          "line": 93,
+          "key": "io.status.table_created",
+          "english": "✅ Table \"{name}\" created",
+          "german": "✅ Tabelle \"{name}\" erstellt",
+          "context": "setStatus() - table successfully created"
+        },
+        {
+          "line": 103,
+          "key": "io.status.importing_rows",
+          "english": "📥 Importing {{rows}} rows...",
+          "german": "📥 Importiere {{rows}} Zeilen...",
+          "context": "setStatus() - data import with row count"
+        },
+        {
+          "line": 330,
+          "key": "io.status.batch_progress",
+          "english": "📥 Batch {{batch}}/{{total}}: {{current}}/{{rows}} rows",
+          "german": "📥 Batch {{batch}}/{{total}}: {{current}}/{{rows}} Zeilen",
+          "context": "setStatus() - batch import progress indicator"
+        },
+        {
+          "line": 410,
+          "key": "io.status.dialog_opening",
+          "english": "📂 CSV import dialog opening...",
+          "german": "📂 CSV-Import Dialog öffnet sich...",
+          "context": "setStatus() - dialog initialization"
+        },
+        {
+          "line": 423,
+          "key": "io.status.refreshing_tables",
+          "english": "📋 Updating table list...",
+          "german": "📋 Tabellenliste wird aktualisiert...",
+          "context": "setStatus() - table list refresh"
+        },
+        {
+          "line": 424,
+          "key": "io.status.done",
+          "english": "✅ Done!",
+          "german": "✅ Fertig!",
+          "context": "setStatus() - import completion"
+        }
+      ],
+      "error_messages": [
+        {
+          "line": 53,
+          "key": "io.error.csv_parsing_failed",
+          "english": "❌ CSV could not be parsed",
+          "german": "❌ CSV konnte nicht geparst werden",
+          "context": "setStatus(error) - CSV parsing error"
+        },
+        {
+          "line": 61,
+          "key": "io.error.csv_empty",
+          "english": "❌ CSV is empty (0 rows)",
+          "german": "❌ CSV ist leer (0 Zeilen)",
+          "context": "setStatus(error) - empty CSV file"
+        },
+        {
+          "line": 69,
+          "key": "io.error.no_columns",
+          "english": "❌ No columns found (invalid CSV header?)",
+          "german": "❌ Keine Spalten gefunden (CSV-Header ungültig?)",
+          "context": "setStatus(error) - missing CSV headers"
+        },
+        {
+          "line": 97,
+          "key": "io.error.table_creation_failed",
+          "english": "❌ Table could not be created: {{message}}",
+          "german": "❌ Tabelle konnte nicht erstellt werden: {{message}}",
+          "context": "setStatus(error) - database table creation error"
+        },
+        {
+          "line": 372,
+          "key": "io.error.import_failed",
+          "english": "❌ Import error: {{message}}",
+          "german": "❌ Import Fehler: {{message}}",
+          "context": "setStatus(error) - generic import error with exception message"
+        },
+        {
+          "line": 369,
+          "key": "io.error.format_not_supported",
+          "english": "⚠️ Only CSV import is supported (not {{format}})",
+          "german": "⚠️ Nur CSV-Import unterstützt (nicht {{format}})",
+          "context": "setStatus(warning) - unsupported file format"
+        }
+      ],
+      "success_messages": [
+        {
+          "line": 354,
+          "key": "io.success.import_with_errors",
+          "english": "✅ \"{{name}}\" imported! {{success}}/{{total}} rows ({{errors}} errors)",
+          "german": "✅ \"{{name}}\" importiert! {{success}}/{{total}} Zeilen ({{errors}} Fehler)",
+          "context": "setStatus(success) - import completed with some errors"
+        },
+        {
+          "line": 356,
+          "key": "io.success.import_complete",
+          "english": "✅ \"{{name}}\" imported! {{rows}} rows",
+          "german": "✅ \"{{name}}\" importiert! {{rows}} Zeilen",
+          "context": "setStatus(success) - import completed successfully"
+        },
+        {
+          "line": 361,
+          "key": "io.success.import_with_target",
+          "english": "✅ Successfully imported ({{target}})",
+          "german": "✅ Erfolgreich importiert ({{target}})",
+          "context": "setStatus(success) - import with target database indicator (Remote/PGlite)"
+        }
+      ],
+      "warning_messages": [
+        {
+          "line": 343,
+          "key": "io.warning.batch_errors",
+          "english": "⚠️ Batch {{batch}} had errors - continuing...",
+          "german": "⚠️  Batch {{batch}} hatte Fehler - fahre fort...",
+          "context": "setStatus(warning) - batch processing error but continuing"
+        }
+      ]
+    }
+  },
+  "executor_js": {
+    "file": "renderer/modules/executor.js",
+    "strings_found": 15,
+    "categories": {
+      "button_labels": [
+        {
+          "line": 81,
+          "key": "executor.button.execute",
+          "english": "▶ Execute",
+          "german": "▶ Ausführen",
+          "context": "runBtn.textContent - default execution button label"
+        },
+        {
+          "line": 279,
+          "key": "executor.button.execute_selection",
+          "english": "▶ Execute selection",
+          "german": "▶ Auswahl ausführen",
+          "context": "runBtn.textContent - when text is selected in editor"
+        },
+        {
+          "line": 322,
+          "key": "executor.button.cancel",
+          "english": "⏹ Cancel",
+          "german": "⏹ Abbrechen",
+          "context": "runBtn.textContent - during query execution to allow cancellation"
+        },
+        {
+          "line": 290,
+          "key": "executor.button.verify",
+          "english": "⚠️ Verify...",
+          "german": "⚠️ Prüfen...",
+          "context": "runBtn.textContent - when destructive query confirmation is pending"
+        }
+      ],
+      "status_messages": [
+        {
+          "line": 310,
+          "key": "executor.status.executing_selection",
+          "english": "Execute selection…",
+          "german": "Führe Auswahl aus…",
+          "context": "setStatus(info) - executing selected text from editor"
+        },
+        {
+          "line": 328,
+          "key": "executor.status.query_cancelled",
+          "english": "Query cancelled.",
+          "german": "Query abgebrochen.",
+          "context": "setStatus(info) - user cancelled running query"
+        },
+        {
+          "line": 335,
+          "key": "executor.status.loading",
+          "english": "Loading…",
+          "german": "Lädt…",
+          "context": "setStatus() - query execution in progress"
+        }
+      ],
+      "success_messages": [
+        {
+          "line": 142,
+          "key": "executor.success.ddl_executed",
+          "english": "Successfully executed.",
+          "german": "Erfolgreich ausgeführt.",
+          "context": "DDL operation success message (CREATE, INSERT, DROP, etc.)"
+        },
+        {
+          "line": 197,
+          "key": "executor.success.rows_displayed",
+          "english": "Showing {{count}} of {{total}} rows.",
+          "german": "Zeige {{count}} von {{total}} Zeilen.",
+          "context": "setStatus(success) - SELECT results with pagination info"
+        },
+        {
+          "line": 206,
+          "key": "executor.success.rows_loaded",
+          "english": "{{count}} row(s){{columns}} loaded in {{duration}}ms.",
+          "german": "{{count}} Zeile{{plural}} {{columns}} in {{duration}}ms geladen.",
+          "context": "setStatus(success) - query results with row/column count and timing"
+        }
+      ],
+      "error_and_empty_messages": [
+        {
+          "line": 222,
+          "key": "executor.error.no_results",
+          "english": "No results.",
+          "german": "Kein Ergebnis.",
+          "context": "resultInfo.textContent - when query returns no data"
+        },
+        {
+          "line": 479,
+          "key": "executor.error.sql_error",
+          "english": "SQL error: {{message}}",
+          "german": "SQL Fehler: {{message}}",
+          "context": "setStatus(error) - generic SQL execution error"
+        }
+      ]
+    }
+  },
+  "settings_modal_html": {
+    "file": "renderer/templates/settings-modal.html",
+    "strings_found": 84,
+    "categories": {
+      "sidebar_navigation": [
+        {
+          "line": 20,
+          "key": "settings.nav.general",
+          "english": "⚙️ General",
+          "german": "⚙️ Allgemein",
+          "context": "nav-item - general settings tab"
+        },
+        {
+          "line": 21,
+          "key": "settings.nav.editor",
+          "english": "📝 Editor & UI",
+          "german": "📝 Editor & UI",
+          "context": "nav-item - editor settings tab"
+        },
+        {
+          "line": 22,
+          "key": "settings.nav.database",
+          "english": "💾 Database",
+          "german": "💾 Datenbank",
+          "context": "nav-item - database settings tab"
+        },
+        {
+          "line": 23,
+          "key": "settings.nav.api_keys",
+          "english": "🔑 API Keys",
+          "german": "🔑 API Keys",
+          "context": "nav-item - API keys management tab"
+        },
+        {
+          "line": 24,
+          "key": "settings.nav.sync",
+          "english": "🔄 Sync-Center",
+          "german": "🔄 Sync-Center",
+          "context": "nav-item - synchronization settings tab"
+        },
+        {
+          "line": 25,
+          "key": "settings.nav.ai",
+          "english": "🤖 AI Assistant",
+          "german": "🤖 KI-Assistent",
+          "context": "nav-item - AI settings tab"
+        },
+        {
+          "line": 26,
+          "key": "settings.nav.templates",
+          "english": "📋 Templates",
+          "german": "📋 Vorlagen",
+          "context": "nav-item - SQL templates tab"
+        },
+        {
+          "line": 27,
+          "key": "settings.nav.maintenance",
+          "english": "🧹 Maintenance",
+          "german": "🧹 Wartung",
+          "context": "nav-item - database maintenance tab"
+        }
+      ],
+      "footer_buttons": [
+        {
+          "line": 30,
+          "key": "settings.button.save",
+          "english": "Save",
+          "german": "Speichern",
+          "context": "settings-save button - save all settings"
+        },
+        {
+          "line": 31,
+          "key": "settings.button.cancel",
+          "english": "Cancel",
+          "german": "Abbrechen",
+          "context": "settings-cancel button - close without saving"
+        }
+      ],
+      "general_settings": [
+        {
+          "line": 37,
+          "key": "settings.general.heading",
+          "english": "General",
+          "german": "Allgemein",
+          "context": "h2 heading - general settings section"
+        },
+        {
+          "line": 39,
+          "key": "settings.general.appearance",
+          "english": "Appearance",
+          "german": "Erscheinungsbild",
+          "context": "label - theme selection"
+        },
+        {
+          "line": 41,
+          "key": "settings.general.dark_mode",
+          "english": "Dark Mode (Default)",
+          "german": "Dark Mode (Standard)",
+          "context": "option - dark theme"
+        },
+        {
+          "line": 42,
+          "key": "settings.general.light_mode",
+          "english": "Light Mode",
+          "german": "Light Mode",
+          "context": "option - light theme"
+        },
+        {
+          "line": 44,
+          "key": "settings.general.default_views",
+          "english": "Default Views",
+          "german": "Standard-Ansichten",
+          "context": "h3 heading - default view options"
+        },
+        {
+          "line": 46,
+          "key": "settings.general.sidebar_open",
+          "english": "Open sidebar on startup",
+          "german": "Sidebar links beim Start öffnen",
+          "context": "checkbox label - sidebar default state"
+        },
+        {
+          "line": 48,
+          "key": "settings.general.create_database",
+          "english": "Create Database...",
+          "german": "Neue Datenbank erstellen...",
+          "context": "button - create new database"
+        }
+      ],
+      "editor_settings": [
+        {
+          "line": 52,
+          "key": "settings.editor.heading",
+          "english": "Editor & UI",
+          "german": "Editor & UI",
+          "context": "h2 heading - editor settings section"
+        },
+        {
+          "line": 54,
+          "key": "settings.editor.font_size",
+          "english": "Font size (px)",
+          "german": "Schriftgröße (px)",
+          "context": "label - editor font size"
+        },
+        {
+          "line": 57,
+          "key": "settings.editor.line_numbers",
+          "english": "Show line numbers",
+          "german": "Zeilennummern anzeigen",
+          "context": "checkbox label - line number display"
+        },
+        {
+          "line": 60,
+          "key": "settings.editor.autocomplete",
+          "english": "Intelligent autocomplete (SQL)",
+          "german": "Intelligente Autovervollständigung (SQL)",
+          "context": "checkbox label - SQL autocomplete"
+        },
+        {
+          "line": 63,
+          "key": "settings.editor.data_table",
+          "english": "Data Table",
+          "german": "Daten-Tabelle",
+          "context": "h3 heading - data table options"
+        },
+        {
+          "line": 65,
+          "key": "settings.editor.virtual_scrolling",
+          "english": "Virtual scrolling (for large datasets)",
+          "german": "Virtual Scrolling (für große Datenmengen)",
+          "context": "checkbox label - virtual scrolling enable"
+        },
+        {
+          "line": 67,
+          "key": "settings.editor.virtual_scrolling_desc",
+          "english": "Massively increases performance for > 10,000 rows.",
+          "german": "Erhöht die Performance bei > 10.000 Zeilen massiv.",
+          "context": "description text - virtual scrolling benefit"
+        }
+      ],
+      "database_settings": [
+        {
+          "line": 72,
+          "key": "settings.database.heading",
+          "english": "Database",
+          "german": "Datenbank",
+          "context": "h2 heading - database settings section"
+        },
+        {
+          "line": 74,
+          "key": "settings.database.query_limit",
+          "english": "Default query limit",
+          "german": "Standard-Limit für Abfragen",
+          "context": "label - query result limit"
+        },
+        {
+          "line": 76,
+          "key": "settings.database.query_limit_desc",
+          "english": "Prevents crashes with millions of records.",
+          "german": "Verhindert Abstürze bei Millionen von Datensätzen.",
+          "context": "description text - why limit is important"
+        },
+        {
+          "line": 79,
+          "key": "settings.database.server_connection",
+          "english": "Server Connection",
+          "german": "Server-Verbindung",
+          "context": "h4 heading - server connection options"
+        },
+        {
+          "line": 80,
+          "key": "settings.database.postgres_server",
+          "english": "☁️ PostgreSQL for Server",
+          "german": "☁️ PostgreSQL für Server",
+          "context": "button - open sync center for server connection"
+        },
+        {
+          "line": 82,
+          "key": "settings.database.postgres_desc",
+          "english": "Opens the Sync-Center to connect to an external PostgreSQL server.",
+          "german": "Öffnet das Sync-Center, um eine Verbindung zu einem externen PostgreSQL-Server herzustellen.",
+          "context": "description text - server connection explanation"
+        }
+      ],
+      "api_keys_section": [
+        {
+          "line": 87,
+          "key": "settings.apikeys.heading",
+          "english": "API Keys & Authentication",
+          "german": "API Keys & Authentifizierung",
+          "context": "h2 heading - API keys section"
+        },
+        {
+          "line": 88,
+          "key": "settings.apikeys.description",
+          "english": "Generate API Keys to connect external projects with this Kynto instance. Share tokens securely with other developers.",
+          "german": "Generiere API Keys, um externe Projekte mit dieser Kynto-Instanz zu verbinden. Teile diese Tokens sicher mit anderen Entwicklern.",
+          "context": "p - API keys explanation"
+        },
+        {
+          "line": 91,
+          "key": "settings.apikeys.generate_button",
+          "english": "➕ Generate new API Key",
+          "german": "➕ Neuen API Key generieren",
+          "context": "button - generate new API key"
+        },
+        {
+          "line": 94,
+          "key": "settings.apikeys.active_keys",
+          "english": "Active API Keys",
+          "german": "Aktive API Keys",
+          "context": "h3 heading - list of active keys"
+        },
+        {
+          "line": 96,
+          "key": "settings.apikeys.no_keys",
+          "english": "No API Keys generated yet.",
+          "german": "Noch keine API Keys generiert.",
+          "context": "message - empty state for API keys"
+        },
+        {
+          "line": 102,
+          "key": "settings.apikeys.documentation",
+          "english": "📚 API Keys Documentation",
+          "german": "📚 API Keys Dokumentation",
+          "context": "button - open API documentation"
+        },
+        {
+          "line": 106,
+          "key": "settings.apikeys.usage_heading",
+          "english": "Usage in Projects",
+          "german": "Verwendung in Projekten",
+          "context": "h3 heading - usage instructions section"
+        },
+        {
+          "line": 107,
+          "key": "settings.apikeys.usage_note",
+          "english": "Important: Each API Key is marked as [USED] after usage. You can then manually delete it when it is no longer needed.",
+          "german": "Wichtig: Jeder API Key wird nach Verwendung mit [VERWENDET] gekennzeichnet. Du kannst ihn dann manuell löschen wenn er nicht mehr nötig ist.",
+          "context": "p - important note about API key tracking"
+        },
+        {
+          "line": 111,
+          "key": "settings.apikeys.bearer_header",
+          "english": "1. As Bearer Token in Header:",
+          "german": "1. Als Bearer Token im Header:",
+          "context": "p - bearer token usage label"
+        },
+        {
+          "line": 116,
+          "key": "settings.apikeys.js_example",
+          "english": "2. JavaScript Fetch Example:",
+          "german": "2. JavaScript Fetch Beispiel:",
+          "context": "p - JavaScript fetch example label"
+        },
+        {
+          "line": 126,
+          "key": "settings.apikeys.curl_example",
+          "english": "3. cURL Example:",
+          "german": "3. cURL Beispiel:",
+          "context": "p - curl command example label"
+        },
+        {
+          "line": 132,
+          "key": "settings.apikeys.security_warning",
+          "english": "⚠️ Security: Never share your API Key publicly! The key works like a password. If usage looks suspicious, delete the key and generate a new one.",
+          "german": "⚠️ Sicherheit: Teile deinen API Key niemals öffentlich! Der Key funktioniert wie ein Passwort. Wenn die Verwendung verdächtig aussieht, lösche den Key und generiere einen neuen.",
+          "context": "security warning message - API key handling"
+        }
+      ],
+      "sync_center": [
+        {
+          "line": 138,
+          "key": "settings.sync.heading",
+          "english": "Sync-Center",
+          "german": "Sync-Center",
+          "context": "h2 heading - sync center section"
+        },
+        {
+          "line": 141,
+          "key": "settings.sync.connection_label",
+          "english": "PostgreSQL Connection",
+          "german": "ProgressSQL-Verbindung",
+          "context": "h4 heading - connection status (note: typo in original)"
+        },
+        {
+          "line": 143,
+          "key": "settings.sync.placeholder",
+          "english": "postgresql://user:pass@host:5432/db",
+          "german": "postgresql://user:pass@host:5432/db",
+          "context": "placeholder - PostgreSQL connection string format"
+        },
+        {
+          "line": 145,
+          "key": "settings.sync.connect_button",
+          "english": "Connect",
+          "german": "Verbinden",
+          "context": "button - establish database connection"
+        },
+        {
+          "line": 148,
+          "key": "settings.sync.not_connected",
+          "english": "Not connected",
+          "german": "Nicht verbunden",
+          "context": "status text - when not connected to PostgreSQL"
+        },
+        {
+          "line": 154,
+          "key": "settings.sync.syncing",
+          "english": "Syncing...",
+          "german": "Sync läuft…",
+          "context": "h4 heading - sync in progress section"
+        },
+        {
+          "line": 158,
+          "key": "settings.sync.ready",
+          "english": "Ready...",
+          "german": "Bereit...",
+          "context": "initial sync progress message"
+        },
+        {
+          "line": 162,
+          "key": "settings.sync.storage_label",
+          "english": "Storage for Images and Videos",
+          "german": "Lagerung für Bilder und Videos",
+          "context": "h4 heading - media storage section"
+        },
+        {
+          "line": 175,
+          "key": "settings.sync.storage_desc",
+          "english": "Determine where media should be stored locally.",
+          "german": "Bestimme den Pfad, an dem Medien lokal gespeichert werden sollen.",
+          "context": "description text - storage path explanation"
+        },
+        {
+          "line": 166,
+          "key": "settings.sync.browse_button",
+          "english": "Browse",
+          "german": "Durchsuchen",
+          "context": "button - browse for storage directory"
+        }
+      ],
+      "ai_assistant": [
+        {
+          "line": 184,
+          "key": "settings.ai.heading",
+          "english": "AI Assistant",
+          "german": "KI-Assistent",
+          "context": "h2 heading - AI settings section"
+        },
+        {
+          "line": 186,
+          "key": "settings.ai.enable",
+          "english": "Enable Natural Language to SQL",
+          "german": "Natural Language to SQL aktivieren",
+          "context": "checkbox label - AI feature toggle"
+        },
+        {
+          "line": 189,
+          "key": "settings.ai.provider",
+          "english": "Provider",
+          "german": "Provider",
+          "context": "label - AI provider selection"
+        },
+        {
+          "line": 191,
+          "key": "settings.ai.ollama",
+          "english": "Ollama (Local - recommended)",
+          "german": "Ollama (Lokal - empfohlen)",
+          "context": "option - local Ollama provider"
+        },
+        {
+          "line": 192,
+          "key": "settings.ai.openai",
+          "english": "OpenAI (Cloud)",
+          "german": "OpenAI (Cloud)",
+          "context": "option - OpenAI cloud provider"
+        },
+        {
+          "line": 193,
+          "key": "settings.ai.anthropic",
+          "english": "Anthropic Claude (Cloud)",
+          "german": "Anthropic Claude (Cloud)",
+          "context": "option - Anthropic Claude cloud provider"
+        },
+        {
+          "line": 196,
+          "key": "settings.ai.api_key",
+          "english": "API Key / Endpoint",
+          "german": "API Key / Endpoint",
+          "context": "label - API key input field"
+        },
+        {
+          "line": 200,
+          "key": "settings.ai.model_name",
+          "english": "Model Name",
+          "german": "Modell-Name",
+          "context": "label - AI model name"
+        },
+        {
+          "line": 201,
+          "key": "settings.ai.model_placeholder",
+          "english": "duckdb-nsql or llama3",
+          "german": "duckdb-nsql oder llama3",
+          "context": "placeholder - model name examples"
+        }
+      ],
+      "templates": [
+        {
+          "line": 206,
+          "key": "settings.templates.heading",
+          "english": "SQL Templates",
+          "german": "SQL Vorlagen",
+          "context": "h2 heading - templates section"
+        },
+        {
+          "line": 208,
+          "key": "settings.templates.quickstarts",
+          "english": "Show quickstarts in dashboard",
+          "german": "Quickstarts im Dashboard anzeigen",
+          "context": "checkbox label - quickstart display toggle"
+        },
+        {
+          "line": 210,
+          "key": "settings.templates.quickstarts_desc",
+          "english": "Determines whether the predefined SQL scripts (Quickstarts) are displayed on the start page.",
+          "german": "Legt fest, ob die vordefinierten SQL-Skripte (Quickstarts) auf der Startseite eingeblendet werden sollen.",
+          "context": "description text - quickstart explanation"
+        },
+        {
+          "line": 213,
+          "key": "settings.templates.connected",
+          "english": "Connected Templates",
+          "german": "Verbundene Vorlagen",
+          "context": "h3 heading - connected templates list"
+        },
+        {
+          "line": 214,
+          "key": "settings.templates.loaded_from",
+          "english": "These templates are currently loaded from <code>SQLEditor.queries.js</code>:",
+          "german": "Diese Vorlagen werden aktuell aus der <code>SQLEditor.queries.js</code> geladen:",
+          "context": "description text - where templates are loaded from"
+        }
+      ],
+      "maintenance": [
+        {
+          "line": 219,
+          "key": "settings.maintenance.heading",
+          "english": "Database Maintenance",
+          "german": "Datenbank-Wartung",
+          "context": "h2 heading - maintenance section"
+        },
+        {
+          "line": 220,
+          "key": "settings.maintenance.description",
+          "english": "Optimize local database performance by cleaning up old logs and caches.",
+          "german": "Optimieren Sie die Performance Ihrer lokalen Datenbank durch das Bereinigen alter Logs und Caches.",
+          "context": "p - maintenance description"
+        },
+        {
+          "line": 224,
+          "key": "settings.maintenance.stats.cache",
+          "english": "Cache",
+          "german": "Cache",
+          "context": "span - cache statistics label"
+        },
+        {
+          "line": 225,
+          "key": "settings.maintenance.stats.logs",
+          "english": "Logs",
+          "german": "Logs",
+          "context": "span - logs statistics label"
+        },
+        {
+          "line": 226,
+          "key": "settings.maintenance.stats.archive",
+          "english": "Archive",
+          "german": "Archiv",
+          "context": "span - archive statistics label"
+        },
+        {
+          "line": 227,
+          "key": "settings.maintenance.stats.size",
+          "english": "Size",
+          "german": "Größe",
+          "context": "span - size statistics label"
+        },
+        {
+          "line": 231,
+          "key": "settings.maintenance.select_tables",
+          "english": "Select Tables",
+          "german": "Tabellen wählen",
+          "context": "h4 heading - table selection section"
+        },
+        {
+          "line": 233,
+          "key": "settings.maintenance.api_cache",
+          "english": "API Cache",
+          "german": "API Cache",
+          "context": "label - API cache table name"
+        },
+        {
+          "line": 234,
+          "key": "settings.maintenance.request_logs",
+          "english": "Logs",
+          "german": "Logs",
+          "context": "label - request logs table name"
+        },
+        {
+          "line": 238,
+          "key": "settings.maintenance.timeframe",
+          "english": "Timeframe",
+          "german": "Zeitraum",
+          "context": "h4 heading - time period selection"
+        },
+        {
+          "line": 240,
+          "key": "settings.maintenance.24h",
+          "english": "24h",
+          "german": "24h",
+          "context": "button - last 24 hours preset"
+        },
+        {
+          "line": 241,
+          "key": "settings.maintenance.30d",
+          "english": "30 Days",
+          "german": "30 Tage",
+          "context": "button - last 30 days preset (active)"
+        },
+        {
+          "line": 242,
+          "key": "settings.maintenance.90d",
+          "english": "90 Days",
+          "german": "90 Tage",
+          "context": "button - last 90 days preset"
+        },
+        {
+          "line": 246,
+          "key": "settings.maintenance.cleanup",
+          "english": "Cleanup",
+          "german": "Bereinigung",
+          "context": "h4 heading - cleanup execution section"
+        },
+        {
+          "line": 248,
+          "key": "settings.maintenance.preview_prompt",
+          "english": "Click Preview...",
+          "german": "Klicken Sie auf Vorschau...",
+          "context": "initial text - preview prompt in maintenance section"
+        },
+        {
+          "line": 251,
+          "key": "settings.maintenance.preview_button",
+          "english": "🔍 Calculate preview",
+          "german": "🔍 Vorschau berechnen",
+          "context": "button - calculate cleanup preview"
+        },
+        {
+          "line": 252,
+          "key": "settings.maintenance.delete_button",
+          "english": "🗑 Delete now",
+          "german": "🗑 Jetzt löschen",
+          "context": "button - execute cleanup deletion (danger action)"
+        },
+        {
+          "line": 258,
+          "key": "settings.maintenance.auto_cleanup",
+          "english": "Automatic Cleanup",
+          "german": "Automatischer Cleanup",
+          "context": "h4 heading - scheduled cleanup section"
+        },
+        {
+          "line": 260,
+          "key": "settings.maintenance.auto_enabled",
+          "english": "Enabled",
+          "german": "Aktiv",
+          "context": "checkbox label - enable automatic cleanup"
+        },
+        {
+          "line": 262,
+          "key": "settings.maintenance.auto_interval_hours",
+          "english": "hours",
+          "german": "Std.",
+          "context": "label - hours interval unit"
+        },
+        {
+          "line": 263,
+          "key": "settings.maintenance.auto_save",
+          "english": "Save",
+          "german": "Speichern",
+          "context": "button - save automatic cleanup settings"
+        },
+        {
+          "line": 265,
+          "key": "settings.maintenance.auto_inactive",
+          "english": "Inactive",
+          "german": "Inaktiv",
+          "context": "status - automatic cleanup not running"
+        }
+      ],
+      "delete_button": [
+        {
+          "line": 243,
+          "key": "settings.maintenance.delete_all",
+          "english": "Delete all",
+          "german": "Alles löschen",
+          "context": "button - delete all records preset (danger action)"
+        }
+      ]
+    }
+  }
+}

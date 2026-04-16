@@ -13,7 +13,7 @@ import { setStatus } from './utils.js';
 // Aktive PGlite-Datenbank-ID (null = PGlite nicht aktiv)
 let activePgId = null;
 import { switchMode } from './mode-switcher.js';
-import { refreshDBList } from './sidebar.js';
+import { refreshDBList } from './sidebar/index.js';
 
 // ── PGlite DB-Liste in Sidebar einfügen ───────────────────────────────
 
@@ -85,7 +85,7 @@ async function refreshPGliteTables(pgId) {
                     const isActive = state.currentTable === t.name;
                     return `
                         <div class="table-item ${isActive ? 'active' : ''}">
-                            <span class="table-name" data-name="${t.name}">🐘 ${t.name}</span>
+                            <span class="table-name" data-name="${t.name}"><img src="../image/Vorlage.png" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;object-fit:contain"> ${t.name}</span>
                         </div>
                     `;
                 }).join('')

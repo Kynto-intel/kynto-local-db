@@ -19,6 +19,22 @@ function maskCS(cs) {
 }
 
 /**
+ * Rewrites SQL to fix common compatibility issues with Postgres
+ * e.g. converting 'DATETIME' to 'TIMESTAMP'
+ */
+function rewriteSqlForPostgres(sql) {
+    if (typeof sql !== 'string') return sql;
+    let rewritten = sql.replace(/\bDATETIME\b/gi, 'TIMESTAMP');
+
+    // Ensure mixed-case identifiers in public schema are quoted
+    rewritten = rewritten.replace(/public\.([a-zA-Z0-9_]+)/g, (match, p1) => {
+        return p1 === p1.toLowerCase() ? match : `public."${p1}"`;
+    });
+
+    return rewritten;
+}
+
+/**
  * Interne Hilfe: Stellt sicher, dass wir die ID (den String) haben,
  * auch wenn ein Objekt übergeben wurde.
  */
@@ -155,7 +171,7 @@ async function queryRemote(connectionString, sql, params = []) {
     let client;
     try {
         client = await entry.pool.connect();
-        const result = await client.query(finalSQL, finalParams);
+        const result = await client.query(rewriteSqlForPostgres(finalSQL), finalParams);
         return result.rows ?? [];
     } catch (err) {
         console.error('[pg-remote] Query-Fehler:', err.message);
@@ -315,7 +331,7 @@ async function transactionRemote(connectionString, statements) {
             // stmt kann { sql, params } oder nur ein SQL-String sein
             const sql    = stmt.sql    || stmt;
             const params = stmt.params || [];
-            const r = await client.query(sql, params);
+            const r = await client.query(rewriteSqlForPostgres(sql), params);
             results.push(r.rows ?? []);
         }
         await client.query('COMMIT');

@@ -1,0 +1,227 @@
+/**
+ * Realtime Connection Status UI Styling
+ * 
+ * Status Indicator mit:
+ * - Farbcoded State (grün=connected, gelb=connecting, rot=error)
+ * - Spinner Animation für connecting State
+ * - Tooltip mit Detail-Infos
+ */
+
+/* ── Status Indicator Container ────────────────────────────────────────────── */
+
+.realtime-status-indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  margin: 0 8px;
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.realtime-status-indicator:hover {
+  background: var(--surface2, #1f1f23);
+}
+
+/* ── Status Dot (Icon) ───────────────────────────────────────────────────── */
+
+.realtime-status-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Connected State - Grüner Punkt */
+.realtime-status-indicator.realtime-status-connected .realtime-status-dot {
+  color: #4caf7d;
+  animation: realtime-pulse-green 2s ease-in-out infinite;
+}
+
+@keyframes realtime-pulse-green {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* Connecting State - Gelber Punkt mit Spinner */
+.realtime-status-indicator.realtime-status-connecting .realtime-status-dot {
+  color: #e6a817;
+  animation: realtime-pulse-yellow 0.8s ease-in-out infinite;
+}
+
+@keyframes realtime-pulse-yellow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Spinner Animation für Connecting */
+.realtime-spinner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(230, 168, 23, 0.3);
+  border-top-color: #e6a817;
+  border-radius: 50%;
+  animation: realtime-spin 1s linear infinite;
+}
+
+@keyframes realtime-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Error State - Roter Punkt */
+.realtime-status-indicator.realtime-status-error .realtime-status-dot {
+  color: #e05555;
+  animation: realtime-pulse-red 1s ease-in-out infinite;
+}
+
+@keyframes realtime-pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Disconnected State - Schwarzer Punkt */
+.realtime-status-indicator.realtime-status-disconnected .realtime-status-dot {
+  color: #7a7a8c;
+}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────── */
+
+.realtime-status-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  
+  background: var(--surface, #1f1f23);
+  border: 1px solid var(--border, rgba(58, 58, 66, 0.5));
+  border-radius: var(--radius-sm, 4px);
+  padding: 8px 12px;
+  
+  min-width: 200px;
+  max-width: 280px;
+  white-space: nowrap;
+  
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+  
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.realtime-status-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--border, rgba(58, 58, 66, 0.5));
+}
+
+/* Zeige Tooltip bei Hover */
+.realtime-status-indicator:hover .realtime-status-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Tooltip Content */
+.realtime-tooltip-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text, #e8e8ee);
+  margin-bottom: 4px;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.realtime-tooltip-detail {
+  font-size: 11px;
+  color: var(--muted, #7a7a8c);
+  margin-bottom: 3px;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.realtime-tooltip-error {
+  font-size: 11px;
+  color: #e05555;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border, rgba(58, 58, 66, 0.5));
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Responsive: Mobile ──────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .realtime-status-tooltip {
+    min-width: 150px;
+    max-width: 200px;
+    font-size: 10px;
+  }
+  
+  .realtime-status-dot {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+
+  .realtime-spinner {
+    width: 18px;
+    height: 18px;
+    border-width: 1.5px;
+  }
+}
+
+/* ── Pulsing Animation für Connection Indicator ──────────────────────── */
+
+@keyframes realtime-connection-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 125, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(76, 175, 125, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 125, 0);
+  }
+}
+
+.realtime-status-indicator.realtime-status-connected .realtime-status-dot {
+  animation: realtime-pulse-green 2s ease-in-out infinite, 
+             realtime-connection-pulse 2s ease-in-out infinite;
+}
+
+/* ── Theme Support: Light Mode ───────────────────────────────────────────── */
+
+html[data-theme="light"] {
+  --realtime-connected: #4caf7d;
+  --realtime-connecting: #e6a817;
+  --realtime-error: #e05555;
+  --realtime-disconnected: #a0a0b0;
+}
+
+html[data-theme="dark"] {
+  --realtime-connected: #4caf7d;
+  --realtime-connecting: #e6a817;
+  --realtime-error: #ff6b6b;
+  --realtime-disconnected: #7a7a8c;
+}

@@ -57,7 +57,7 @@ export const KyntoGrid = {
         }
 
         // Alten Listener sauber beenden
-        this.detach();
+        await this.detach();
 
         const table  = entity.name;
         const schema = entity.schema || 'public';
@@ -93,9 +93,9 @@ export const KyntoGrid = {
      * Trennt den Realtime-Listener.
      * Wird aufgerufen wenn Tabelle gewechselt oder Dashboard geöffnet wird.
      */
-    detach() {
+    async detach() {
         if (KyntoRealtime.isRunning()) {
-            KyntoRealtime.stop();
+            await KyntoRealtime.stop();
             _updateRealtimeBadge(false);
             console.info('[KyntoGrid] Detach: Realtime gestoppt.');
         }
@@ -108,7 +108,7 @@ export const KyntoGrid = {
     async toggle() {
         if (KyntoRealtime.isRunning()) {
             state.realtimeActive = false;
-            this.detach();
+            await this.detach();
             setStatus('Echtzeit-Synchronisierung gestoppt', 'info');
         } else {
             state.realtimeActive = true;
@@ -250,17 +250,17 @@ function _updateRealtimeBadge(active) {
     const btn = document.getElementById('btn-realtime');
     if (!btn) return;
 
+    btn.classList.add('status-badge');
     const mode = KyntoRealtime.isListening() ? 'LISTEN/NOTIFY' : 'Polling';
+    const icon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.59 16.11a6 6 0 0 1 6.82 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>`;
 
     if (active) {
-        btn.style.color       = 'var(--accent)';
-        btn.style.borderColor = 'var(--accent)';
-        btn.innerHTML = `📡 Echtzeit: AKTIV <span style="font-size:9px;opacity:0.6">(${mode})</span>`;
+        btn.classList.add('active');
+        btn.innerHTML = `${icon} <span>Echtzeit aktiv</span> <span style="font-size:9px;opacity:0.5;margin-left:2px;">(${mode})</span>`;
         btn.title = `Echtzeit aktiv via ${mode}. Klicken zum Deaktivieren.`;
     } else {
-        btn.style.color       = '#ffffff';
-        btn.style.borderColor = 'var(--border)';
-        btn.innerHTML = '📡 Echtzeit inaktiv';
+        btn.classList.remove('active');
+        btn.innerHTML = `${icon} <span>Echtzeit aus</span>`;
         btn.title = 'Echtzeit-Synchronisierung aktivieren.';
     }
 }
@@ -278,7 +278,7 @@ const installKyntoGridHook = () => {
         window.openTableInEditor = async function(tableName, schema, entityType) {
             console.log('[KyntoGrid Hook] openTableInEditor aufgerufen für:', tableName);
             
-            KyntoGrid.detach();
+            await KyntoGrid.detach();
             await _original.apply(this, arguments);
             
             if (state.realtimeActive) {

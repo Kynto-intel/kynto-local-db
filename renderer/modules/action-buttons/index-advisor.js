@@ -10,10 +10,34 @@ import {
 import { findRelations } from '../relations.js';
 
 export function setupIndexAdvisorButton(btn) {
-    btn.style.color = '#ffffff';
-    btn.style.borderColor = 'var(--border)';
-    btn.innerHTML = `🔍 Indexberater`;
-    btn.title = 'Index-Empfehlungen für diese Tabelle';
+    btn.style.cssText    = '';
+    btn.style.background   = 'transparent';
+    btn.style.border       = 'none';
+    btn.style.boxShadow    = 'none';
+    btn.style.padding      = '4px 8px';
+    btn.style.borderRadius = '6px';
+    btn.style.fontSize     = '11px';
+    btn.style.fontWeight   = '600';
+    btn.style.display      = 'inline-flex';
+    btn.style.alignItems   = 'center';
+    btn.style.gap          = '6px';
+    btn.style.cursor       = 'pointer';
+    btn.style.transition   = 'all 0.2s ease';
+    btn.style.color        = 'var(--muted, #a1a1aa)';
+
+    const _icon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`;
+    btn.innerHTML = `${_icon} <span>Indexberater</span>`;
+    btn.title = 'Indexberater – analysiert fehlende oder redundante Indizes';
+
+    // Hover-Effekte mit sanften Übergängen
+    btn.addEventListener('mouseenter', () => {
+        btn.style.color = 'var(--text, #ffffff)';
+        btn.style.background = 'rgba(255,255,255,0.05)';
+    });
+    btn.addEventListener('mouseleave', () => {
+        btn.style.color = 'var(--muted, #a1a1aa)';
+        btn.style.background = 'transparent';
+    });
 
     btn.addEventListener('click', async () => {
         console.log('🔍 Indexberater Button geklickt');

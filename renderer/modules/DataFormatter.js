@@ -27,6 +27,21 @@
 //   [F6] detect() für date_de ruft isDateDE() auf um ungültige Daten früh zu
 //        fangen (32.13.2026 → sofort date_de_invalid statt date_de)
 //   [F7] isEmail: requireTLD=false → admin@localhost ist gültig
+//   [F8] float_en-Erkennung: Deutsches Tausendermuster wird nun korrekt ausgeschlossen
+//        → "4.131" / "1.234" → integer (war fälschlich float_en)
+//        → "3.14" / "12.5" → float_en (korrekt, unverändert)
+//   [F10] Smart Column Detection erweitert:
+//        Prozent: % / (%) / STEUERSATZ / RABATT / RATE / PERCENT / TAX / MWST / STEUER
+//        → "19" in "STEUERSATZ (%)" → "19 %"   (war: "19" ohne Symbol)
+//        Währung: EUR / € / BETRAG / PREIS / KOSTEN / NETTO / BRUTTO / AMOUNT / PRICE
+//        → "80"   in "NETTO-BETRAG (EUR)" → "80,00 €"  (war: "80" ohne Symbol)
+//        → "23"   in "PREIS"              → "23,00 €"  (war: "23" ohne Symbol)
+//        Beide Renderer nutzen jetzt direkte toLocaleString-Formatierung statt
+//        Weiterdelegierung an _renderCell, damit reine Integer korrekt behandelt werden.
+//   [F9] isIdColumn-Heuristik: Dezimalwerte in _id-Spalten werden korrekt gerendert
+//        → WEB_ID=4.131 → float_en-Renderer (war: id-Renderer → falsch "4131")
+//        → ID=15.143   → id-Renderer → "15143" (unverändert korrekt)
+//        → CLUSTER_ID=UUID → uuid-Renderer (unverändert korrekt)
 // ============================================================
 
 import { ibanStructureValid, ibanMod97, sanitizeIBAN, formatIBAN }       from './validators/isIBAN.js';
@@ -73,6 +88,12 @@ export const DataFormatter = {
         // MOVE: VOR JWT damit "2022-01-01T13:00:00" nicht als JWT erkannt wird
         if (/^\d{4}-\d{2}-\d{2}T/.test(s) && isDatetime(s)) return 'datetime_iso';
 
+        // ── 2.5b Verbose JS Date (Tue Mar 24 2026...) ────────────────────────
+        if (/^[A-Z][a-z]{2} [A-Z][a-z]{2} \d{1,2} \d{4} \d{2}:\d{2}:\d{2} GMT/.test(s)) {
+            const d = new Date(s);
+            if (!isNaN(d.getTime())) return 'datetime_iso';
+        }
+
         // ── 2.6 ISO-Datum YYYY-MM-DD - ORT 1 ───────────────────────────────────
         // VOR JWT damit "2022-01-01" nicht als JWT erkannt wird  
         if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return 'date_iso';
@@ -84,14 +105,6 @@ export const DataFormatter = {
             const result = isDateDE(s);
             return result.valid ? 'date_de' : 'date_de_invalid';
         }
-
-        // ── 2.5 PROZENTSATZ (VOR Zahlen-Checks) ──────────────────────────────
-        // Nutze externe isPercent() Validator
-        if (isPercent(s)) return 'percent';
-
-        // ── 2.7 EURO/WÄHRUNG (VOR komplexeren Zahlen-Checks) ──────────────────
-        // Nutze externe isCurrency() Validator  
-        if (isCurrency(s)) return 'currency';
 
         // ── 3. JWT (vor URL, da Punkte enthalten) ────────────────────────────
         if (/^[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/.test(s) && isJWT(s).valid)
@@ -106,7 +119,8 @@ export const DataFormatter = {
             return 'iban_invalid';
 
         // ── 5. UUID ──────────────────────────────────────────────────────────
-        const uuidClean = s.replace(/\s+/g, '');
+        // Entferne das Label beim Erkennen, falls es bereits existiert (z.B. durch UI-Refresh)
+        const uuidClean = s.replace(/\s+/g, '').replace(/\(v[a-z0-9]+\)$/i, '');
         if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uuidClean))
             return 'uuid';
         if (/^[0-9a-f]{8,}(?:-[0-9a-f]{4,})+$/i.test(uuidClean))
@@ -162,12 +176,22 @@ export const DataFormatter = {
         // Nur erkennen wenn KEIN Tausender-Muster (nicht: 1.234 → das ist integer DE)
         // Muster: optionales Vorzeichen, mind. 1 Ziffer, Punkt, mind. 1 Ziffer
         // AUSSCHLUSS: wenn es wie eine IPv4 aussieht (bereits oben gefangen)
-        if (/^-?\d+\.\d+$/.test(s) && !s.includes(',')) return 'float_en';
+        // [F8] FIX: Explizit deutsches Tausendermuster ausschließen (war vorher nicht implementiert).
+        //      "1.234" → integer (1234), "4.131" → integer (4131), "3.14" → float_en, "12.5" → float_en
+        if (/^-?\d+\.\d+$/.test(s) && !s.includes(',') && !/^-?\d{1,3}(?:\.\d{3})+$/.test(s)) return 'float_en';
 
         // ── 21. Integer (DE-Format mit Tausenderpunkten: 1.000.000) ──────────
         if (/^-?\d{1,3}(?:\.\d{3})+$/.test(s)) return 'integer';
         // Integer ohne Separatoren
-        if (/^-?\d{1,12}$/.test(s)) return 'integer';
+        // Erhöht von 12 auf 20 Ziffern, um 64-bit IDs (BigInt) zu unterstützen
+        if (/^-?\d{1,20}$/.test(s)) return 'integer';
+
+        // ── 21.5 PROZENTSATZ (NACH reinen Integern) ──────────────────────────
+        if (isPercent(s)) return 'percent';
+
+        // ── 21.7 EURO/WÄHRUNG (NACH Integern/Floats) ─────────────────────────
+        // "2" wird jetzt zuerst als integer erkannt, "2,00 €" bleibt currency.
+        if (isCurrency(s)) return 'currency';
 
         // ── 22. KREDITKARTE ohne Separatoren ──────────────────────────────────
         if (/^\d{13,19}$/.test(s) && detectCCNetwork(s) && luhnCheck(s))
@@ -303,40 +327,102 @@ export const DataFormatter = {
 
         const s = value.toString().trim();
         
-        // ── Smart Column Detection: Wenn Spaltenname EUR/€ enthält, force 'currency' ──
-        // Das nutzt den Column-Kontext um einzelne Integer zu EUR zu machen
-        // z.B. "80" in Spalte "Eingänge (EUR)" → "80,00 €"
-        if (typeof expectedType === 'string' && /EUR|€|\(EUR\)|\(€\)/.test(expectedType)) {
-            // Versuche das Value als Currency zu interpretieren
-            const isCurrencyValid = isCurrency(s) || /^-?\d+$/.test(s); // Fallback: Integers
-            if (isCurrencyValid) {
+        // ✅ FIX: Zuerst prüfen ob es ein erkannter Datums-Wert ist
+        // Selbst wenn dominantType='text', Datums-Werte sollten formatiert werden
+        const detected = this.detect(value);
+        if (['datetime_iso', 'date_iso', 'date_de'].includes(detected)) {
+            // Es ist ein Datum - nutze den auto-erkannten Typ, nicht den dominantType
+            return this._renderCell(value, detected);
+        }
+        
+        // ── Smart Column Detection: Wenn Spaltenname auf Währung/Preis hinweist ──
+        // Erkennt: EUR, €, (EUR), (€), BETRAG, PREIS, KOSTEN, UMSATZ, NETTO, BRUTTO, AMOUNT, PRICE
+        // z.B. "80" in Spalte "NETTO-BETRAG (EUR)" → "80,00 €"
+        // z.B. "23" in Spalte "PREIS" → "23,00 €"
+        if (typeof expectedType === 'string' && /EUR|€|\(EUR\)|\(€\)|BETRAG|PREIS|KOSTEN|UMSATZ|NETTO|BRUTTO|AMOUNT|PRICE|REVENUE|COST/i.test(expectedType)) {
+            // Reinen Integer oder Float als Währungswert formatieren
+            if (/^-?\d+(?:[.,]\d{1,2})?$/.test(s) || isCurrency(s)) {
+                // Integer/Dezimal normalisieren und als Währung rendern
+                const normalized = s.replace(',', '.');
+                const num = parseFloat(normalized);
+                if (!isNaN(num)) {
+                    const formatted = num.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    return `<span style="color:#86efac;font-variant-numeric:tabular-nums;">${formatted}&nbsp;€</span>`;
+                }
+            }
+            // Bereits formatierter Währungswert
+            if (isCurrency(s)) {
                 return this._renderCell(s, 'currency');
             }
         }
 
-        // ── Smart Column Detection: Wenn Spaltenname % enthält, force 'percent' ──
-        // Das nutzt den Column-Kontext um einzelne Integer zu Prozent zu machen
-        // z.B. "19" in Spalte "STEUERSATZ (%)" → "19%"
-        if (typeof expectedType === 'string' && /\(%\)|\s%|percent/i.test(expectedType)) {
-            // Versuche das Value als Prozentsatz zu interpretieren
-            const isPercentValid = isPercent(s) || /^-?\d+(?:[.,]\d{1,2})?$/.test(s); // Fallback: Zahlen
-            if (isPercentValid) {
+        // ── Smart Column Detection: Wenn Spaltenname auf Prozentsatz hinweist ──
+        // Erkennt: %, (%), PROZENT, STEUERSATZ, RABATT, RATE, PERCENT, TAX, MwSt
+        // z.B. "19" in Spalte "STEUERSATZ (%)" → "19 %"
+        // z.B. "7"  in Spalte "RABATT"         → "7 %"
+        if (typeof expectedType === 'string' && /%|\(%\)|PROZENT|STEUERSATZ|RABATT|RATE|PERCENT|TAX|MWST|STEUER/i.test(expectedType)) {
+            if (/^-?\d+(?:[.,]\d{1,2})?$/.test(s) || isPercent(s)) {
+                const normalized = s.replace(',', '.');
+                const num = parseFloat(normalized);
+                if (!isNaN(num)) {
+                    const formatted = Number.isInteger(num)
+                        ? `${num}`
+                        : num.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+                    return `<span style="color:#93c5fd;font-variant-numeric:tabular-nums;">${formatted}&nbsp;%</span>`;
+                }
+            }
+            // Bereits formatierter Prozentwert
+            if (isPercent(s)) {
                 return this._renderCell(s, 'percent');
             }
         }
 
-        const detectedType = this.detect(value);
+        // ── Smart Column Detection: ID-Spalten (ID, user_id, projekt_nr, UUID, etc.) ──
+        // Wir nutzen Wortgrenzen (\b), damit "ID", "id", "User_ID" etc. sicher erkannt werden,
+        // selbst wenn der Name in Klammern steht oder Sonderzeichen enthält.
+        const ctx = typeof expectedType === 'string' ? expectedType.toLowerCase() : '';
+        const isIdColumn = /\b(id|uuid|guid|pk|fk|uid|oid)\b/i.test(ctx) || 
+                           /(_id|_nr|_key|_pk|_fk)$/i.test(ctx) ||
+                           /^(pk_|fk_|id_)/i.test(ctx);
+
+        if (isIdColumn || detected === 'uuid') {
+            // Falls es eine UUID ist, nutzen wir den speziellen UUID-Renderer (wegen der Versions-Labels)
+            if (detected === 'uuid') return this._renderCell(value, 'uuid');
+
+            // [F9] FIX: Dezimalwerte in _id-Spalten korrekt rendern.
+            // Spalten wie WEB_ID enden auf _id, enthalten aber Dezimalzahlen (z.B. 4.131, 1.874).
+            // Nach Fix F8 werden solche Werte als 'integer' (dt. Tausender) erkannt.
+            // Heuristik: Wenn der Ganzzahlteil einstellig ist (1-9) UND genau 3 Nachkommastellen
+            // vorliegen, ist es mit hoher Wahrscheinlichkeit eine Dezimalzahl und KEIN formatierter
+            // Integer (1.874 != 1874). Fuer multi-stellige Integer-Teile (15.143 -> 15143) bleibt
+            // das ID-Rendering aktiv.
+            if (detected === 'integer' && /^-?\d\.\d{3}$/.test(s)) {
+                return this._renderCell(s, 'float_en');
+            }
+            // float_en: falls doch noch ein echter EN-Float in einer ID-Spalte landet
+            if (detected === 'float_en') {
+                return this._renderCell(s, 'float_en');
+            }
+
+            // Fuer alles andere in einer ID-Spalte (Zahlen "15143", Custom-IDs "REF-123"):
+            // Wir erzwingen den 'id' Typ. Das verhindert Tausenderpunkte (15.144) 
+            // und sorgt fuer ein technisches Monospace-Design.
+            return this._renderCell(s, 'id');
+        }
+
+        // ✅ FIX: Nutze den aktuell erkannten Typ statt erneut zu detect() (Performance)
+        // const detectedType = this.detect(value); <- wird nicht nötig, 'detected' ist bereits gesetzt
 
         if (normType === 'text' || normType === 'varchar' || normType === 'char' ||
             normType === 'string' || normType === 'blob') {
-            return this._renderCell(value, detectedType);
+            return this._renderCell(value, detected);
         }
 
         const compat = this.typeCompatibility[normType];
-        if (!compat || !compat.includes(detectedType) || detectedType.endsWith('_invalid')) {
+        if (!compat || !compat.includes(detected) || detected.endsWith('_invalid')) {
             return this._renderInvalid(s, normType);
         }
-        return this._renderCell(value, detectedType);
+        return this._renderCell(value, detected);
     },
 
     // =========================================================================
@@ -347,6 +433,14 @@ export const DataFormatter = {
         const s = value.toString().trim().replace(/\s{2,}/g, ' ');
 
         switch (type) {
+
+            // ── Identifikatoren (IDs, Primärschlüssel etc.) ──────────────────
+            case 'id': {
+                // IDs bereinigen: Alle Punkte, Kommas und Leerzeichen entfernen.
+                const cleanId = s.replace(/[\.\s,]/g, '');
+                // Schöneres Design: Als technischer Badge in Monospace
+                return `<span style="font-family:var(--font-mono);font-size:0.85em;color:var(--accent);background:rgba(194, 154, 64, 0.12);padding:1px 5px;border-radius:4px;font-weight:600;border:1px solid rgba(194, 154, 64, 0.2);display:inline-block;white-space:nowrap;">${cleanId}</span>`;
+            }
 
             // ── Kommunikation ─────────────────────────────────────────────────
             case 'email': {
@@ -445,9 +539,13 @@ export const DataFormatter = {
             // ── UUID ──────────────────────────────────────────────────────────
             // ── UUID ──────────────────────────────────────────────────────────
             case 'uuid': {
-                const formatted = formatUUID(s);
-                if (!formatted) return this._renderInvalid(s, 'uuid');
-                return `<span style="font-family:monospace;font-size:0.9em;">${formatted}</span>`;
+                const version = detectUUIDVersion(s);
+                const cleanUuid = s.toLowerCase().replace(/\s*\(v[a-z0-9]+\)$/i, '');
+                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanUuid)) {
+                    return this._renderInvalid(s, 'uuid');
+                }
+                const label = version ? `<small style="opacity:0.5;margin-left:4px;font-weight:normal;">(v${version})</small>` : '';
+                return `<span style="font-family:var(--font-mono);font-size:0.9em;color:var(--text);">${cleanUuid}${label}</span>`;
             }
             case 'uuid_invalid':
                 return this._renderInvalid(s, 'uuid');
@@ -586,7 +684,16 @@ export const DataFormatter = {
     // =========================================================================
     standardize(value, type) {
         if (!value) return null;
-        const s = value.toString().trim();
+        let s = value.toString().trim();
+
+        // 🔥 ABSOLUTER FIX: Entfernt UI-Labels wie " (v4)", " (vnil)" etc. IMMER zuerst.
+        // Das schützt davor, dass formatierte UUIDs jemals in die Datenbank gelangen,
+        // selbst wenn der 'type' Parameter nicht exakt 'uuid' ist (z.B. bei 'text').
+        s = s.replace(/\s*\(v[a-z0-9]+\)$/i, '');
+
+        if (type === 'uuid' || type === 'id') {
+            return s.toLowerCase();
+        }
         if (type === 'date_de') {
             const result = isDateDE(s);
             if (result.valid) return toISO(result.day, result.month, result.year);

@@ -7,9 +7,9 @@ import { initEditor, setExecCallback, refreshEditor }     from './editor.js';
 import {
     refreshDBList, refreshTableList,
     initDBButtons, initRenameModal, initRenameDBModal,
-    setSidebarCallbacks, restoreRemoteState,
+    setSidebarCallbacks, initSidebarSearch, restoreRemoteState,
     setPGliteCallback
-}                                                          from './sidebar.js';
+}                                                          from './sidebar/index.js';
 import { execSQL, quickView, initBuilderButtons, setExecutorCallbacks } from './executor.js';
 import { esc }                                             from './utils.js';
 import { initActionBar }                                   from './action-bar.js';
@@ -22,7 +22,7 @@ import {
     loadHistory, initHistoryControls,
     loadFavorites, initFavoriteControls
 }                                                          from './history.js';
-import { initImportControls, initExportControls }          from './io.js';
+import { initImportControls }                              from './io.js';
 import { newTab, initTabsDragAndDrop, setTabActivateCallback } from './tabs.js';
 import { initUIControls, loadUISettings }                  from './ui.js';
 import { initVisualizer, setVisualizerRefresh }            from './visualizer.js';
@@ -33,10 +33,15 @@ import { initModeSwitcher }                                from './mode-switcher
 import { KyntoGrid }                                       from './kyntoGrid.js';
 import { KyntoRealtime }                                   from './useKyntoRealtime.js';
 import { KyntoStorage }                                    from '../../src/components/Storage/KyntoStorage.js';
+import { initMagicSearch }                                 from '../../src/lib/Search.js';
+import langSwitcher                                        from './language-switcher.js';
+import { runAllRLSTests }                                  from './Policies/rls-test.js';
+import { RealtimeStatusUI }                                from './realtime/realtime-status.js';
 
 // ── Module global verfügbar machen ────────────────────────────────────────
 window.KyntoGrid = KyntoGrid;
 window.KyntoRealtime = KyntoRealtime;
+window.languageSwitcher = langSwitcher;
 window.handleRealtimeUpdate = handleRealtimeUpdate;
 window.execSQL = execSQL;
 window.openTableInEditor = openTableInEditor;window.showDashboard = showDashboard;
@@ -72,7 +77,18 @@ setVisualizerRefresh(() => {
 // ── App starten ────────────────────────────────────────────────────────
 (async () => {
     try {
-        console.log('[app] 0. Remote-State wiederherstellen');
+        console.log('[app] 0. Initialize Language/i18n');
+        
+        // Lade die Sprache aus Settings
+        const settings = await window.api.loadSettings();
+        const savedLanguage = settings?.language || 'en';
+        localStorage.setItem('language', savedLanguage);
+        console.log('[app] Language from settings:', savedLanguage);
+        
+        // Initialize i18n and language switcher
+        await langSwitcher.initialize();
+        
+        console.log('[app] 1. Remote-State wiederherstellen');
         // Remote-State aus localStorage wiederherstellen
         restoreRemoteState();
 
@@ -105,6 +121,10 @@ setVisualizerRefresh(() => {
             pgId:    state.pgId,
         }).catch(err => console.error('[app] KyntoStorage Fehler:', err));
 
+        // 3.6 Magic Search initialisieren
+        console.log('[app] 3.6 Magic Search initialisieren...');
+        await initMagicSearch(window.api).catch(err => console.error('[app] Search Error:', err));
+
         // 1. SQL-Editor initialisieren und auf Abschluss warten (Wichtig für Monaco!)
         console.log('[app] 4. SQL-Editor initialisieren...');
     await initEditor();
@@ -117,6 +137,11 @@ setVisualizerRefresh(() => {
             refreshEditor();
             state.editor.focus();
         }
+    });
+
+    // Magic Search Button (Lupe mit Blitz) im Header verknüpfen
+    document.getElementById('btn-magic-search')?.addEventListener('click', () => {
+        if (typeof window.showMagicSearch === 'function') window.showMagicSearch();
     });
 
     // Storage Manager Button verknüpfen
@@ -163,8 +188,8 @@ setVisualizerRefresh(() => {
     initFavoriteControls();  // Favorit speichern Modal
     initHistoryControls();   // Verlauf leeren
     initImportControls();    // Drag & Drop + Format-Buttons (nur für Import!)
-    initExportControls();    // CSV / JSON / SQL-Dump
     initDBButtons();         // PGlite Datenbank öffnen
+    initSidebarSearch();     // Suchleiste für die Sidebar initialisieren
 
     // 4. Modus-Umschalter nach PGlite UI verfügbar ist
     initModeSwitcher();      // 🐘/☁️ Modus-Umschalter im Header
@@ -197,6 +222,17 @@ setVisualizerRefresh(() => {
     // 8. Zeige Dashboard als Startpunkt
     console.log('[app] 8. Dashboard zeigen...');
     showDashboard(true);  // ← Zeige All-Databases Dashboard beim Start
+    
+    // 9. Aktualisiere alle i18n-Elemente nachdem alle Module geladen sind
+    if (window.i18n?.updateDOM) {
+      console.log('[app] 9. i18n updateDOM aufgerufen...');
+      window.i18n.updateDOM();
+    }
+    
+    // 10. Realtime Connection Status UI initialisieren
+    console.log('[app] 10. Realtime Status UI initialisieren...');
+    RealtimeStatusUI.init();
+    
     console.log('[app] ✅ Initialisierung complete!');
 
     } catch (err) {

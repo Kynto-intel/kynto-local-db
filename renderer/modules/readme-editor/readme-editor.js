@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
     // ── Electron IPC ─────────────────────────────────────────────────────────
-    // window.electronAPI wird vom preload.js bereitgestellt via contextBridge
+    // Dieser Code läuft in einem iframe - daher window.parent.api nutzen!
+    // window.parent.api wird vom preload.js bereitgestellt via contextBridge
     // Erwartet folgende Methoden:
-    //   electronAPI.saveData(data)       → speichert editor-data.json
-    //   electronAPI.loadData()           → lädt editor-data.json → { markdown, images, logs, linkedHtmlPath }
-    //   electronAPI.writeHtmlFile(path, content) → schreibt HTML in verknüpfte Datei
-    //   electronAPI.openHtmlFile()       → öffnet Datei-Dialog, gibt { path, content } zurück
-    const api = window.electronAPI;
+    //   window.parent.api.editorSaveData(data)       → speichert editor-data.json
+    //   window.parent.api.editorLoadData()           → lädt editor-data.json → { markdown, images, logs, linkedHtmlPath }
+    //   window.parent.api.editorWriteHtmlFile(path, content) → schreibt HTML in verknüpfte Datei
+    //   window.parent.api.editorOpenHtmlFile()       → öffnet Datei-Dialog, gibt { path, content } zurück
+    const api = window.parent.api;
 
     // ── DOM Refs ──────────────────────────────────────────────────────────────
     const sidebar       = document.getElementById('readme-sidebar');
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ── Daten laden von Disk ──────────────────────────────────────────────────
     async function loadFromDisk() {
         try {
-            const data = await api.loadData();
+            const data = await api.editorLoadData();
             if (!data) {
                 setDefaultContent();
                 return;
@@ -105,7 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function saveToDisk() {
         try {
             setSaveStatus('saving');
-            await api.saveData({
+            await api.editorSaveData({
                 markdown:       input.value,
                 images:         imageStore,
                 logs:           logs,
@@ -452,7 +453,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Verknüpfen: bestehende Datei wählen (Electron Dialog)
     btnLinkHtml.onclick = async () => {
         try {
-            const result = await api.openHtmlFile();
+            const result = await api.editorOpenHtmlFile();
             if (!result) return;
             linkedHtmlPath = result.path;
             updateLinkBtn();
@@ -474,7 +475,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             // Fallback: klassischer Download (falls kein Electron-Dialog)
             try {
-                const result = await api.saveHtmlFile(buildHtmlContent());
+                const result = await api.editorSaveHtmlFile(buildHtmlContent());
                 if (result) {
                     linkedHtmlPath = result.path;
                     updateLinkBtn();
@@ -491,7 +492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function writeLinkedHtml() {
         if (!linkedHtmlPath) return;
         try {
-            await api.writeHtmlFile(linkedHtmlPath, buildHtmlContent());
+            await api.editorWriteHtmlFile(linkedHtmlPath, buildHtmlContent());
             showToast(`✅ HTML aktualisiert: ${linkedHtmlPath.split(/[\\/]/).pop()}`);
         } catch (e) {
             showToast('❌ HTML schreiben fehlgeschlagen', 'error');

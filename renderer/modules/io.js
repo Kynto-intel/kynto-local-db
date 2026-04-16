@@ -3,8 +3,8 @@
    ──────────────────────────────────────────────────────────────────── */
 
 import { state }           from './state.js';
-import { esc, setStatus, dlBlob } from './utils.js';
-import { refreshTableList } from './sidebar.js';
+import { esc, setStatus }  from './utils.js';
+import { refreshTableList } from './sidebar/index.js';
 import { quickView }        from './executor.js';
 import { sanitizeArrayOfObjects } from '../../src/lib/sanitize.js';
 import { isDateDE, toISO } from './validators/isDate.js';
@@ -35,7 +35,7 @@ window.executeQuery = executeQuery;
 export async function importFile(filePath, fileName) {
     const ext  = fileName.split('.').pop().toLowerCase();
     const name = fileName.replace(/\.[^.]+$/, '').replace(/[^a-z0-9_]/gi, '_');
-    setStatus('Importiere…');
+    setStatus(window.i18n?.t?.('io.status.importing') || 'Importing…');
     
     try {
         // CSV-Datei lesen über IPC (fs ist nur im main-process verfügbar)
@@ -52,14 +52,15 @@ export async function importFile(filePath, fileName) {
                 : state.activeDbId?.substring(0, 50) + '...');
             console.log('═══════════════════════════════════════════════════════════════════');
             
-            setStatus(`📥 Lese CSV von "${fileName}"...`);
+            const readingMsg = window.i18n?.t?.('io.status.reading_csv', { fileName }) || `📥 Reading CSV from "${fileName}"...`;
+            setStatus(readingMsg);
             
             // Nutze neuen IPC-Handler via window.api.csvImportFile
             const csvData = await window.api.csvImportFile(filePath);
             
             // Fehlerbehandlung für ungültige CSV
             if (!csvData) {
-                setStatus('❌ CSV konnte nicht geparst werden', 'error');
+                setStatus(window.i18n?.t?.('io.error.csv_parsing_failed') || '❌ CSV could not be parsed', 'error');
                 console.error('[io.js] ❌ csvData ist null!');
                 return;
             }
@@ -69,7 +70,7 @@ export async function importFile(filePath, fileName) {
             }
             
             if (!csvData.rows || csvData.rows.length === 0) {
-                setStatus('❌ CSV ist leer (0 Zeilen)', 'error');
+                setStatus(window.i18n?.t?.('io.error.csv_empty') || '❌ CSV is empty (0 rows)', 'error');
                 console.error('[io.js] ❌ CSV war leer!');
                 return;
             }
@@ -79,7 +80,7 @@ export async function importFile(filePath, fileName) {
             
             // Validierung der Headers
             if (!headers || headers.length === 0) {
-                setStatus('❌ Keine Spalten gefunden (CSV-Header ungültig?)', 'error');
+                setStatus(window.i18n?.t?.('io.error.no_columns') || '❌ No columns found (invalid CSV header?)', 'error');
                 console.error('[io.js] ❌ Keine Headers gefunden');
                 return;
             }
@@ -90,6 +91,7 @@ export async function importFile(filePath, fileName) {
             // ✨ INTELLIGENTE TYPE INFERENCE FÜR JEDE SPALTE
             const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
             const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2})?/;
+            const JS_DATE_REGEX = /^[A-Z][a-z]{2} [A-Z][a-z]{2} \d{1,2} \d{4} \d{2}:\d{2}:\d{2} GMT/;
             const DATE_FORMATS = [
               'YYYY-MM-DD HH:mm:ss',
               'YYYY-MM-DD HH:mm:ss.SSS',
@@ -111,6 +113,11 @@ export async function importFile(filePath, fileName) {
               // Simple: 30,42 → 30.42
               else if (normalized.match(/^\d+,\d+$/)) {
                 normalized = normalized.replace(',', '.');
+              }
+              // [FIX-IO1] Deutsches Tausenderformat ohne Komma: 15.143→15143, 1.000→1000
+              // MUSS nach Komma-Checks stehen (damit 1.234,56 nicht hier landet).
+              else if (/^(?:\d{2,3}(?:\.\d{3})+|\d{1,3}(?:\.\d{3}){2,})$/.test(normalized)) {
+                normalized = normalized.replace(/\./g, '');
               }
               return Number(normalized);
             };
@@ -136,6 +143,23 @@ export async function importFile(filePath, fileName) {
                   return vStr === '' || !isNaN(parseInt(vStr, 10));
                 })) {
                   return Math.abs(asInt) > 2147483647 ? 'int8' : 'int4';
+                }
+              }
+
+              // 2b. [FIX-IO2] Deutsches Tausenderformat-Integer: 15.143→int 15143
+              // Muss VOR Float-Check stehen – sonst wird 15.143 fälschlich float8!
+              // [FIX-IO2] German thousands integer pattern:
+              // Erfordert mind. 2-stelligen Ganzzahlteil ODER mind. 2 Dreiergruppen.
+              // → 15.143 ✓ (2 Stellen vor Punkt)   4.131 ✗ (1 Stelle, 1 Gruppe = Dezimal)
+              // → 1.000.000 ✓ (2 Gruppen)           1.874 ✗ (1 Stelle, 1 Gruppe = Dezimal)
+              const GERMAN_INT_RE = /^-?(?:\d{2,3}(?:\.\d{3})+|\d{1,3}(?:\.\d{3}){2,})$/;
+              if (GERMAN_INT_RE.test(str)) {
+                if (nonEmpty.every(v => {
+                  const vStr = String(v).trim();
+                  return vStr === '' || GERMAN_INT_RE.test(vStr) || /^-?\d+$/.test(vStr);
+                })) {
+                  const intVal = parseInt(str.replace(/\./g, ''), 10);
+                  return Math.abs(intVal) > 2147483647 ? 'int8' : 'int4';
                 }
               }
 
@@ -220,6 +244,11 @@ export async function importFile(filePath, fileName) {
                 if (dCheck.valid) {
                   return `'${toISO(dCheck.day, dCheck.month, dCheck.year)}'`;
                 }
+                // JS Verbose Date (Tue Mar 24...)
+                if (JS_DATE_REGEX.test(str)) {
+                  const d = new Date(str);
+                  if (!isNaN(d.getTime())) return `'${d.toISOString()}'`;
+                }
                 // Already in ISO format
                 if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
                   return `'${str}'`;
@@ -228,7 +257,11 @@ export async function importFile(filePath, fileName) {
               }
 
               if (type === 'int8' || type === 'int4') {
-                const n = parseInt(str, 10);
+                // [FIX-IO3] Deutschen Tausenderpunkt strippen: 15.143→15143 vor parseInt
+                const cleaned = /^-?(?:\d{2,3}(?:\.\d{3})+|\d{1,3}(?:\.\d{3}){2,})$/.test(str)
+                  ? str.replace(/\./g, '')
+                  : str;
+                const n = parseInt(cleaned, 10);
                 return isNaN(n) ? 'NULL' : String(n);
               }
 
@@ -265,21 +298,25 @@ export async function importFile(filePath, fileName) {
             const createSql = `CREATE TABLE IF NOT EXISTS "${name.replace(/"/g, '""')}" (${columnDefs})`;
             
             console.log('[io.js] 📋 Erstelle Tabelle:', createSql.substring(0, 100) + '...');
-            setStatus(`✅ Erstelle Tabelle "${name}"...`);
+            const creatingMsg = window.i18n?.t?.('io.status.creating_table', { name }) || `✅ Creating table "${name}"...`;
+            setStatus(creatingMsg);
             
             try {
                 await executeQuery(createSql, isRemote);
                 console.log('[io.js] ✓ Tabelle erstellt');
-                setStatus(`✅ Tabelle "${name}" erstellt`);
+                const createdMsg = window.i18n?.t?.('io.status.table_created', { name }) || `✅ Table "${name}" created`;
+                setStatus(createdMsg);
             } catch (tableErr) {
                 console.error('[io.js] ❌ Fehler beim Erstellen der Tabelle:', tableErr);
-                setStatus(`❌ Tabelle konnte nicht erstellt werden: ${tableErr.message}`, 'error');
+                const tableErrMsg = window.i18n?.t?.('io.error.table_creation_failed', { message: tableErr.message }) || `❌ Table could not be created: ${tableErr.message}`;
+                setStatus(tableErrMsg, 'error');
                 return;
             }
             
             // INSERT die Daten - GRÖSSERE BATCH-SIZE (1000 Zeilen statt 100)
             console.log(`[io.js] 📊 Füge ${rows.length} Zeilen in Batches ein...`);
-            setStatus(`📥 Importiere ${rows.length} Zeilen...`);
+            const importingMsg = window.i18n?.t?.('io.status.importing_rows', { rows: rows.length }) || `📥 Importing ${rows.length} rows...`;
+            setStatus(importingMsg);
             
             const batchSize = 1000; // 10x größer für bessere Performance
             let successCount = 0;
@@ -318,11 +355,13 @@ export async function importFile(filePath, fileName) {
                     await executeQuery(insertSql, isRemote);
                     successCount += values.length;
                     console.log(`[io.js] Batch ${batchNum}/${totalBatches}: ✓ ${values.length} Zeilen`);
-                    setStatus(`📥 Batch ${batchNum}/${totalBatches}: ${Math.min(i + batchSize, rows.length)}/${rows.length} Zeilen`);
+                    const batchMsg = window.i18n?.t?.('io.status.batch_progress', { batch: batchNum, total: totalBatches, current: Math.min(i + batchSize, rows.length), rows: rows.length }) || `📥 Batch ${batchNum}/${totalBatches}: ${Math.min(i + batchSize, rows.length)}/${rows.length} rows`;
+                    setStatus(batchMsg);
                 } catch (batchErr) {
                     console.error(`[io.js] ❌ Fehler in Batch ${batchNum}:`, batchErr);
                     errorCount += batch.length;
-                    setStatus(`⚠️  Batch ${batchNum} hatte Fehler - fahre fort...`, 'warning');
+                    const batchErrorMsg = window.i18n?.t?.('io.warning.batch_errors', { batch: batchNum }) || `⚠️ Batch ${batchNum} had errors - continuing...`;
+                    setStatus(batchErrorMsg, 'warning');
                 }
             }
             
@@ -335,19 +374,22 @@ export async function importFile(filePath, fileName) {
             console.log('═══════════════════════════════════════════════════════════════════');
             
             const msg = errorCount > 0 
-                ? `✅ "${name}" importiert! ${successCount}/${rows.length} Zeilen (${errorCount} Fehler)`
-                : `✅ "${name}" importiert! ${successCount} Zeilen`;
+                ? window.i18n?.t?.('io.success.import_with_errors', { name, success: successCount, total: rows.length, errors: errorCount }) || `✅ "${name}" imported! ${successCount}/${rows.length} rows (${errorCount} errors)`
+                : window.i18n?.t?.('io.success.import_complete', { name, rows: successCount }) || `✅ "${name}" imported! ${successCount} rows`;
             
-            setStatus(msg + ` (${isRemote ? '🔗 Remote' : '💾 PGlite'})`, 'success');
+            const targetMsg = window.i18n?.t?.('io.success.import_with_target', { target: isRemote ? '🔗 Remote' : '💾 PGlite' }) || `✅ Successfully imported (${isRemote ? '🔗 Remote' : '💾 PGlite'})`;
+            setStatus(msg, 'success');
             await refreshTableList();
             quickView(name);
             return;
         }
         
-        setStatus('⚠️ Nur CSV-Import unterstützt (nicht ' + ext + ')', 'warning');
+        const unsupportedMsg = window.i18n?.t?.('io.error.format_not_supported', { format: ext }) || `⚠️ Only CSV import is supported (not ${ext})`;
+        setStatus(unsupportedMsg, 'warning');
     } catch (e) { 
         console.error('[io.js] ❌ IMPORT FEHLER:', e);
-        setStatus(`❌ Import Fehler: ${e.message || e}`, 'error'); 
+        const importErrMsg = window.i18n?.t?.('io.error.import_failed', { message: e.message || e }) || `❌ Import error: ${e.message || e}`;
+        setStatus(importErrMsg, 'error'); 
     }
 }
 
@@ -393,7 +435,7 @@ export function initImportControls() {
     // Click-Handler - Versuche IMMER den React Dialog zu öffnen
     dropZone.addEventListener('click', async () => {
         console.log('[io.js] 🎯 Drop-Zone geklickt!');
-        setStatus('📂 CSV-Import Dialog öffnet sich...');
+        setStatus(window.i18n?.t?.('io.status.dialog_opening') || '📂 CSV import dialog opening...');
         
         // Versuche maximal 10x zu warten bis DialogManager verfügbar ist
         let attempts = 0;
@@ -415,6 +457,7 @@ export function initImportControls() {
         }
         
         try {
+            setStatus(window.i18n?.t?.('io.status.refreshing_tables') || '📋 Updating table list...');
             console.log('[io.js] ✅ DialogManager verfügbar - öffne SpreadsheetImport...');
             console.log('[io.js] window.SpreadsheetImport verfügbar?', !!window.SpreadsheetImport);
             console.log('[io.js] window.showSpreadsheetImport verfügbar?', !!window.showSpreadsheetImport);
@@ -422,7 +465,7 @@ export function initImportControls() {
             // Rufe den Dialog auf
             window.DialogManager.spreadsheetImportOpen(state.currentTable || null, async () => {
                 console.log('[io.js] ✅ SpreadsheetImport Callback - Datei wurde importiert!');
-                setStatus('📋 Tabellenliste wird aktualisiert...');
+                setStatus(window.i18n?.t?.('io.status.refreshing_tables') || '📋 Updating table list...');
                 await refreshTableList();
                 setStatus('✅ Fertig!');
             });
@@ -437,8 +480,8 @@ export function initImportControls() {
             }, 100);
             
         } catch (err) {
-            console.error('[io.js] ❌ DialogManager Fehler:', err);
-            setStatus('❌ Dialog konnte nicht geöffnet werden: ' + err.message, 'error');
+            console.log('[io.js] ❌ DialogManager Fehler:', err);
+            setStatus(window.i18n?.t?.('io.error.import_failed', { message: err.message }) || `❌ Dialog could not be opened: ${err.message}`, 'error');
             
             // Fallback
             console.log('[io.js] Fallback: Öffne File-Dialog');
@@ -463,90 +506,5 @@ export function initImportControls() {
             });
             if (p) await importFile(p, p.split(/[/\\]/).pop());
         });
-    });
-}
-
-// ── Export ─────────────────────────────────────────────────────────────
-
-export function initExportControls() {
-    document.getElementById('exp-csv').addEventListener('click', () => {
-        if (!state.lastData.length) return;
-        const cols = state.currentCols.length ? state.currentCols : Object.keys(state.lastData[0]);
-        const rows = [
-            cols.map(c => `"${c}"`).join(','),
-            ...state.lastData.map(r => cols.map(c => {
-                const v = r[c];
-                if (v === null || v === undefined) return '';
-                const s = String(v);
-                return s.includes(',') || s.includes('"') || s.includes('\n')
-                    ? `"${s.replace(/"/g, '""')}"` : s;
-            }).join(','))
-        ];
-        dlBlob(rows.join('\n'), 'text/csv', (state.currentTable ?? 'export') + '.csv');
-    });
-
-    document.getElementById('exp-json').addEventListener('click', () => {
-        if (!state.lastData.length) return;
-        dlBlob(JSON.stringify(state.lastData, null, 2), 'application/json',
-            (state.currentTable ?? 'export') + '.json');
-    });
-
-    document.getElementById('exp-sql').addEventListener('click', async () => {
-        if (!state.currentTable) { setStatus('Bitte eine Tabelle auswählen.', 'error'); return; }
-        try {
-            const isRemote = state.dbMode === 'remote' && state.serverConnectionString;
-            
-            // DuckDB Fix: PRAGMA table_info ist robuster als DESCRIBE (nur für PGlite)
-            let cols;
-            if (isRemote) {
-                // Remote PostgreSQL - benutze information_schema
-                const rawCols = await window.api.serverQuery(state.serverConnectionString,
-                    `SELECT column_name, data_type FROM information_schema.columns WHERE table_name = $1 ORDER BY ordinal_position`,
-                    [state.currentTable]);
-                cols = rawCols.map(c => ({
-                    column_name: c.column_name,
-                    column_type: c.data_type,
-                    null: c.is_nullable === 'YES' ? 'YES' : 'NO'
-                }));
-            } else {
-                // PGlite
-                const rawCols = await window.api.query(`PRAGMA table_info(${esc(state.currentTable)})`, state.activeDbId);
-                cols = rawCols.map(c => ({
-                    column_name: c.name,
-                    column_type: c.type,
-                    null: c.notnull === 0 ? 'YES' : 'NO'
-                }));
-            }
-            
-            // Lese Daten
-            const rawRows = await (isRemote
-                ? window.api.serverQuery(state.serverConnectionString, `SELECT * FROM ${esc(state.currentTable)} LIMIT 10000`, [])
-                : window.api.query(`SELECT * FROM ${esc(state.currentTable)}`, state.activeDbId));
-            
-            // Integration: Wenn Privacy Mode aktiv, auch den Export redigieren
-            const rows = (state.magicEyeActive && state.magicMode === 'privacy')
-                ? sanitizeArrayOfObjects(rawRows)
-                : rawRows;
-
-            const colDefs = cols.map(c =>
-                `  ${esc(c.column_name)} ${c.column_type}${c.null === 'NO' ? ' NOT NULL' : ''}`
-            ).join(',\n');
-
-            let dump = `-- SQL-Dump: ${state.currentTable}\n-- ${new Date().toISOString()}\n\n`;
-            dump += `CREATE TABLE IF NOT EXISTS ${esc(state.currentTable)} (\n${colDefs}\n);\n\n`;
-            if (rows.length) {
-                const colNames = cols.map(c => esc(c.column_name)).join(', ');
-                const vals = rows.map(row =>
-                    '(' + cols.map(c => {
-                        const v = row[c.column_name];
-                        if (v === null || v === undefined) return 'NULL';
-                        if (typeof v === 'number') return String(v);
-                        return `'${String(v).replace(/'/g, "''")}'`;
-                    }).join(', ') + ')'
-                ).join(',\n');
-                dump += `INSERT INTO ${esc(state.currentTable)} (${colNames}) VALUES\n${vals};\n`;
-            }
-            dlBlob(dump, 'text/plain;charset=utf-8', state.currentTable + '.sql');
-        } catch (e) { setStatus('Export Fehler: ' + e, 'error'); }
     });
 }

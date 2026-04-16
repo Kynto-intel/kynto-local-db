@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="dark" lang="de">
+<html data-theme="dark" lang="en">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data: https:; font-src 'self' data: https://cdnjs.cloudflare.com; connect-src 'self' http://127.0.0.1:3001 http://localhost:3001 https://esm.sh; frame-src 'self';">
@@ -14,6 +14,9 @@
 <!-- Policies RLS Styling -->
 <link rel="stylesheet" href="modules/Policies/policies.css">
 <link rel="stylesheet" href="modules/views/rls-policies/rls-policies.css">
+
+<!-- Realtime Connection Status UI -->
+<link rel="stylesheet" href="modules/realtime/realtime-status.css">
 
 <style>
 /* ── Unified Design Tokens for all sidebars ────────────────────────── */
@@ -135,6 +138,8 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 #drop-zone:hover,#drop-zone.drag-over{border-color:var(--accent);background:var(--accent-lo);color:var(--text)}
 .import-btns{display:flex;gap:5px;margin-top:6px}
 .import-btns .btn{flex:1;font-size:10px;padding:4px;text-align:center}
+.import-btns .btn{flex:1;font-size:10px;padding:5px;text-align:center;background:none;color:var(--muted);border:1px solid var(--border);border-radius:var(--radius-sm);transition:all .15s}
+.import-btns .btn:hover{background:var(--accent-lo);color:var(--accent);border-color:var(--accent)}
 
 /* ── Main ────────────────────────────────────────────────────────────── */
 .main{flex-grow:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
@@ -166,7 +171,7 @@ header{padding:10px 16px;background:var(--surface);border-bottom:1px solid var(-
 
 /* Editor area */
 .editor-area{padding:12px 16px 0;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-.action-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 10px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.action-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
 /* Buttons & inputs */
 select,input[type="text"]{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:5px 9px;border-radius:5px;outline:none;font-size:12px;transition:border-color .15s;font-family:inherit}
 select:focus,input[type="text"]:focus{border-color:var(--accent)}
@@ -199,10 +204,11 @@ kbd{background:var(--surface2);padding:2px 6px;border-radius:4px;border:1px soli
 
 /* ── Results ─────────────────────────────────────────────────────────── */
 .results-wrap{flex-grow:1;overflow:hidden;margin:0 16px 14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);display:flex;flex-direction:column}
-.result-tabs-bar{display:flex;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
-.result-tab{background:none;border:1px solid transparent;color:var(--muted);padding:4px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit;transition:color .15s,background .15s,border-color .15s}
+.result-tabs-bar{display:flex;align-items:center;gap:6px;padding:10px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
+.result-tab{background:none;border:1px solid transparent;color:var(--muted);padding:4px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-family:inherit;transition:color .15s,background .15s,border-color .15s;display:inline-flex;align-items:center;gap:4px}
 .result-tab:hover{color:var(--text);background:var(--surface2)}
 .result-tab.active{color:var(--accent);background:var(--accent-lo);border-color:var(--accent)}
+.result-tab svg{flex-shrink:0}
 #result-info{font-size:11px;color:var(--muted)}
 .export-btns{display:flex;gap:5px}
 .export-btns .btn{font-size:11px;padding:3px 9px}
@@ -234,9 +240,14 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
 #result-table-view td:last-child{border-right:none}
 #result-table-view td.null{color:var(--muted);font-style:italic}
 #result-table-view tr:last-child td{border-bottom:none}
+
+/* Zeilen-Hover: subtiler border-left für visuelles Gewicht */
+#result-table-view tr{border-left:2px solid transparent;transition:border-left .2s ease,background .2s ease}
+#result-table-view tr:hover{border-left:2px solid var(--accent)}
 #result-table-view tr:hover td{background:var(--accent-lo)}
 
 /* Markierte Zeile */
+#result-table-view tr.selected-row { border-left: 2px solid var(--accent) !important; }
 #result-table-view tr.selected-row td { background: var(--accent-lo) !important; }
 #result-table-view tr.selected-row td:first-child { background: var(--accent) !important; color: var(--bg) !important; }
 
@@ -273,7 +284,8 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
 
 /* Empty state */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--muted);font-size:13px;padding:40px;text-align:center}
-.empty-state .icon{font-size:36px;opacity:.25}
+.empty-state .icon{font-size:36px;opacity:.25;display:flex;align-items:center;justify-content:center}
+.empty-state .icon svg{color:var(--muted);opacity:.25}
 
 /* ── Modals ──────────────────────────────────────────────────────────── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center}
@@ -477,13 +489,35 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
 </head>
 <body>
 
+<!-- i18n Module -->
+<script type="module">
+  import * as i18n from './modules/i18n.js';
+  
+  // Exportiere i18n global SOFORT damit andere Module es nutzen können
+  window.i18n = {
+    t: i18n.t,
+    loadTranslations: i18n.loadTranslations,
+    setLanguage: i18n.setLanguage,
+    getLanguage: i18n.getLanguage,
+    updateDOM: i18n.updateDOM,
+    saveLanguagePreference: i18n.saveLanguagePreference
+  };
+  
+  // Initialisiere i18n im Hintergrund (wird nicht erwartet)
+  // updateDOM() wird später von app.js aufgerufen
+  (async function() {
+    const language = localStorage.getItem('language') || 'en';
+    await i18n.initialize(language);
+  })();
+</script>
+
 <!-- ── Cell Detail Modal ────────────────────────────────────────────── -->
 <div class="modal-bg" id="cell-modal">
   <div class="modal" style="min-width: 350px; max-width: 550px; width: 50vw;">
-    <h3 id="cell-modal-title">Zellen-Details</h3>
+    <h3 id="cell-modal-title" data-i18n="modals.cell_details_title">Cell Details</h3>
     <div id="cell-content-full"></div>
     <div class="modal-actions">
-      <button class="btn-primary" id="cell-modal-close">Schließen</button>
+      <button class="btn-primary" id="cell-modal-close" data-i18n="modals.close">Close</button>
     </div>
   </div>
 </div>
@@ -494,17 +528,17 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
   <!-- DBs -->
   <div class="sb-section" id="db-section">
     <div class="sb-header">
-      Datenbanken
+      <span data-i18n="sidebar.databases">Databases</span>
       <div class="spacer"></div>
-      <button class="hbtn" id="btn-open-db"  title="DB-Datei öffnen">📂</button>
-      <button class="hbtn" id="btn-settings" title="Einstellungen">⚙️</button>
+      <button class="hbtn" id="btn-open-db" data-i18n-title="sidebar.open_db_tooltip" title="Open DB file">📂</button>
+      <button class="hbtn" id="btn-settings" data-i18n-title="sidebar.settings_tooltip" title="Settings">⚙️</button>
     </div>
     <div class="sb-scroll" id="db-list"></div>
   </div>
 
   <!-- Tables -->
   <div class="sb-section grow">
-    <div class="sb-header dim">Tabellen</div>
+    <div class="sb-header dim" data-i18n="sidebar.tables">Tables</div>
     <div class="sb-scroll" id="table-list"></div>
   </div>
 
@@ -512,7 +546,7 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
   <div class="sb-section grow-half">
     <div class="sb-header dim" id="header-fav">
       <button class="hbtn-toggle" id="btn-toggle-fav">▼</button>
-      ⭐ Favoriten
+      ⭐ <span data-i18n="sidebar.favorites">Favorites</span>
       <span class="spacer"></span>
       <span id="fav-count" class="badge">0</span>
     </div>
@@ -523,16 +557,25 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
   <div class="sb-section grow-half">
     <div class="sb-header dim" id="header-hist">
       <button class="hbtn-toggle" id="btn-toggle-hist">▼</button>
-      SQL Verlauf
+      <span data-i18n="sidebar.sql_history">SQL History</span>
       <span class="spacer"></span>
-      <button class="hbtn" id="btn-clear-history">Leeren</button>
+      <button class="hbtn" id="btn-clear-history" data-i18n="sidebar.clear_history">Clear</button>
     </div>
     <div class="sb-scroll" id="sql-history"></div>
   </div>
 
+  <!-- System Tables -->
+  <div class="sb-section grow-half" id="system-section">
+    <div class="sb-header dim" id="header-system">
+      <button class="hbtn-toggle" id="btn-toggle-system">▼</button>
+      <span data-i18n="sidebar.system_tables">Store Tabellen</span>
+    </div>
+    <div class="sb-scroll" id="system-table-list"></div>
+  </div>
+
   <!-- Import -->
   <div class="import-area">
-    <div id="drop-zone">📁 CSV importieren</div>
+    <div id="drop-zone" data-i18n="sidebar.import_csv">📁 Import CSV</div>
     <div class="import-btns">
       <button class="btn" data-fmt="json">JSON</button>
       <button class="btn" data-fmt="excel">Excel</button>
@@ -547,33 +590,47 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
 
   <header>
     <button class="btn-icon" id="toggle-sidebar">☰</button>
-    <button class="logo" id="btn-dashboard-header" title="Dashboard (Datenbankübersicht)">🏠 Kynto <span>Intel</span></button>
-    <button class="btn-icon" id="btn-popout-sql" title="SQL-Editor ein/ausblenden">
+    <button class="logo" id="btn-dashboard-header" data-i18n-title="header.dashboard_tooltip" title="Dashboard (Database Overview)">🏠 Kynto <span>Intel</span></button>
+    <button class="btn-icon" id="btn-popout-sql" data-i18n-title="header.toggle_sql_tooltip" title="Toggle SQL Editor">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
         <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
         <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
         <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
       </svg>
     </button>
-    <button type="button" class="btn-icon" id="btn-open-storage" title="Storage Manager öffnen">
+    <button type="button" class="btn-icon" id="btn-open-storage" data-i18n-title="header.open_storage_tooltip" title="Open Storage Manager">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
         <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
         <polyline points="2 17 12 22 22 17"></polyline>
         <polyline points="2 12 12 17 22 12"></polyline>
       </svg>
     </button>
-    <button type="button" class="btn-icon" id="btn-open-readme" title="Readme-Editor öffnen">
+    <button type="button" class="btn-icon" id="btn-open-readme" data-i18n-title="header.open_readme_tooltip" title="Open Readme Editor">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+    </button>
+    <button type="button" class="btn-icon" id="btn-magic-search" data-i18n-title="header.magic_search_tooltip" title="Magic Search (Ctrl+K)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+        <path d="M11 7l-2 4h3l-1 4" stroke="var(--accent)" stroke-width="2"></path>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" fill="var(--accent-lo)" stroke="var(--accent)"></path>
+        <circle cx="18" cy="5" r="1.5" fill="var(--accent)" stroke="none"></circle>
+        <path d="M5 3L4 4.5M19 3L20 4.5" stroke="var(--accent)" opacity="0.5"></path>
       </svg>
     </button>
     <button class="btn-icon" id="api-btn-instant" title="Instant API Control Panel">
       ⚡
     </button>
     <div class="spacer"></div>
-    <div id="header-info">Bereit.</div>
-    <button class="btn-icon" id="theme-toggle" title="Theme wechseln">🌙</button>
+    <!-- Realtime Connection Status Indicator -->
+    <div id="realtime-status-indicator-container"></div>
+    <div id="header-info" data-i18n="header.ready">Ready.</div>
+    <button class="btn-icon" id="theme-toggle" data-i18n-title="header.theme_toggle_tooltip" title="Toggle Theme">🌙</button>
   </header>
 
   <!-- SQL Tabs -->
@@ -582,16 +639,16 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
   <!-- Editor -->
   <div class="editor-area">
     <div id="editor-wrap">
-      <textarea id="sql-fallback" placeholder="SQL hier eingeben…"></textarea>
+      <textarea id="sql-fallback" data-i18n-placeholder="editor.sql_placeholder" placeholder="Enter SQL here…"></textarea>
     </div>
     <div class="controls">
       <div class="controls-left">
-        <button id="run-btn">▶ Ausführen</button>
-        <button class="btn" id="btn-save-fav">⭐ Favorit</button>
-        <span id="status">Bereit.</span>
+        <button id="run-btn" data-i18n="editor.run_btn">\u25b6 Run</button>
+        <button class="btn" id="btn-save-fav" data-i18n="editor.favorite_btn">\u2b50 Favorite</button>
+        <span id="status" data-i18n="header.ready">Ready.</span>
       </div>
       <div style="font-size:11px;color:var(--muted)">
-        <kbd>Ctrl+Enter</kbd> ausführen &nbsp;·&nbsp; <kbd>Ctrl+Space</kbd> Autocomplete
+        <kbd>Ctrl+Enter</kbd> run &nbsp;·&nbsp; <kbd>Ctrl+Space</kbd> Autocomplete
       </div>
     </div>
   </div>
@@ -599,34 +656,30 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
   <!-- Results -->
   <div class="results-wrap">
     <div class="result-tabs-bar">
-      <button class="result-tab active" data-view="table"><img src="../image/Vorlage.png" style="width:16px; height:16px; vertical-align:middle; margin-right:5px; object-fit:contain;"> Tabelle</button>
-      <button class="result-tab"        data-view="chart">📈 Chart</button>
-      <button class="result-tab"        data-view="schema">🔧 Schema</button>
-      <button class="result-tab"        data-view="rls-policies">🔒 RLS-Richtlinien</button>
+      <button class="result-tab active" data-view="table"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V9z"></path><path d="M3 9V7c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v2"></path><line x1="3" y1="13" x2="21" y2="13"></line><line x1="3" y1="17" x2="21" y2="17"></line></svg> <span data-i18n="results.tabs.table">Table</span></button>
+      <button class="result-tab"        data-view="chart"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9M13 17V5M8 17v-3"></path></svg> <span data-i18n="results.tabs.chart">Chart</span></button>
+      <button class="result-tab"        data-view="schema"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"></circle><path d="M6 8c0 .5.4 1 1 1h10c.6 0 1-.5 1-1"></path><path d="M5 19c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2"></path><path d="M3 11h18"></path><path d="M3 15h18"></path></svg> <span data-i18n="results.tabs.schema">Schema</span></button>
+      <button class="result-tab"        data-view="rls-policies"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 12v4m0 4v.01"></path></svg> <span data-i18n="results.tabs.rls">RLS Policies</span></button>
       <div class="spacer"></div>
-      <span id="result-info">Kein Ergebnis.</span>
+      <span id="result-info" data-i18n="results.status.no_result">No result.</span>
       <div class="spacer"></div>
-      <div class="export-btns" id="export-btns" style="display:none">
-        <button class="btn" id="exp-csv">CSV</button>
-        <button class="btn" id="exp-json">JSON</button>
-        <button class="btn" id="exp-sql">SQL-Dump</button>
-      </div>
+      <div class="export-btns" id="export-btns" style="display:none"></div>
     </div>
 
     <!-- Action-Bar über der Tabelle -->
     <div class="action-bar" id="action-bar-container"></div>
 
     <div id="result-table-view"  class="result-view active">
-      <div class="empty-state"><div class="icon">🦆</div><div>SQL ausführen, um Ergebnisse zu sehen.</div></div>
+      <div class="empty-state"><div class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V9z"></path><path d="M3 9V7c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v2"></path><line x1="3" y1="13" x2="21" y2="13"></line><line x1="3" y1="17" x2="21" y2="17"></line></svg></div><div data-i18n="results.status.empty_table">Execute SQL to see results.</div></div>
     </div>
     <div id="result-chart-view"  class="result-view">
-      <div class="empty-state"><div class="icon">📈</div><div>Zuerst eine Abfrage ausführen.</div></div>
+      <div class="empty-state"><div class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 17V9M13 17V5M8 17v-3"></path></svg></div><div data-i18n="results.status.empty_chart">Execute a query first.</div></div>
     </div>
     <div id="result-schema-view" class="result-view">
-      <div class="empty-state"><div class="icon">🔧</div><div>Tabelle in der Sidebar auswählen.</div></div>
+      <div class="empty-state"><div class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"></circle><path d="M6 8c0 .5.4 1 1 1h10c.6 0 1-.5 1-1"></path><path d="M5 19c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2"></path><path d="M3 11h18"></path><path d="M3 15h18"></path></svg></div><div data-i18n="results.status.empty_schema">Select a table in the sidebar.</div></div>
     </div>
     <div id="result-rls-view" class="result-view">
-      <div class="empty-state"><div class="icon">🔒</div><div>Tabelle in der Sidebar auswählen, um Richtlinien zu verwalten.</div></div>
+      <div class="empty-state"><div class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 12v4m0 4v.01"></path></svg></div><div data-i18n="results.status.empty_rls">Select a table in the sidebar to manage policies.</div></div>
     </div>
   </div>
 
@@ -635,11 +688,11 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
 <!-- ── Save Favorite Modal ──────────────────────────────────────────── -->
 <div class="modal-bg" id="fav-modal">
   <div class="modal">
-    <h3>⭐ Als Favorit speichern</h3>
-    <input type="text" id="fav-name-input" placeholder="Name der Abfrage…">
+    <h3 data-i18n="modals.save_favorite_title">⭐ Save as Favorite</h3>
+    <input type="text" id="fav-name-input" data-i18n-placeholder="modals.query_name_placeholder" placeholder="Query name…">
     <div class="modal-actions">
-      <button class="btn" id="fav-cancel">Abbrechen</button>
-      <button class="btn-primary" id="fav-confirm">Speichern</button>
+      <button class="btn" id="fav-cancel" data-i18n="modals.cancel">Cancel</button>
+      <button class="btn-primary" id="fav-confirm" data-i18n="modals.save">Save</button>
     </div>
   </div>
 </div>
@@ -647,12 +700,12 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
 <!-- ── Rename DB Modal ───────────────────────────────────────────────── -->
 <div class="modal-bg" id="rename-db-modal">
   <div class="modal">
-    <h3>✏️ Datenbank umbenennen</h3>
+    <h3 data-i18n="modals.rename_db_title">✏️ Rename Database</h3>
     <p class="modal-hint" id="rename-db-hint"></p>
-    <input type="text" id="rename-db-input" placeholder="Anzeigename…">
+    <input type="text" id="rename-db-input" data-i18n-placeholder="modals.display_name_placeholder" placeholder="Display name…">
     <div class="modal-actions">
-      <button class="btn" id="rename-db-cancel">Abbrechen</button>
-      <button class="btn-primary" id="rename-db-confirm">Umbenennen</button>
+      <button class="btn" id="rename-db-cancel" data-i18n="modals.cancel">Cancel</button>
+      <button class="btn-primary" id="rename-db-confirm" data-i18n="modals.rename">Rename</button>
     </div>
   </div>
 </div>
@@ -660,12 +713,12 @@ table.filter-active th.fcol,table.filter-active td.fcol{opacity:1}
 <!-- ── Rename Table Modal ───────────────────────────────────────────── -->
 <div class="modal-bg" id="rename-modal">
   <div class="modal">
-    <h3>✏️ Tabelle umbenennen</h3>
+    <h3 data-i18n="modals.rename_table_title">✏️ Rename Table</h3>
     <p class="modal-hint" id="rename-hint"></p>
-    <input type="text" id="rename-input" placeholder="Neuer Name…">
+    <input type="text" id="rename-input" data-i18n-placeholder="modals.new_name_placeholder" placeholder="New name…">
     <div class="modal-actions">
-      <button class="btn" id="rename-cancel">Abbrechen</button>
-      <button class="btn-primary" id="rename-confirm">Umbenennen</button>
+      <button class="btn" id="rename-cancel" data-i18n="modals.cancel">Cancel</button>
+      <button class="btn-primary" id="rename-confirm" data-i18n="modals.rename">Rename</button>
     </div>
   </div>
 </div>

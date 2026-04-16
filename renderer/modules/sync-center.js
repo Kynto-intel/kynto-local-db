@@ -10,7 +10,7 @@
 
 import { state }         from './state.js';
 import { setStatus }     from './utils.js';
-import { refreshTableList } from './sidebar.js';
+import { refreshTableList } from './sidebar/index.js';
 import { updateRemoteStatus } from './mode-switcher.js';
 let _serverConnectionString = '';
 
@@ -47,7 +47,7 @@ export async function initSyncCenter() {
             
             // NEU: DB-Liste aktualisieren damit Remote-DB sofort sichtbar ist
             try {
-                const { refreshDBList } = await import('./sidebar.js');
+                const { refreshDBList } = await import('./sidebar/index.js');
                 await refreshDBList();
             } catch (err) {
                 console.warn('[sync-center] Auto-refresh DBList fehlgeschlagen:', err);
@@ -142,7 +142,7 @@ async function handleConnect() {
             updateRemoteStatus();
 
             // NEU: Datenbank-Liste + Tabellenliste aktualisieren (Live-Update!)
-            const { refreshDBList } = await import('./sidebar.js');
+            const { refreshDBList } = await import('./sidebar/index.js');
             await refreshDBList();
             await refreshTableList();
 

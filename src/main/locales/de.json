@@ -1,0 +1,485 @@
+{
+    "modals":  {
+                   "cell_details_title":  "Zellendetails",
+                   "close":  "Schließen",
+                   "save_favorite_title":  "Als Favorit speichern",
+                   "query_name_placeholder":  "Abfragename…",
+                   "cancel":  "Abbrechen",
+                   "save":  "Speichern",
+                   "rename_db_title":  "Datenbank umbenennen",
+                   "display_name_placeholder":  "Anzeigename…",
+                   "rename":  "Umbenennen",
+                   "rename_table_title":  "Tabelle umbenennen",
+                   "new_name_placeholder":  "Neuer Name…"
+               },
+    "sidebar":  {
+                    "databases":  "Datenbanken",
+                    "open_db_tooltip":  "DB-Datei öffnen",
+                    "settings_tooltip":  "Einstellungen",
+                    "tables":  "Tabellen",
+                    "favorites":  "Favoriten",
+                    "sql_history":  "SQL-Verlauf",
+                    "clear_history":  "Löschen",
+                    "import_csv":  "CSV importieren"
+                },
+    "header":  {
+                   "dashboard_tooltip":  "Dashboard (Datenbankübersicht)",
+                   "toggle_sql_tooltip":  "SQL-Editor umschalten",
+                   "open_storage_tooltip":  "Speicherverwaltung öffnen",
+                   "open_readme_tooltip":  "Readme-Editor öffnen",
+                   "magic_search_tooltip":  "Intelligente Suche (Strg+K)",
+                   "ready":  "Bereit.",
+                   "theme_toggle_tooltip":  "Design umschalten"
+               },
+    "editor":  {
+                   "sql_placeholder":  "SQL hier eingeben…",
+                   "run_btn":  "Ausführen",
+                   "run_selection":  "Auswahl ausführen",
+                   "favorite_btn":  "Favorit",
+                   "kbd_run":  "ausführen",
+                   "kbd_autocomplete":  "autovervollständigung"
+               },
+    "results":  {
+                    "tabs":  {
+                                 "table":  "Tabelle",
+                                 "chart":  "Diagramm",
+                                 "schema":  "Schema",
+                                 "rls":  "RLS-Richtlinien"
+                             },
+                    "status":  {
+                                   "no_result":  "Keine Ergebnisse.",
+                                   "empty_table":  "Führe eine Abfrage aus um Ergebnisse zu sehen.",
+                                   "empty_chart":  "Führe zuerst eine Abfrage aus.",
+                                   "empty_schema":  "Wähle eine Tabelle in der Seitenleiste.",
+                                   "empty_rls":  "Wähle eine Tabelle in der Seitenleiste um Richtlinien zu verwalten.",
+                                   "loading":  "Wird geladen…",
+                                   "aborted":  "Abgebrochen.",
+                                   "executing_selection":  "Auswahl wird ausgeführt…",
+                                   "success_ddl":  "Erfolgreich ausgeführt."
+                               },
+                    "footer":  {
+                                   "prev_page":  "Vorherige Seite",
+                                   "next_page":  "Nächste Seite",
+                                   "page":  "Seite",
+                                   "of":  "von",
+                                   "rows":  "Zeilen",
+                                   "entries_total":  "Einträge insgesamt",
+                                   "definition":  "Definition"
+                               }
+                },
+    "storage":  {
+                    "title":  "Speicherverwaltung",
+                    "loading_buckets":  "Container werden geladen…",
+                    "loading_files":  "Dateien werden geladen…",
+                    "containers":  "Container",
+                    "upload":  "Hochladen",
+                    "no_buckets":  "Keine Container verfügbar",
+                    "placeholder_bucket_name":  "z.B. meine-bilder",
+                    "public_access":  "Öffentlich zugänglich (keine Authentifizierung)",
+                    "create_bucket":  "Container erstellen",
+                    "create":  "Erstellen",
+                    "error":  "Fehler"
+                },
+    "api":  {
+                "title":  "Instant API",
+                "documentation":  "Kynto Instant API - Dokumentation",
+                "subtitle":  "REST API für alle deine PostgreSQL-Tabellen",
+                "rest_api":  "REST API",
+                "get":  "GET",
+                "post":  "POST",
+                "put":  "PUT",
+                "delete":  "DELETE",
+                "patch":  "PATCH"
+            },
+    "ai":  {
+                "title": "KI-Assistent",
+                "mode_chat": "Chat",
+                "mode_query": "Abfrage",
+                "welcome_msg": "Hallo! Ich bin Kynto, dein digitaler Daten-Gefährte. 🧠 Ich kenne deine Tabellen in- und auswendig – was möchtest du heute entdecken oder analysieren?",
+                "input_placeholder": "Stelle eine Frage...",
+                "input_placeholder_query": "Beschreibe die SQL-Abfrage...",
+                "send_btn": "Anfrage senden",
+                "status_chat_active": "Chat-Modus aktiviert",
+                "status_query_active": "Query-Modus aktiviert"
+            },
+    "maintenance":  {
+                        "title":  "Datenbankwartung",
+                        "last_hour":  "⏱ Letzte Stunde",
+                        "last_2h":  "⏱ Letzte 2 Stunden",
+                        "last_6h":  "⏱ Letzte 6 Stunden"
+                    },
+    "policies":  {
+                     "title":  "RLS-Richtlinien",
+                     "open_editor":  "Richtlinien-Editor für Tabelle öffnen: {{tableName}}"
+                 },
+    "settings":  {
+                     "nav":  {
+                                 "general":  "⚙️ Allgemein",
+                                 "editor":  "📝 Editor \u0026 Benutzeroberfläche",
+                                 "database":  "💾 Datenbank",
+                                 "api_keys":  "🔑 API-Schlüssel",
+                                 "sync":  "🔄 Sync-Center",
+                                 "ai":  "🤖 KI-Assistent",
+                                 "templates":  "📋 Vorlagen",
+                                 "shortcuts":  "⌨️ Shortcuts",
+                                 "maintenance":  "🧹 Wartung"
+                             },
+                     "general":  {
+                                     "heading":  "Allgemein",
+                                     "title":  "Allgemein",
+                                     "appearance":  "Erscheinungsbild",
+                                     "appearance_dark":  "Dark Mode (Standard)",
+                                     "appearance_light":  "Light Mode",
+                                     "language":  "Sprache",
+                                     "default_views":  "Standard-Ansichten",
+                                     "sidebar_on_startup":  "Seitenleiste beim Start öffnen",
+                                     "create_database":  "Neue Datenbank erstellen..."
+                                 },
+                     "editor":  {
+                                    "heading":  "Editor \u0026 Benutzeroberfläche",
+                                    "title":  "Editor \u0026 Benutzeroberfläche",
+                                    "font_size":  "Schriftgröße (px)",
+                                    "line_numbers":  "Zeilennummern anzeigen",
+                                    "autocomplete":  "Intelligente Autovervollständigung (SQL)",
+                                    "data_table":  "Datentabelle",
+                                    "virtual_scrolling":  "Virtuelles Scrollen (für große Datenmengen)",
+                                    "virtual_scrolling_desc":  "Verbessert die Leistung erheblich bei \u003e 10.000 Zeilen."
+                                },
+                     "database":  {
+                                      "heading":  "Datenbank",
+                                      "title":  "Datenbank",
+                                      "query_limit":  "Standard-Abfragelimit",
+                                      "query_limit_desc":  "Verhindert Abstraction bei Millionen von Datensätzen.",
+                                      "server_connection":  "Serververbindung",
+                                      "postgresql_server":  "PostgreSQL für Server",
+                                      "open_sync_center":  "Öffnet das Sync-Center um sich mit einem externen PostgreSQL-Server zu verbinden."
+                                  },
+                     "api_keys":  {
+                                      "heading":  "API-Schlüssel \u0026 Authentifizierung",
+                                      "title":  "API-Schlüssel \u0026 Authentifizierung",
+                                      "description":  "Generiere API-Schlüssel um externe Projekte mit dieser Kynto-Instanz zu verbinden. Teile diese Token sicher mit anderen Entwicklern.",
+                                      "generate":  "Neuen API-Schlüssel generieren",
+                                      "active_keys":  "Aktive API-Schlüssel",
+                                      "no_keys":  "Noch keine API-Schlüssel generiert.",
+                                      "documentation":  "API-Schlüssel Dokumentation",
+                                      "usage_title":  "Verwendung in Projekten",
+                                      "usage_important":  "Wichtig",
+                                      "usage_note":  "Jeder API-Schlüssel wird nach der Verwendung mit [VERWENDET] gekennzeichnet. Du kannst ihn dann manuell löschen wenn er nicht mehr benötigt wird.",
+                                      "bearer_token":  "Als Bearer Token im Header",
+                                      "code_header":  "Authorization: Bearer [dein_api_schlüssel]",
+                                      "fetch_example":  "JavaScript Fetch Beispiel",
+                                      "curl_example":  "cURL Beispiel",
+                                      "security_warning":  "Sicherheit",
+                                      "security_message":  "Teile deinen API-Schlüssel niemals öffentlich! Der Schlüssel funktioniert wie ein Passwort. Wenn die Nutzung verdächtig aussieht, lösche den Schlüssel und generiere einen neuen.",
+                                      "docs":  {
+                                                   "title":  "API-Schlüssel Dokumentation",
+                                                   "what_is":  "Was ist ein API-Schlüssel?",
+                                                   "what_is_desc":  "Ein API-Schlüssel ist ein eindeutiger Token den du generierst um von externen Anwendungen auf deine Kynto-Instanz zuzugreifen. Er funktioniert wie ein Passwort und sollte mit der gleichen Sicherheit behandelt werden.",
+                                                   "what_can_do":  "Was kann ich mit einem API-Schlüssel machen?",
+                                                   "endpoint_get":  "Daten aus einer Tabelle abrufen",
+                                                   "endpoint_post":  "Neue Datensätze in eine Tabelle einfügen",
+                                                   "endpoint_put":  "Einen Datensatz aktualisieren",
+                                                   "endpoint_delete":  "Einen Datensatz löschen",
+                                                   "endpoint_query":  "Benutzerdefinierte SQL-Abfragen ausführen (SELECT, INSERT, UPDATE, DELETE)",
+                                                   "how_to_use":  "Wie verwende ich den API-Schlüssel?",
+                                                   "header_label":  "Header",
+                                                   "replace_key":  "Ersetze YOUR_API_KEY durch deinen generierten Schlüssel. Die Standard-URL ist http://127.0.0.1:54321, passe aber Host und Port an falls nötig.",
+                                                   "fetch_full_example":  "Vollständiges Fetch-Beispiel (GET)",
+                                                   "fetch_insert_example":  "Fetch-Beispiel (Daten einfügen POST)",
+                                                   "security_title":  "Sicherheit",
+                                                   "never_upload_public":  "Lade den API-Schlüssel niemals in öffentliche Repositorys hoch (GitHub, GitLab, etc.)! Benutzer mit deinem Schlüssel können auf alle deine Daten zugreifen.",
+                                                   "best_practices":  "Best Practices",
+                                                   "env_variables":  "Speichere den Schlüssel in Umgebungsvariablen (.env)",
+                                                   "not_frontend":  "Verwende ihn nicht in Frontend-Code",
+                                                   "rotate_keys":  "Rotiere Schlüssel regelmäßig (alte löschen, neue generieren)",
+                                                   "monitor_usage":  "Überwache die \u0027\u0027Verwendet\u0027\u0027-Spalte auf verdächtige Aktivitäten",
+                                                   "troubleshooting":  "Fehlerbehebung",
+                                                   "error_401":  "401 Authentifizierung fehlgeschlagen",
+                                                   "error_401_desc":  "Der API-Schlüssel ist ungültig oder wurde gelöscht. Generiere einen neuen Schlüssel.",
+                                                   "error_403":  "403 Zugriff verweigert",
+                                                   "error_403_desc":  "Du versuchst eine verbotene Operation (z.B. DROP TABLE). Nur SELECT, INSERT, UPDATE, DELETE und CALL sind erlaubt.",
+                                                   "error_500":  "500 Serverfehler",
+                                                   "error_500_desc":  "Es gibt ein Problem mit der Anfrage. Überprüfe Tabellen- und Spaltennamen auf Tippfehler.",
+                                                   "features":  "Zusätzliche Funktionen",
+                                                   "rls_title":  "Row-Level Security (RLS)",
+                                                   "rls_desc":  "Daten werden automatisch basierend auf dem API-Schlüsseleigentümer gefiltert (falls konfiguriert).",
+                                                   "realtime_title":  "Echtzeit-Updates",
+                                                   "realtime_desc":  "Verbinde dich über WebSocket um Echtzeit-Updates zu erhalten wenn sich Daten ändern."
+                                               }
+                                  },
+                     "sync":  {
+                                  "heading":  "Sync-Center",
+                                  "title":  "Sync-Center",
+                                  "connection_status":  "PostgreSQL-Verbindung",
+                                  "connection_placeholder":  "postgresql://benutzer:passwort@host:5432/db",
+                                  "connect_button":  "Verbinden",
+                                  "not_connected":  "Nicht verbunden",
+                                  "sync_running":  "Synchronisierung läuft…",
+                                  "ready":  "Bereit…",
+                                  "storage_title":  "Speicher für Bilder und Videos",
+                                  "storage_path_placeholder":  "C:/Pfad/zu/deinen/Medien",
+                                  "browse_button":  "Durchsuchen",
+                                  "storage_desc":  "Gib den Pfad an wo Medien lokal gespeichert werden sollen.",
+                                  "placeholder":  "postgresql://user:pass@host:5432/db"
+                              },
+                     "ai":  {
+                                "heading":  "KI-Assistent",
+                                "title":  "KI-Assistent",
+                                "enable_nl_to_sql":  "Natürliche Sprache zu SQL aktivieren",
+                                "provider":  "Anbieter",
+                                "provider_ollama":  "Ollama (Lokal - empfohlen)",
+                                "provider_openai":  "OpenAI (Cloud)",
+                                "provider_anthropic":  "Anthropic Claude (Cloud)",
+                                "api_key_or_endpoint":  "API-Schlüssel / Endpoint",
+                                "api_key_placeholder":  "sk-…",
+                                "model_name":  "Modellname",
+                                "model_placeholder":  "duckdb-nsql oder llama3"
+                            },
+                     "templates":  {
+                                       "title":  "SQL-Vorlagen",
+                                       "show_quickstarts":  "Quickstarts auf dem Dashboard anzeigen",
+                                       "quickstarts_desc":  "Bestimmt ob vordefinierte SQL-Skripte (Quickstarts) auf der Startseite angezeigt werden.",
+                                       "connected_templates":  "Verbundene Vorlagen",
+                                       "loaded_from":  "Diese Vorlagen werden derzeit aus SQLEditor.queries.js geladen",
+                                       "heading":  "SQL-Vorlagen"
+                                   },
+                     "shortcuts":  {
+                                       "heading":  "Shortcuts",
+                                       "title":  "Shortcuts",
+                                       "magic_search":  "Intelligente Suche"
+                                   },
+                     "maintenance":  {
+                                         "title":  "Datenbankwartung",
+                                         "description":  "Optimiere die Leistung deiner lokalen Datenbank durch Bereinigung alter Protokolle und Caches.",
+                                         "stats_cache":  "Cache",
+                                         "stats_logs":  "Protokolle",
+                                         "stats_archive":  "Archiv",
+                                         "stats_size":  "Größe",
+                                         "select_tables":  "Tabellen wählen",
+                                         "api_cache":  "API-Cache",
+                                         "request_logs":  "Protokolle",
+                                         "timeframe":  "Zeitrahmen",
+                                         "preset_24h":  "24h",
+                                         "preset_30d":  "30 Tage",
+                                         "preset_90d":  "90 Tage",
+                                         "preset_wipe_all":  "Alle löschen",
+                                         "cleanup":  "Bereinigung",
+                                         "preview_prompt":  "Klicke auf Vorschau…",
+                                         "preview_button":  "Vorschau berechnen",
+                                         "delete_button":  "Jetzt löschen",
+                                         "auto_cleanup":  "Automatische Bereinigung",
+                                         "auto_cleanup_enabled":  "Aktiv",
+                                         "auto_cleanup_every":  "alle",
+                                         "auto_cleanup_hours":  "Std.",
+                                         "auto_cleanup_save":  "Speichern",
+                                         "auto_cleanup_inactive":  "Inaktiv",
+                                         "heading":  "Datenbank-Wartung"
+                                     },
+                     "footer":  {
+                                    "save":  "Speichern",
+                                    "cancel":  "Abbrechen"
+                                },
+                     "apikeys":  {
+                                     "usage_heading":  "Verwendung in Projekten",
+                                     "description":  "Generieren Sie API-Schlüssel, um externe Projekte mit dieser Kynto-Instanz zu verbinden. Teilen Sie Token sicher mit anderen Entwicklern.",
+                                     "security_warning":  "<strong>Sicherheit:</strong> Geben Sie Ihren API-Schlüssel niemals öffentlich frei! Der Schlüssel funktioniert wie ein Passwort. Wenn die Nutzung verdächtig aussieht, löschen Sie den Schlüssel und generieren Sie einen neuen.",
+                                     "curl_example":  "\u003cstrong\u003e3. cURL Beispiel:\u003c/strong\u003e",
+                                     "js_example":  "\u003cstrong\u003e2. JavaScript Fetch Beispiel:\u003c/strong\u003e",
+                                     "no_keys":  "Noch keine API-Schlüssel generiert.",
+                                     "usage_note":  "\u003cstrong\u003eWichtig:\u003c/strong\u003e Jeder API-Schlüssel wird nach der Verwendung als [VERWENDET] gekennzeichnet. Sie können ihn dann manuell löschen, wenn er nicht mehr benötigt wird.",
+                                     "generate_button":  "Neuen API-Schlüssel generieren",
+                                     "heading":  "API-Schlüssel \u0026 Authentifizierung",
+                                     "documentation":  "API-Schlüssel Dokumentation",
+                                     "bearer_header":  "\u003cstrong\u003e1. Als Bearer Token im Header:\u003c/strong\u003e",
+                                     "active_keys":  "Aktive API-Schlüssel"
+                                 }
+                 },
+    "instant_api":  {
+                        "title":  "Instant API",
+                        "status":  "Status",
+                        "inactive":  "Inaktiv",
+                        "api_not_started":  "API nicht gestartet",
+                        "configuration":  "Konfiguration",
+                        "network_port":  "Netzwerk-Port",
+                        "enable_on_startup":  "Beim Start aktivieren",
+                        "control":  "Kontrolle",
+                        "start":  "▶ Starten",
+                        "stop":  "⏹ Stoppen",
+                        "open_in_browser":  "🌐 API im Browser öffnen",
+                        "connection_info":  "Verbindungsinformationen",
+                        "url":  "URL",
+                        "port":  "Port",
+                        "endpoints":  "Endpoints",
+                        "api_not_active":  "API nicht aktiv",
+                        "starting":  "⏳ Wird gestartet…",
+                        "stopping":  "⏳ Wird gestoppt…",
+                        "checking":  "⚠️ Wird überprüft…",
+                        "connecting":  "Wird verbunden…",
+                        "api_running":  "Aktiv",
+                        "error":  "Fehler",
+                        "running_on_port":  "Läuft auf Port {{port}}",
+                        "api_stopped":  "API gestoppt",
+                        "api_being_started":  "API wird gestartet",
+                        "no_active_database_connection":  "Keine aktive Datenbankverbindung",
+                        "main_process_unreachable":  "Hauptprozess unerreichbar",
+                        "api_start_failed":  "API-Start fehlgeschlagen",
+                        "port_change":  "Port ändern",
+                        "new_port_restart_required":  "Neuer Port: {{port}} (Neustart erforderlich)"
+                    },
+    "io":  {
+               "status":  {
+                              "importing":  "Wird importiert…",
+                              "reading_csv":  "📥 Lese CSV aus \"{fileName}\"…",
+                              "creating_table":  "✅ Erstelle Tabelle \"{name}\"…",
+                              "table_created":  "✅ Tabelle \"{name}\" erstellt",
+                              "importing_rows":  "📥 Importiere {{rows}} Zeilen…",
+                              "batch_progress":  "📥 Batch {{batch}}/{{total}}: {{current}}/{{rows}} Zeilen",
+                              "dialog_opening":  "📂 CSV-Import-Dialog wird geöffnet…",
+                              "refreshing_tables":  "📋 Tabellenliste wird aktualisiert…",
+                              "done":  "✅ Fertig!"
+                          },
+               "error":  {
+                             "csv_parsing_failed":  "❌ CSV konnte nicht geparst werden",
+                             "csv_empty":  "❌ CSV ist leer (0 Zeilen)",
+                             "no_columns":  "❌ Keine Spalten gefunden (ungültiger CSV-Header?)",
+                             "table_creation_failed":  "❌ Tabelle konnte nicht erstellt werden: {{message}}",
+                             "import_failed":  "❌ Importfehler: {{message}}",
+                             "format_not_supported":  "⚠️ Nur CSV-Import wird unterstützt (nicht {{format}})"
+                         },
+               "success":  {
+                               "import_with_errors":  "✅ \"{{name}}\" importiert! {{success}}/{{total}} Zeilen ({{errors}} Fehler)",
+                               "import_complete":  "✅ \"{{name}}\" importiert! {{rows}} Zeilen",
+                               "import_with_target":  "✅ Erfolgreich importiert ({{target}})"
+                           },
+               "warning":  {
+                               "batch_errors":  "⚠️ Batch {{batch}} hatte Fehler - wird fortgesetzt…"
+                           }
+           },
+    "executor":  {
+                     "button":  {
+                                    "execute":  "▶ Ausführen",
+                                    "execute_selection":  "▶ Auswahl ausführen",
+                                    "cancel":  "⏹ Abbrechen",
+                                    "verify":  "⚠️ Überprüfen…"
+                                },
+                     "status":  {
+                                    "executing_selection":  "Auswahl wird ausgeführt…",
+                                    "query_cancelled":  "Abfrage abgebrochen.",
+                                    "loading":  "Wird geladen…"
+                                },
+                     "success":  {
+                                     "ddl_executed":  "Erfolgreich ausgeführt.",
+                                     "rows_displayed":  "Zeigt {{count}} von {{total}} Zeilen.",
+                                     "rows_loaded":  "{{count}} Zeile(n){{columns}} in {{duration}}ms geladen."
+                                 },
+                     "error":  {
+                                   "no_results":  "Keine Ergebnisse.",
+                                   "sql_error":  "SQL-Fehler: {{message}}"
+                               }
+                 },
+    "query_builder":  {
+                          "sort_column":  "Spalte…",
+                          "asc":  "ASC",
+                          "desc":  "DESC",
+                          "count":  "COUNT",
+                          "select_table":  "Wähle eine Tabelle.",
+                          "select_column":  "Wähle eine Spalte."
+                      },
+    "dashboard":  {
+                      "title":  "Kynto Intel",
+                      "no_database":  "Keine Datenbank",
+                      "unknown":  "Unbekannt",
+                      "stats":  {
+                                    "active_db":  "Aktive DB",
+                                    "connected":  "Verbunden",
+                                    "tables":  "Tabellen",
+                                    "ping_latency":  "Ping / Latenz",
+                                    "history":  "SQL-Verlauf",
+                                    "favorites":  "Favoriten",
+                                    "connections":  "Verbindungen",
+                                    "max":  "Max"
+                                },
+                      "storage":  {
+                                      "title":  "💾 Dateigröße \u0026 Speicher",
+                                      "total":  "Gesamt",
+                                      "database_size":  "📊 Datenbankgröße",
+                                      "dead_tuples":  "☠️ Tote Zeilen",
+                                      "tables_affected":  "betroffene Tabellen",
+                                      "no_tables":  "Keine Tabellendaten"
+                                  },
+                      "bloat":  {
+                                    "title":  "☠️ Datenverschwendungsanalyse (PostgreSQL)",
+                                    "dead_tuples_count":  "tote Zeilen",
+                                    "last_vacuum":  "Letztes VACUUM",
+                                    "never":  "nie",
+                                    "bloat_percent":  "Verschwendung",
+                                    "cleanup_button":  "🗑️ Alles bereinigen (VACUUM ANALYZE)"
+                                },
+                      "distribution":  {
+                                           "title":  "📊 Speicherverteilung",
+                                           "bytes":  "Byte-Größe",
+                                           "row_count":  "Zeilenanzahl"
+                                       },
+                      "history_section":  {
+                                              "title":  "🕐 Letzte Abfragen",
+                                              "empty":  "Noch keine Abfragen ausgeführt."
+                                          },
+                      "actions":  {
+                                      "title":  "⚡ Aktionen",
+                                      "sql_editor":  "✍️ SQL-Editor",
+                                      "schema":  "🔧 Schema",
+                                      "refresh":  "🔄 Neu laden",
+                                      "vacuum":  "🧹 VACUUM",
+                                      "analyze":  "📐 ANALYZE",
+                                      "export_sql":  "📥 SQL exportieren",
+                                      "clear_history":  "🗑️ Verlauf löschen",
+                                      "first_table":  "📋 Erste Tabelle"
+                                  },
+                      "messages":  {
+                                       "postgres_vacuum":  "PostgreSQL VACUUM ANALYZE…",
+                                       "postgres_optimized":  "PostgreSQL optimiert!",
+                                       "vacuum_failed":  "VACUUM fehlgeschlagen: {{message}}",
+                                       "cleaning":  "⏳ Wird bereinigt…",
+                                       "vacuum_full":  "VACUUM FULL ANALYZE für alle Tabellen (kann eine Weile dauern)…",
+                                       "tables_cleaned":  "{{count}} Tabellen vollständig bereinigt!",
+                                       "analyze_running":  "ANALYZE wird ausgeführt…",
+                                       "analyze_complete":  "ANALYZE abgeschlossen.",
+                                       "no_history_export":  "Kein Verlauf zum Exportieren.",
+                                       "history_exported":  "SQL-Verlauf exportiert.",
+                                       "confirm_clear_history":  "Verlauf wirklich löschen?",
+                                       "history_cleared":  "Verlauf gelöscht.",
+                                       "sql_loaded":  "SQL in Editor geladen.",
+                                       "error":  "Fehler",
+                                       "tip":  "Tipp"
+                                   },
+                      "all_databases":  {
+                                            "title":  "🏠 Kynto Intel",
+                                            "database_count":  "{{count}} Datenbank{{plural}}",
+                                            "section_title":  "Datenbanken",
+                                            "unknown_name":  "Unbekannt",
+                                            "click_tip":  "Klicke auf eine Datenbank um die vollständige Übersicht zu sehen.",
+                                            "size":  "Speicher",
+                                            "ping":  "Ping",
+                                            "rows":  "Zeilen"
+                                        }
+                  },
+    "settings_ui":  {
+                        "api_button_found":  "✅ GEFUNDEN",
+                        "api_button_not_found":  "❌ NICHT GEFUNDEN",
+                        "api_clicked":  "Geklickt!",
+                        "custom_tpl_styles":  "Benutzerdefinierte Vorlagenstile"
+                    },
+    "placeholder":  {
+                        "settings":  {
+                                         "sync":  {
+                                                      "placeholder":  "postgresql://benutzer:passwort@host:5432/db"
+                                                  },
+                                         "ai":  {
+                                                    "model_placeholder":  "duckdb-nsql oder llama3"
+                                                }
+                                     }
+                    },
+    "sync":  {
+
+             }
+}

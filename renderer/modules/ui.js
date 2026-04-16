@@ -26,6 +26,7 @@ export async function saveUISettings() {
     const editorArea = document.querySelector('.editor-area');
     const favSection = document.getElementById('btn-toggle-fav')?.closest('.sb-section');
     const histSection = document.getElementById('btn-toggle-hist')?.closest('.sb-section');
+    const systemSection = document.getElementById('btn-toggle-system')?.closest('.sb-section');
     
     await window.api.saveSettings({
         ui: {
@@ -33,6 +34,7 @@ export async function saveUISettings() {
             builder: editorArea.classList.contains('collapsed'),
             fav:     favSection?.classList.contains('collapsed') ?? false,
             hist:    histSection?.classList.contains('collapsed') ?? false,
+            system:  systemSection?.classList.contains('collapsed') ?? false,
         },
         isDark:   state.isDark,
     }).catch(err => console.error('Fehler beim Speichern der UI-Settings:', err));
@@ -53,6 +55,10 @@ export async function loadUISettings() {
     }
     if (ui.hist) {
         const sec = document.getElementById('btn-toggle-hist')?.closest('.sb-section');
+        sec?.classList.add('collapsed');
+    }
+    if (ui.system) {
+        const sec = document.getElementById('btn-toggle-system')?.closest('.sb-section');
         sec?.classList.add('collapsed');
     }
     if (typeof s.isDark === 'boolean') applyTheme(s.isDark);
@@ -103,7 +109,7 @@ export function initUIControls() {
     }
 
     // Sidebar-Sektionen togglen
-    ['btn-toggle-fav', 'btn-toggle-hist'].forEach(id => {
+    ['btn-toggle-fav', 'btn-toggle-hist', 'btn-toggle-system'].forEach(id => {
         const btn = document.getElementById(id);
         if (!btn) return;
         btn.addEventListener('click', () => {

@@ -10,9 +10,169 @@
       jetzt per requestAnimationFrame gedrosselt statt bei jedem Event.
    ──────────────────────────────────────────────────────────────────── */
 
+/**
+ * Injeziert Styles für die Result-Tabs, um sie als Gruppe (Tab-Bar) erkennbar zu machen.
+ */
+function _injectViewStyles() {
+    if (document.getElementById('kynto-view-tabs-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'kynto-view-tabs-styles';
+    style.textContent = `
+        /* Die Navigations-Leiste (Segmented Control Look) für die Haupt-Ansichten */
+        .result-nav-group { 
+            display: inline-flex !important;
+            background: var(--surface2, #1c1c20);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border, rgba(255,255,255,0.08));
+            gap: 2px;
+            margin-bottom: 12px;
+            margin-right: 12px; /* Optischer Abstand zu den funktionalen Tools */
+            align-items: center;
+        }
+
+        .result-tab {
+            padding: 6px 16px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted, #a1a1aa);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: none;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .result-tab:hover {
+            color: var(--text, #ffffff);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .result-tab.active {
+            color: #18181b !important;
+            background: var(--accent, #c29a40) !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+        }
+
+        /* Dezente Status-Buttons in der Action-Bar (z.B. RLS, Echtzeit) */
+        .status-badge, #btn-realtime, #btn-rls, #btn-index-advisor {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 4px 8px !important;
+            border-radius: 6px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 7px !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            color: var(--muted, #a1a1aa) !important;
+            outline: none !important;
+        }
+        .status-badge:hover, #btn-realtime:hover, #btn-rls:hover, #btn-index-advisor:hover {
+            background: rgba(255,255,255,0.05) !important;
+            color: var(--text, #ffffff) !important;
+        }
+        .status-badge.active, #btn-realtime.active, #btn-rls.active, #btn-index-advisor.active {
+            color: var(--accent, #c29a40) !important;
+            background: rgba(194, 154, 64, 0.08) !important;
+            border: none !important;
+            opacity: 1 !important;
+        }
+        /* Feedback für den Hover-Zustand wenn der Button bereits aktiv ist */
+        .status-badge.active:hover, #btn-realtime.active:hover, #btn-rls.active:hover, #btn-index-advisor.active:hover {
+            background: rgba(194, 154, 64, 0.15) !important;
+            color: var(--accent, #c29a40) !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Wir gruppieren NUR die echten Navigation-Tabs in einen eigenen Container.
+    // Dadurch bleiben Werkzeuge wie das Typ-Highlighting oder Statistiken außerhalb
+    // der gruppierten Hintergrund-Leiste.
+    const tabs = document.querySelectorAll('.result-tab');
+    if (tabs.length > 0) {
+        const firstTab = tabs[0];
+        const parent = firstTab.parentElement;
+
+        // Prüfen ob die Tabs noch lose (ungruppiert) im Header liegen
+        if (parent && !parent.classList.contains('result-nav-group')) {
+            const navGroup = document.createElement('div');
+            navGroup.className = 'result-nav-group';
+            
+            // Nav-Leiste vor dem ersten Tab einfügen und Tabs verschieben
+            parent.insertBefore(navGroup, firstTab);
+            tabs.forEach(tab => navGroup.appendChild(tab));
+        }
+    }
+}
+
+/**
+ * Aktualisiert das Visuelle des RLS-Buttons
+ * @param {boolean} active - Ob RLS für die Tabelle aktiv ist
+ */
+export function updateRLSBadge(active) {
+    const btn = document.getElementById('btn-rls');
+    if (!btn) return;
+
+    // Alle externen Badge-Styles (z.B. aus action-bar.js) vollständig zurücksetzen
+    btn.style.cssText = '';
+    btn.classList.remove('status-badge', 'active', 'warning', 'badge', 'pill');
+
+    // Schlosssymbol: offen wenn RLS aus, geschlossen wenn aktiv
+    const iconActive   = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+    const iconInactive = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>`;
+
+    if (active) {
+        btn.classList.add('status-badge', 'active');
+        btn.innerHTML = `${iconActive} <span>RLS aktiv</span>`;
+        btn.title = 'Row Level Security ist für diese Tabelle aktiv.';
+    } else {
+        btn.classList.add('status-badge');
+        btn.innerHTML = `${iconInactive} <span>RLS aus</span>`;
+        btn.title = 'Row Level Security ist deaktiviert. Alle Zeilen sind sichtbar.';
+    }
+}
+window.updateRLSBadge = updateRLSBadge;
+
+/**
+ * Aktualisiert das Visuelle des Indexberaters
+ * @param {boolean} active - Ob der Indexberater aktiv ist
+ */
+export function updateIndexAdvisorBadge(active) {
+    const btn = document.getElementById('btn-index-advisor');
+    if (!btn) return;
+
+    // Alle externen Badge-Styles vollständig zurücksetzen
+    btn.style.cssText = '';
+    btn.classList.remove('status-badge', 'active', 'warning', 'badge', 'pill');
+
+    // Blitz-Icon: steht für Performance-Analyse
+    const icon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>`;
+
+    if (active) {
+        btn.classList.add('status-badge', 'active');
+        btn.innerHTML = `${icon} <span>Indexberater aktiv</span>`;
+        btn.title = 'Indexberater ist aktiv – Vorschläge werden analysiert.';
+    } else {
+        btn.classList.add('status-badge');
+        btn.innerHTML = `${icon} <span>Indexberater</span>`;
+        btn.title = 'Indexberater aktivieren – analysiert fehlende oder redundante Indizes.';
+    }
+}
+window.updateIndexAdvisorBadge = updateIndexAdvisorBadge;
+
 import { state, DUCK_TYPES }        from './state.js';
 import { esc, escH, setStatus, setEditorVal } from './utils.js';
-import { refreshTableList } from './sidebar.js';
+import { refreshTableList } from './sidebar/index.js';
 import { showRelationsDiagram, getRelationsSummaryHtml, findPrimaryKey } from './relations.js';
 import { KyntoVisualizer, syncVisualizerButton } from './visualizer.js';
 import { KyntoDashboard } from './dashboard.js';
@@ -48,6 +208,8 @@ import {
     formatColumnName,
     formatDataType,
 } from './table-editor/index.js';
+
+import { initSelectionToolbar, updateToolbar } from './TableGridEditor/SelectionToolbar.js';
 
 // ── Drag-to-Select State ───────────────────────────────────────────────
 
@@ -190,6 +352,8 @@ export function showView(view) {
     if (view === 'table') {
         if (window.TableGridEditor) {
             window.TableGridEditor.renderCurrentData();
+            // Toolbar-Status prüfen
+            updateToolbar();
         }
     }
 
@@ -277,6 +441,7 @@ export function showDashboard(showAll = true) {
 window.showDashboard = showDashboard;
 
 export function initViewTabs() {
+    _injectViewStyles();
     document.querySelectorAll('.result-tab').forEach(btn =>
         btn.addEventListener('click', () => showView(btn.dataset.view)));
 }
@@ -631,10 +796,10 @@ function _injectResultFooter() {
         .f-sec { display: flex; align-items: center; gap: 4px; }
         .f-val { color: var(--text); font-weight: 600; }
         .f-sep { width: 1px; height: 12px; background: var(--border); opacity: 0.5; }
-        .f-btn { cursor: pointer; color: var(--accent); font-weight: 600; transition: opacity 0.2s; padding: 0 4px; border-radius: 4px; }
-        .f-btn:hover { opacity: 0.8; background: rgba(255,255,255,0.05); }
-        .f-btn.active { color: var(--text); background: rgba(194, 154, 64, 0.2); border: 1px solid var(--accent); }
-        #footer-def-btn:hover { text-decoration: underline; }
+        .f-btn { cursor: pointer; color: var(--muted); font-weight: 600; transition: all 0.2s; padding: 2px 6px; border-radius: 4px; display: inline-flex; align-items: center; }
+        .f-btn:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+        .f-btn.active { color: var(--accent) !important; background: rgba(194, 154, 64, 0.08) !important; }
+        #footer-def-btn { gap: 6px; }
         .f-input {
             background: rgba(255,255,255,0.05); border: 1px solid var(--border);
             border-radius: 3px; color: var(--text); font-size: 11px; font-weight: 600;
@@ -676,7 +841,10 @@ function _injectResultFooter() {
         <div class="f-sep"></div>
         <div class="f-sec"><span class="f-val" id="footer-total-entries">${state.totalRows.toLocaleString('de-DE')}</span> Einträge gesamt</div>
         <div class="f-sec" style="margin-left: auto; gap: 10px;">
-            <div class="f-sec f-btn" id="footer-def-btn">Definition</div>
+            <div class="f-sec f-btn" id="footer-def-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                <span>Definition</span>
+            </div>
         </div>
     `;
 
@@ -796,8 +964,12 @@ async function _reloadCurrentTableData() {
 }
 
 // Initialisierung beim Laden des Moduls
+_injectViewStyles();
 _injectResultFooter();
+initSelectionToolbar();
+
 window._updateFooterDisplay = _updateFooterDisplay; // Expose globally
 window._reloadCurrentTableData = _reloadCurrentTableData; // Expose globally
+window.updateSelectionToolbar = updateToolbar; // Global verfügbar machen für das Grid
 
 // ── Chart View ─────────────────────────────────────────────────────────

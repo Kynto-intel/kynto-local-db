@@ -10,7 +10,7 @@
 
 import { state }           from '../state.js';
 import { esc, escH, setStatus } from '../utils.js';
-import { refreshTableList }     from '../sidebar.js';
+import { refreshTableList }     from '../sidebar/index.js';
 import { showView } from '../views.js';
 import { KyntoVisualizer } from '../visualizer.js';
 import { showRelationsDiagram, getRelationsSummaryHtml } from '../relations.js';
@@ -69,7 +69,7 @@ let dragStartIdx      = -1;
 let dragMode          = true;
 let dragRafPending    = false;
 
-window.addEventListener('mouseup', () => { isDraggingRows = false; });
+window.addEventListener('mouseup', () => { isDraggingRows = false; window.updateSelectionToolbar?.(); });
 
 // ── Öffentliche API ────────────────────────────────────────────────────────
 
@@ -137,7 +137,8 @@ export const TableGridEditor = {
                     state.columnMetadata = colInfo || [];
                     state.currentCols = state.columnMetadata.map(c => c.column_name || c.name);
 
-                    const sql = `SELECT * FROM "${entity.name}" LIMIT 1000`;
+                    const sort = state.currentSort?.col ? ` ORDER BY "${state.currentSort.col}" ${state.currentSort.dir || 'ASC'}` : '';
+                    const sql = `SELECT * FROM "${entity.name}"${sort} LIMIT 1000`;
                     const rows = await window.api.dbQuery(sql, null, 'remote');
                     state.lastData = Array.isArray(rows) ? rows : [];
                 } else {
@@ -154,7 +155,8 @@ export const TableGridEditor = {
                     state.columnMetadata = colInfo || [];
                     state.currentCols = state.columnMetadata.map(c => c.column_name || c.name);
 
-                    const sql = `SELECT * FROM "${entity.name}" LIMIT 1000`;
+                    const sort = state.currentSort?.col ? ` ORDER BY "${state.currentSort.col}" ${state.currentSort.dir || 'ASC'}` : '';
+                    const sql = `SELECT * FROM "${entity.name}"${sort} LIMIT 1000`;
                     const rows = await window.api.pgQuery(sql, pgId);
                     state.lastData = Array.isArray(rows) ? rows : [];
                 }
@@ -539,8 +541,19 @@ window.TableGridEditor = TableGridEditor;
 // ── Interne Hilfsfunktionen ────────────────────────────────────────────────
 
 function _getDbId() {
-    // FIX: Immer pgId für PGlite zurückgeben
-    return state.pgId || state.activeDbId;
+    // FIX: Richtige DB basierend auf dbMode wählen:
+    // - 'remote': Remote-PostgreSQL verwenden
+    // - 'pglite': PGlite verwenden
+    
+    const isRemote = state.dbMode === 'remote' && state.remoteConnectionString;
+    
+    if (isRemote) {
+        // Remote-PostgreSQL verwenden (wird von API erkannt)
+        return state.remoteConnectionString;
+    }
+    
+    // PGlite verwenden (Standard)
+    return state.activeDbId || state.pgId;
 }
 
 function _showTabs(visible) {
@@ -566,100 +579,124 @@ function _renderDataGrid(data) {
         style.textContent = `
             #result-table-view { 
                 position: relative; overflow: auto; height: 100%; 
-                background: var(--surface);
+                background: var(--surface); 
                 scrollbar-gutter: stable;
+                padding: 0 20px 20px 20px !important; /* Kein oberes Padding, damit Header am Rand klebt */
             }
             #result-table-view table { 
-                border-collapse: separate; border-spacing: 0; 
-                width: max-content; min-width: 100%;
-                table-layout: auto; font-family: var(--font-sans, system-ui, sans-serif);
+                border-collapse: separate !important; 
+                border-spacing: 0 5px !important; 
+                width: 100% !important;
+                margin-top: 15px; /* Optischer Abstand oben im Ruhezustand */
+                table-layout: auto; 
+                font-family: var(--font-sans, system-ui, sans-serif);
             }
             #result-table-view thead { 
-                position: sticky; top: 0; z-index: 20; 
-                background: var(--surface);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                position: sticky; 
+                top: 0; 
+                z-index: 200; /* Höchste Priorität, damit nichts drüber geht */
+                background: var(--surface) !important; /* Container-Farbe als Maske */
+            }
+            #result-table-view thead tr {
+                background: #222226 !important; /* Nur eine Nuance dunkler für dezenten Kontrast */
             }
             #result-table-view th { 
-                background: var(--surface1); 
-                border-bottom: 2px solid var(--border);
-                border-right: 1px solid rgba(255,255,255,0.03);
-                padding: 0;
+                background: #222226 !important; 
+                border: none !important;
+                border-top: 1px solid var(--border) !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important; /* Ganz feine, hellere 1px Linie */
+                border-right: 1px solid var(--border) !important;
+                padding: 14px 24px !important; /* Optimierte Abstände für bessere Balance */
                 position: relative;
-                vertical-align: top;
+                vertical-align: middle; /* Vertikal zentriert */
                 height: auto;
+                color: #d1d1d1;
             }
             #result-table-view td { 
-                font-size: 13px !important;
-                height: var(--table-row-height, 38px);
-                border-bottom: 1px solid var(--border);
-                border-right: 1px solid rgba(255,255,255,0.02);
-                padding: 0 24px;
+                font-size: 13px;
+                height: auto;
+                border: none !important;
+                border-top: 1px solid var(--border) !important;
+                border-bottom: 1px solid var(--border) !important;
+                border-right: 1px solid var(--border) !important;
+                padding: 15px 32px !important; /* Erhöhtes Padding (links/rechts), damit Text nicht an den Linien klebt */
                 box-sizing: border-box;
                 white-space: nowrap;
                 min-width: 120px;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                color: #ffffff;
+                color: var(--text);
                 transition: background 0.15s ease;
             }
-            #result-table-view tr:hover td { background: rgba(255,255,255,0.06) !important; }
-            #result-table-view tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+            #result-table-view tbody tr {
+                background: var(--surface2) !important;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                cursor: pointer;
+            }
+            #result-table-view tr:hover { 
+                background: var(--surface) !important; 
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -10px rgba(0,0,0,0.5);
+            }
+            #result-table-view td:first-child { 
+                border-left: 1px solid var(--border) !important;
+                border-radius: 10px 0 0 10px !important; 
+            }
+            #result-table-view td:last-child { 
+                border-right: 1px solid var(--border) !important;
+                border-radius: 0 10px 10px 0 !important; 
+            }
+            /* Header Radius Synchronisation */
+            #result-table-view th:first-child {
+                border-left: 1px solid var(--border) !important;
+                border-radius: 10px 0 0 10px !important;
+            }
+            #result-table-view th:last-child {
+                border-right: 1px solid var(--border) !important;
+                border-radius: 0 10px 10px 0 !important;
+            }
+            
             #result-table-view tr.selected-row td { 
                 background: rgba(var(--accent-rgb), 0.25) !important;
-                border-left: 3px solid var(--accent);
             }
-            #result-table-view tr.selected-row:hover td { background: rgba(var(--accent-rgb), 0.35) !important; }
-            @keyframes tableRefreshFade {
-                from { opacity: 0.5; transform: translateY(4px); }
-                to   { opacity: 1; transform: translateY(0); }
-            }
-            .table-refresh-anim { animation: tableRefreshFade 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-            .th-inner { display: flex; flex-direction: column; padding: 8px 10px; gap: 4px; }
+
+            .th-inner { display: flex; flex-direction: column; gap: 4px; }
             .th-label { 
-                display: flex; justify-content: space-between; align-items: center; 
-                cursor: pointer; font-weight: 600; font-size: 12px; 
-                text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted);
-                transition: color 0.2s; padding: 2px 0;
+                display: flex; justify-content: flex-start; align-items: center; gap: 8px;
+                cursor: pointer; font-weight: 500; font-size: 13px; 
+                text-transform: uppercase; letter-spacing: 0.06em;
+                transition: color 0.2s; font-family: var(--font-mono); color: #d1d1d1;
             }
             .th-label:hover { color: var(--text); }
             .th-label.sort-active { color: var(--accent); }
-            .sort-ico { font-size: 11px; opacity: 0.5; margin-left: 4px; }
+            
+            .sort-ico { font-size: 10px; opacity: 0.5; }
             .sort-active .sort-ico { opacity: 1; }
-            #result-table-view td:first-child, #result-table-view th:first-child {
-                position: sticky; left: 0; z-index: 10; width: 54px; min-width: 54px; 
-                text-align: center; border-right: 1px solid var(--border);
-                background: var(--surface1);
-                color: var(--muted); font-size: 11px; font-weight: 600; padding: 0;
-            }
-            #result-table-view th:first-child { z-index: 30; border-bottom: 1px solid var(--border); }
+
             .col-resize-handle { 
                 position: absolute; right: 0; top: 0; bottom: 0; width: 4px; 
                 cursor: col-resize; z-index: 5; transition: all 0.2s; 
-                border-right: 1px solid transparent;
             }
             .col-resize-handle:hover, .col-resize-handle.resizing { background: var(--accent); opacity: 0.4; }
+
             #result-table-view td.cell-editing { 
                 outline: 2px solid var(--accent) !important; outline-offset: -2px;
-                background: rgba(var(--accent-rgb), 0.15) !important; cursor: text; z-index: 5;
+                background: var(--surface) !important; cursor: text; z-index: 5;
             }
-            #result-table-view tr.selected-row td { background: rgba(194, 154, 64, 0.15) !important; }
-            #result-table-view tr.selected-row td:first-child { 
-                background: var(--accent) !important; color: var(--surface) !important; font-weight: 800; 
+
+            /* Sticky Index Column Anpassung für Card-Look */
+            #result-table-view th:first-child { background: #222226 !important; }
+            #result-table-view td:first-child { background: var(--surface2) !important; }
+
+            #result-table-view td:first-child, #result-table-view th:first-child {
+                position: sticky; left: 0; z-index: 50; width: 20px; min-width: 20px; 
+                text-align: center;
+                color: var(--muted); font-size: 12px; font-weight: 500; 
+                border-right: 1px solid var(--border) !important; 
+                padding: 0 15px !important;
             }
-            .schema-table { border-collapse: separate; border-spacing: 0; background: transparent; }
-            .schema-table th { 
-                background: rgba(255,255,255,0.03); text-transform: uppercase; 
-                font-size: 10px; letter-spacing: 1.2px; color: var(--muted); 
-                padding: 16px 20px; border-bottom: 1px solid var(--border); 
-            }
-            .schema-table td { padding: 18px 20px; border-bottom: 1px solid var(--border); }
-            .schema-table tr:last-child td { border-bottom: none; }
-            .type-badge { 
-                font-family: var(--font-mono); font-size: 10px; font-weight: 700; 
-                padding: 4px 10px; border-radius: 20px; 
-                background: rgba(var(--accent-rgb), 0.1); color: var(--accent);
-                border: 1px solid rgba(var(--accent-rgb), 0.2);
-            }
+            #result-table-view th:first-child { z-index: 150; } /* Muss höher sein als thead (100) und Zeilen-Index (50) */
+
             .action-btn-circle { 
                 width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; 
                 border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); 
@@ -695,7 +732,7 @@ function _renderDataGrid(data) {
                 color: var(--accent) !important;
                 font-weight: bold !important;
                 font-size: 18px !important;
-                background: var(--surface1) !important;
+                background: #222226 !important; 
                 border-bottom: 2px solid var(--border) !important;
                 line-height: 38px;
             }
@@ -714,6 +751,20 @@ function _renderDataGrid(data) {
         return;
     }
 
+    // Vorab-Check der Spalten-Eigenschaften für Alignment (Profi-Optimierung)
+    const colProps = cols.map(col => {
+        const meta = (state.columnMetadata || []).find(m => (m.column_name || m.name) === col);
+        const colType = (meta?.column_type || meta?.data_type || '').toLowerCase();
+        const colNameLower = col.toLowerCase();
+        return {
+            isNumeric: /int|float|double|real|numeric|decimal|money/.test(colType) || 
+                       /betrag|preis|kosten|umsatz|summe|total|saldo|amount|price|revenue|cost|count|anzahl|rate|qty|quantity|menge/.test(colNameLower),
+            isId: /\b(id|uuid|guid|pk|fk|uid|oid)\b/.test(colNameLower) || 
+                  /(_id|_nr|_key|_pk|_fk)$/.test(colNameLower) || 
+                  /^(pk_|fk_|id_)/.test(colNameLower)
+        };
+    });
+
     // FIX: Sicherstellen dass data ein Array von Objekten ist
     // Wenn data[0] kein Objekt ist (z.B. Array von Arrays), abbrechen
     if (data.length > 0 && (typeof data[0] !== 'object' || Array.isArray(data[0]))) {
@@ -729,10 +780,49 @@ function _renderDataGrid(data) {
     table.appendChild(tbody);
     table.classList.add('table-refresh-anim');
 
+    // Dynamische Breite der Zeilennummern-Spalte basierend auf maximaler Zeilenzahl
+    const maxRowNum = data.length;
+    const digitCount = String(maxRowNum).length;
+    const rowNumColWidth = 20; // Sehr kompakt: 20px
+
     const headRow = document.createElement('tr');
     const thNum = document.createElement('th');
-    thNum.style.width = '46px';
-    thNum.innerHTML = '';
+    thNum.style.cursor = 'pointer';
+    thNum.style.userSelect = 'none';
+    thNum.title = 'Alle auswählen / abwählen';
+
+    // Checkbox-Icon für den Selektionsstatus – wird über eine stabile ID aktualisiert
+    thNum.id = 'tge-select-all-th';
+
+    const _updateSelectAllIcon = () => {
+        const allSelected = data.length > 0 && state.selectedRows.size === data.length;
+        const someSelected = state.selectedRows.size > 0 && !allSelected;
+        const el = document.getElementById('tge-select-all-th');
+        if (!el) return;
+        el.innerHTML = someSelected
+            ? '<span style="font-size:13px;opacity:0.8">▪</span>'
+            : allSelected
+                ? '<span style="font-size:13px;color:var(--accent)">✓</span>'
+                : '<span style="font-size:13px;opacity:0.35">☐</span>';
+    };
+    _updateSelectAllIcon();
+
+    // Globale Hilfsfunktion damit updateSelectionToolbar das Icon mitaktualisiert
+    window._updateSelectAllIcon = _updateSelectAllIcon;
+
+    thNum.addEventListener('click', () => {
+        const allSelected = state.selectedRows.size === data.length;
+        if (allSelected) {
+            state.selectedRows.clear();
+        } else {
+            for (let i = 0; i < data.length; i++) state.selectedRows.add(i);
+        }
+        _updateSelectAllIcon();
+        // Nutze die öffentliche API statt der internen renderRows-Closure
+        window.TableGridEditor?.renderCurrentData();
+        window.updateSelectionToolbar?.();
+    });
+
     headRow.appendChild(thNum);
 
     cols.forEach((col, ci) => {
@@ -742,30 +832,32 @@ function _renderDataGrid(data) {
             th.style.width = th.style.minWidth = colWidths.get(ci) + 'px';
         }
 
-        // Hole den echten Typ aus den Metadaten
-        const meta = (state.columnMetadata || []).find(m => (m.column_name || m.name) === col);
-        const colType = meta ? (meta.column_type || meta.data_type || 'text') : 'text';
-
         const inner = document.createElement('div');
         inner.className = 'th-inner';
 
         const active = state.currentSort.col === col;
         const lbl = document.createElement('div');
         lbl.className = `th-label${active ? ' sort-active' : ''}`;
+
+        // Header Alignment konsistent zu den Daten setzen
+        if (colProps[ci].isNumeric) {
+            th.style.textAlign = 'right';
+            lbl.style.justifyContent = 'flex-end';
+            lbl.style.gap = '6px';
+        } else if (colProps[ci].isId) {
+            th.style.textAlign = 'center';
+            lbl.style.justifyContent = 'center';
+            lbl.style.gap = '6px';
+        }
+
         lbl.innerHTML = `
-            <span class="col-nm">
-                ${escH(col)}
-                <span style="font-size: 9px; opacity: 0.5; margin-left: 6px; font-weight: normal; font-family: var(--font-mono); text-transform: lowercase;">
-                    ${escH(colType)}
-                </span>
-            </span>
+            <span class="col-nm">${escH(col)}</span>
             <span class="sort-ico">${active ? (state.currentSort.dir === 'ASC' ? '▲' : '▼') : '↕'}</span>
         `;
         lbl.addEventListener('click', async () => {
             state.currentSort.dir = (state.currentSort.col === col && state.currentSort.dir === 'ASC') ? 'DESC' : 'ASC';
             state.currentSort.col = col;
-            const { updateTableQuery } = await import('../executor.js');
-            updateTableQuery();
+            TableGridEditor.switchView('data');
         });
 
         inner.appendChild(lbl);
@@ -856,7 +948,7 @@ function _renderDataGrid(data) {
         dragRafPending = false;
 
         // Virtual-Scrolling: Berechne welche Zeilen sichtbar sind
-        const rowHeight = 38;  // CSS height vom td
+        const rowHeight = 30;  // CSS height vom td
         const startIdx = Math.max(0, Math.floor(tv.scrollTop / rowHeight) - 5);
         const endIdx   = Math.min(data.length, Math.ceil((tv.scrollTop + tv.clientHeight) / rowHeight) + 5);
 
@@ -888,18 +980,20 @@ function _renderDataGrid(data) {
                 dragMode       = !state.selectedRows.has(ri);
                 if (dragMode) state.selectedRows.add(ri); else state.selectedRows.delete(ri);
                 renderRows();
+                window.updateSelectionToolbar?.();
             });
             tdNum.addEventListener('mouseenter', (e) => {
                 if (isDraggingRows && e.buttons === 1) {
                     if (dragRafPending) return;
                     dragRafPending = true;
                     if (dragMode) state.selectedRows.add(ri); else state.selectedRows.delete(ri);
-                    requestAnimationFrame(renderRows);
+                    requestAnimationFrame(() => { renderRows(); window.updateSelectionToolbar?.(); });
                 }
             });
             tr.appendChild(tdNum);
 
-            for (const col of cols) {
+            for (let ci = 0; ci < cols.length; ci++) {
+                const col = cols[ci];
                 const td  = document.createElement('td');
                 const val = row[col];
 
@@ -933,12 +1027,42 @@ function _renderDataGrid(data) {
                 const meta = (state.columnMetadata || []).find(m => (m.column_name || m.name) === col);
                 const colType = meta ? (meta.column_type || meta.data_type || 'text') : 'text';
 
-                const props = KyntoVisualizer.getCellProps(val, state.magicEyeActive ? state.magicMode : 'type', ranges[col]?.min, ranges[col]?.max);
+                // 🐛 Wenn magicEyeActive false ist, soll kein Mode verwendet werden (aber Typ wird immer für Alignment gebraucht)
+                const props = KyntoVisualizer.getCellProps(val, state.magicEyeActive ? state.magicMode : null, ranges[col]?.min, ranges[col]?.max);
                 
                 // Storage-Check: Falls es eine Medien-Referenz ist, HTML von dort holen
                 const storageHtml = await StorageCellRenderer.render(val, colType);
                 td.innerHTML = storageHtml ?? DataFormatter.formatWithContext(val, colType);
 
+                // 🎨 Intelligentes Alignment (User-Wunsch)
+                try {
+                    const dataTypeInfo = (val !== null && val !== undefined && typeof KyntoVisualizer?.identifyDataType === 'function')
+                        ? KyntoVisualizer.identifyDataType(val)
+                        : null;
+
+                    // Zusätzlicher Check: Sieht der Wert wie eine Zahl aus? (Wichtig für TEXT-Spalten mit Zahlen)
+                    const isNumberLike = val !== null && val !== undefined && val !== '' && typeof val !== 'boolean' && !isNaN(val);
+
+                    // Zahlen, Beträge und Booleans rechtsbündig (bessere Vergleichbarkeit)
+                    if (colProps[ci].isNumeric || dataTypeInfo === 'number' || dataTypeInfo === 'currency' || dataTypeInfo === 'boolean' || isNumberLike) {
+                        td.style.textAlign = 'right';
+                        td.style.fontVariantNumeric = 'tabular-nums'; // Sorgt dafür, dass Ziffern gleich breit sind
+                    } 
+                    // IDs und UUIDs zentriert
+                    else if (colProps[ci].isId || dataTypeInfo === 'uuid') {
+                        td.style.textAlign = 'center';
+                    }
+
+                    // Monospace für technische Daten
+                    if (dataTypeInfo === 'uuid' || dataTypeInfo === 'ip4' || dataTypeInfo === 'ip6') {
+                        td.style.fontFamily = 'var(--font-mono)';
+                            td.style.fontSize = '11px';
+                        }
+                } catch (e) {
+                    console.warn('[TableGridEditor] Error identifying data type:', e);
+                }
+                
+                // Zusätzlich: Setze Highlighting-Klasse nur wenn aktiv
                 if (props.className) td.className = props.className;
                 if (state.magicEyeActive && props.style) td.style.cssText += props.style;
                 tr.appendChild(td);

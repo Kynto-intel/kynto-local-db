@@ -9,6 +9,7 @@
  */
 
 import { state } from './state.js';
+import { setupRefreshButton } from './action-buttons/refresh.js';
 
 let _refreshTable = () => {};
 export function setVisualizerRefresh(fn) { _refreshTable = fn; }
@@ -176,6 +177,11 @@ export const KyntoVisualizer = {
     modes: { TYPE: 'type', HEATMAP: 'heatmap', VALIDATION: 'validation' },
 
     getCellProps: function(val, mode, min, max) {
+        // 🐛 Wenn kein Mode, keine Styles zurückgeben
+        if (!mode) {
+            return {};
+        }
+
         // Validierungsmodus: Zeige NULL/leere Werte
         if (mode === 'validation') {
             if (val === null || val === undefined || String(val).trim() === '') {
@@ -224,9 +230,25 @@ export const KyntoVisualizer = {
  */
 export function syncVisualizerButton() {
     const btnMain = document.getElementById('btn-magic-eye');
-    if (!btnMain) return;
-    btnMain.classList.toggle('active', state.magicEyeActive);
-    console.log('[visualizer] Button synced, magicEyeActive:', state.magicEyeActive);
+    if (!btnMain) {
+        console.log('[visualizer] Button not found for sync');
+        return;
+    }
+    
+    // Stelle sicher, dass der aktuelle State korrekt mit der CSS-Klasse synchronisiert ist
+    const wasBefore = btnMain.classList.contains('active');
+    
+    // Entferne zuerst die Klasse, dann füge sie nur hinzu, wenn state true ist
+    btnMain.classList.remove('active');
+    if (state.magicEyeActive) {
+        btnMain.classList.add('active');
+    }
+    
+    const isNow = btnMain.classList.contains('active');
+    
+    console.log('[visualizer] Button synced: magicEyeActive=', state.magicEyeActive, 
+                 '| was active:', wasBefore, '| is now active:', isNow, 
+                 '| changed:', wasBefore !== isNow);
 }
 
 /**
@@ -260,17 +282,7 @@ export function initVisualizer() {
         .vis-heatmap-neutral { opacity: 0.5; }
 
         /* UI Container */
-        .magic-eye-container { display: inline-flex; gap: 4px; margin-left: 8px; align-items: center; }
-        .dropdown-menu { 
-            position: absolute; top: 100%; right: 0; background: var(--surface2); 
-            border: 1px solid var(--border); border-radius: 4px; z-index: 1000;
-            display: none; min-width: 180px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); padding: 4px 0;
-        }
-        .dropdown-menu.show { display: block; animation: slideDown 0.15s ease-out; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-        .dropdown-menu div { padding: 8px 12px; cursor: pointer; font-size: 11px; color: var(--text); transition: all 0.1s; }
-        .dropdown-menu div:hover { background: var(--accent); color: #18181b; transform: translateX(2px); }
-        #btn-magic-eye.active { background: var(--accent); color: #18181b; box-shadow: 0 0 10px rgba(194, 154, 64, 0.3); }
+        .magic-eye-container { display: inline-flex; gap: 2px; align-items: center; }
     `;
     document.head.appendChild(style);
 
@@ -285,43 +297,77 @@ export function initVisualizer() {
     const container = document.createElement('div');
     container.className = 'magic-eye-container';
     container.innerHTML = `
-        <button class="btn" id="btn-magic-eye" title="Typ-Highlighting umschalten">
-            👁️ <span id="magic-eye-label">Typ-Highlighting</span>
+        <button class="status-badge" id="btn-magic-eye" title="Typ-Highlighting umschalten">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <span id="magic-eye-label">Typ-Highlighting</span>
         </button>
-        <button class="btn" id="btn-col-stats" title="Column Statistiken anzeigen" style="padding:0 8px;">
-            📊
+        <button class="status-badge" id="btn-col-stats" title="Spaltenstatistiken anzeigen">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
         </button>
-        <button class="btn" id="btn-magic-cfg" style="padding:0 6px; border-left: 1px solid rgba(255,255,255,0.1);">▾</button>
-        <div id="magic-menu" class="dropdown-menu">
-            <div data-mode="type">🎨 Typ-Highlighting</div>
-            <div data-mode="heatmap">🔥 Heatmap (Zahlen)</div>
-            <div data-mode="validation">🚫 Validierung (Qualität)</div>
-            <div style="border-top:1px solid var(--border); margin:4px 0;"></div>
-            <div id="toggle-analysis" style="background:rgba(255,255,255,0.05); padding:8px 12px; cursor: pointer; font-size:11px;">📈 Analysen **ON**</div>
-        </div>
-        <div id="column-stats-panel" style="display:none; position:fixed; max-width:400px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:12px; z-index:1001; max-height:500px; overflow-y:auto;">
-            <h4 style="margin:0 0 8px 0; font-size:12px; color:var(--accent);">📊 Column Statistics</h4>
+        <div id="column-stats-panel" style="display:none; position:fixed; width:550px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px; z-index:1001; max-height:600px; overflow-y:auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <h4 style="margin:0 0 12px 0; font-size:13px; color:var(--accent); font-weight:600; display:flex; align-items:center; gap:6px;">Column Statistics</h4>
             <div id="stats-content" style="font-size:11px;"></div>
         </div>
     `;
 
-    const exportBtns = document.getElementById('export-btns');
-    if (exportBtns) {
-        exportBtns.style.display = 'flex';
-        exportBtns.appendChild(container);
-    }
+    // Integration in die Action-Bar (neben RLS, Indexberater etc.)
+    const injectIntoActionBar = () => {
+        const actionBar = document.getElementById('action-bar-container');
+        if (actionBar && !actionBar.contains(container)) {
+            actionBar.appendChild(container);
+        }
+    };
+
+    // Da die Action-Bar oft geleert wird (z.B. durch initActionBar), 
+    // stellen wir sicher, dass die Magic-Eye Buttons immer wieder einziehen.
+    const observer = new MutationObserver(() => injectIntoActionBar());
+    const actionBarTarget = document.getElementById('action-bar-container');
+    if (actionBarTarget) observer.observe(actionBarTarget, { childList: true });
+    
+    injectIntoActionBar();
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Refresh-Button NACH den Magic-Eye Buttons
+    // ═══════════════════════════════════════════════════════════════════════
+    const refreshBtnContainer = document.createElement('div');
+    refreshBtnContainer.id = 'refresh-btn-container';
+    refreshBtnContainer.style.display = 'inline-flex';
+    
+    const refreshBtn = document.createElement('button');
+    refreshBtn.className = 'btn';
+    refreshBtn.id = 'btn-refresh';
+    refreshBtnContainer.appendChild(refreshBtn);
+    
+    const injectRefreshButton = () => {
+        const actionBar = document.getElementById('action-bar-container');
+        if (actionBar && !actionBar.querySelector('#refresh-btn-container')) {
+            actionBar.appendChild(refreshBtnContainer);
+            setupRefreshButton(refreshBtn);
+        }
+    };
+    
+    // Beobachte auch hier die Action-Bar Veränderungen
+    const observer2 = new MutationObserver(() => injectRefreshButton());
+    if (actionBarTarget) observer2.observe(actionBarTarget, { childList: true });
+    
+    injectRefreshButton();
 
     // Event Listener
     const btnMain = container.querySelector('#btn-magic-eye');
+    if (btnMain && state.magicEyeActive) {
+        btnMain.classList.add('active');
+    }
     const btnStats = container.querySelector('#btn-col-stats');
-    const btnCfg = container.querySelector('#btn-magic-cfg');
-    const menu = container.querySelector('#magic-menu');
     const statsPanel = container.querySelector('#column-stats-panel');
-    const label = container.querySelector('#magic-eye-label');
 
     btnMain.addEventListener('click', () => {
         state.magicEyeActive = !state.magicEyeActive;
-        btnMain.classList.toggle('active', state.magicEyeActive);
+        if (state.magicEyeActive) {
+            btnMain.classList.add('active');
+        } else {
+            btnMain.classList.remove('active');
+        }
+        console.log('[visualizer] Button clicked: magicEyeActive toggled to', state.magicEyeActive);
         _refreshTable();
     });
 
@@ -331,36 +377,12 @@ export function initVisualizer() {
         const rect = btnStats.getBoundingClientRect();
         statsPanel.style.top = (rect.bottom + 4) + 'px';
         statsPanel.style.right = (window.innerWidth - rect.right) + 'px';
-        
-        if (statsPanel.style.display === 'block' && state.currentCols) {
+        if (statsPanel.style.display === 'block' && state.currentCols && state.currentCols.length > 0) {
             updateColumnStats(state.currentCols, container);
         }
     });
 
-    btnCfg.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menu.classList.toggle('show');
-    });
-
-    menu.querySelectorAll('div').forEach(div => {
-        if (div.dataset.mode) {
-            div.addEventListener('click', () => {
-                state.magicMode = div.dataset.mode;
-                label.textContent = div.textContent.trim();
-                menu.classList.remove('show');
-                if (state.magicEyeActive) _refreshTable();
-            });
-        }
-        if (div.id === 'toggle-analysis') {
-            div.addEventListener('click', () => {
-                state.visualizerAnalysis = !state.visualizerAnalysis;
-                div.textContent = `📈 Analysen ${state.visualizerAnalysis ? '**ON**' : '**OFF**'}`;
-            });
-        }
-    });
-
     document.addEventListener('click', () => {
-        menu.classList.remove('show');
         statsPanel.style.display = 'none';
     });
 
@@ -379,24 +401,36 @@ function updateColumnStats(columns, container) {
         return;
     }
 
-    const qualityColor = (score) => score > 80 ? '#a3be8c' : score > 60 ? '#ebcb8b' : '#bf616a';
+    const qualityColor = (score) => score > 80 ? '#81c784' : score > 60 ? '#ffa726' : '#ef5350';
 
     statsContent.innerHTML = stats.map(s => `
-        <div style="background: var(--surface1); padding: 8px; border-radius: 4px; margin-bottom: 6px; border-left: 3px solid ${qualityColor(s.qualityScore)};">
-            <div style="font-weight:bold; color:var(--accent); display:flex; justify-content:space-between;">
-                <span>${escH(s.name)}</span>
-                <span style="background:${qualityColor(s.qualityScore)}33; padding:2px 6px; border-radius:3px; font-size:10px;">${s.qualityScore}%</span>
+        <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid ${qualityColor(s.qualityScore)}; backdrop-filter: blur(2px);">
+            <div style="font-weight:bold; color:var(--text); display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-size:12px;">${escH(s.name)}</span>
+                <span style="background:${qualityColor(s.qualityScore)}22; padding:3px 8px; border-radius:4px; font-size:11px; color:${qualityColor(s.qualityScore)}; font-weight:600; border:1px solid ${qualityColor(s.qualityScore)}44;">${s.qualityScore}%</span>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; font-size:10px;">
-                <div><span style="color:#888; text-transform:uppercase; letter-spacing:0.5px; font-size:9px;">Rows</span><div style="color:var(--accent); font-weight:600;">${s.totalRows}</div></div>
-                <div><span style="color:#888; text-transform:uppercase; letter-spacing:0.5px; font-size:9px;">Nulls</span><div style="color:var(--accent); font-weight:600;">${s.nullPercent}%</div></div>
-                <div><span style="color:#888; text-transform:uppercase; letter-spacing:0.5px; font-size:9px;">Unique</span><div style="color:var(--accent); font-weight:600;">${s.uniquePercent}%</div></div>
-                <div><span style="color:#888; text-transform:uppercase; letter-spacing:0.5px; font-size:9px;">Types</span><div style="color:var(--accent); font-weight:600;">${Object.keys(s.types).length}</div></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; font-size:11px;">
+                <div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;">
+                    <div style="color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-size:9px; margin-bottom:2px;">Rows</div>
+                    <div style="color:var(--accent); font-weight:600; font-size:12px;">${s.totalRows}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;">
+                    <div style="color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-size:9px; margin-bottom:2px;">Nulls</div>
+                    <div style="color:var(--text); font-weight:600; font-size:12px;">${s.nullPercent}%</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;">
+                    <div style="color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-size:9px; margin-bottom:2px;">Unique</div>
+                    <div style="color:var(--text); font-weight:600; font-size:12px;">${s.uniquePercent}%</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.02); padding:6px; border-radius:4px;">
+                    <div style="color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; font-size:9px; margin-bottom:2px;">Types</div>
+                    <div style="color:var(--text); font-weight:600; font-size:12px;">${Object.keys(s.types).length}</div>
+                </div>
             </div>
-            <div style="margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.1);">
-                <div style="font-size:9px; color:#888; margin-bottom:3px;">🎯 Type Distribution:</div>
-                <div style="display:flex; flex-wrap:wrap; gap:3px;">
-                    ${Object.entries(s.types).map(([t, c]) => `<span style="background:rgba(255,255,255,0.08); padding:2px 4px; border-radius:2px; font-size:9px;">${t}:${c}</span>`).join('')}
+            <div style="padding-top:6px; border-top:1px solid rgba(255,255,255,0.1);">
+                <div style="font-size:10px; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">🎨 Type Distribution:</div>
+                <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                    ${Object.entries(s.types).map(([t, c]) => `<span style="background:var(--accent)15; padding:3px 6px; border-radius:3px; font-size:10px; color:var(--accent); border:1px solid var(--accent)30;">${t}: <b>${c}</b></span>`).join('')}
                 </div>
             </div>
         </div>

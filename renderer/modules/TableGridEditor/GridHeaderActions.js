@@ -6,7 +6,7 @@
 
 import { state }    from '../state.js';
 import { esc, escH, setStatus } from '../utils.js';
-import { refreshTableList }     from '../sidebar.js';
+import { refreshTableList }     from '../sidebar/index.js';
 import {
     getEntityLintDetails,
     isTableLike, isView, isMaterializedView, isForeignTable, isViewLike,
@@ -216,18 +216,6 @@ export class GridHeaderActions {
         if (editable && isTable) {
             bar.appendChild(this._makeBtn('SQL INSERT', '', () => this.onInsertSql?.()));
         }
-
-        // Refresh
-        const btnRefresh = this._makeBtn('🔄', '', () => {
-            btnRefresh.disabled = true;
-            btnRefresh.textContent = '⏳';
-            Promise.resolve(this.onRefresh?.()).finally(() => {
-                btnRefresh.disabled    = false;
-                btnRefresh.textContent = '🔄';
-            });
-        });
-        btnRefresh.title = 'Tabelle neu laden';
-        bar.appendChild(btnRefresh);
 
         // Container füllen
         this.container.innerHTML = '';

@@ -3,6 +3,9 @@
  * Mit Pagination, Suche und Filterung
  */
 
+// Importiere DataFormatter für korrekte Datumsformatierung
+import { DataFormatter } from '../modules/DataFormatter.js';
+
 const ForeignRowSelector = ({
     visible = false,
     foreignKey = null,
@@ -167,17 +170,22 @@ const ForeignRowSelector = ({
                                     }}>
                                         {isSelected ? '✓' : ''}
                                     </td>
-                                    {columns.map(col => (
-                                        <td key={col} style={{
-                                            padding: '8px',
-                                            maxWidth: '200px',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap'
-                                        }}>
-                                            {row[col] || '-'}
-                                        </td>
-                                    ))}
+                                    {columns.map(col => {
+                                        const cellValue = row[col];
+                                        // Nutze DataFormatter für korrekte Datumsformatierung
+                                        const formatted = DataFormatter.format(cellValue);
+                                        return (
+                                            <td key={col} style={{
+                                                padding: '8px',
+                                                maxWidth: '200px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}>
+                                                {formatted ? <div dangerouslySetInnerHTML={{ __html: formatted }} /> : '—'}
+                                            </td>
+                                        );
+                                    })}
                                 </tr>
                             );
                         })}

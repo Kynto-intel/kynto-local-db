@@ -1,6 +1,5 @@
 /**
  * SpreadsheetImport Utils - Professional Type Inference for CSV Import
- * Based on Supabase logic but with REAL, INTELLIGENT type detection
  */
 
 import dayjs from 'dayjs'

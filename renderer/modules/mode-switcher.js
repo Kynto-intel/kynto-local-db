@@ -6,7 +6,7 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 import { state } from './state.js';
-import { switchDB, switchToPGlite, switchToRemote } from './sidebar.js'; // Beibehalten, da diese Funktionen noch benötigt werden
+import { switchDB, switchToPGlite, switchToRemote } from './sidebar/index.js'; // Beibehalten, da diese Funktionen noch benötigt werden
 
 export function initModeSwitcher() {
     // Startzustand

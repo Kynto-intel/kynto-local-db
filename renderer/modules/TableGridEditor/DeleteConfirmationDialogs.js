@@ -5,7 +5,7 @@
 
 import { state }     from '../state.js';
 import { esc, escH, setStatus } from '../utils.js';
-import { refreshTableList }     from '../sidebar.js';
+import { refreshTableList }     from '../sidebar/index.js';
 
 // ── CSS (einmalig injizieren) ──────────────────────────────────────────────
 (function injectStyles() {
@@ -84,7 +84,7 @@ import { refreshTableList }     from '../sidebar.js';
     document.head.appendChild(style);
 })();
 
-// ── Interne Helfer ─────────────────────────────────────────────────────────
+// ── Interne Helfer ─────────────────────────────────────────────────────
 
 /**
  * Zeigt ein modales Dialog-Fenster.
@@ -218,12 +218,13 @@ export function confirmDeleteTable({ tableName, schema, dbId, onSuccess }) {
                 const cascadeClause = withCascade ? ' CASCADE' : '';
                 const sql = `DROP TABLE IF EXISTS ${esc(schema)}.${esc(tableName)}${cascadeClause}`;
                 
-                // Use pgQuery for PGlite (which is the primary DB)
-                if (dbId && dbId.includes('kynto')) {
-                    await window.api.pgQuery(sql, dbId);
+                // Richtige API basierend auf DB-Typ wählen
+                if (state.dbMode === 'remote' && state.remoteConnectionString) {
+                    // Remote-PostgreSQL verwenden
+                    await window.api.dbQuery(sql, null, 'remote');
                 } else {
-                    // Use dbQuery for remote databases
-                    await window.api.dbQuery(sql, dbId, dbId ? 'remote' : 'local');
+                    // PGlite nutzen
+                    await window.api.pgQuery(sql, dbId);
                 }
                 
                 setStatus(`Tabelle "${tableName}" erfolgreich gelöscht.`, 'success');
@@ -257,6 +258,23 @@ export function confirmDeleteRows({ rows, allRowsSelected, numRows, table, filte
     const rowLabel    = rowCount > 1 ? `${rowCount} Zeilen` : '1 Zeile';
     const selectLabel = allRowsSelected ? 'alle' : 'die ausgewählten';
 
+    // PGlite kennt nur "public" – "main" ist ein DuckDB/SQLite-Schema-Name
+    const schema = (!table.schema || table.schema === 'main') ? 'public' : table.schema;
+    const tableName = table.name;
+
+    // Bestimme ob Remote oder PGlite basierend auf state.dbMode
+    const isRemote = state.dbMode === 'remote' && state.remoteConnectionString;
+    
+    const runQuery = (sql) => {
+        if (isRemote) {
+            // Remote-PostgreSQL: nutzt state.serverConnectionString (globale Konfiguration)
+            return window.api.dbQuery(sql, null, 'remote');
+        } else {
+            // PGlite: mit expliziter dbId
+            return window.api.pgQuery(sql, dbId);
+        }
+    };
+
     createConfirmModal({
         title:        `${rowLabel} löschen`,
         body:         `<p>Möchtest du wirklich ${selectLabel} ${rowLabel} löschen? Diese Aktion kann nicht rückgängig gemacht werden.</p>`,
@@ -264,38 +282,61 @@ export function confirmDeleteRows({ rows, allRowsSelected, numRows, table, filte
         onConfirm:    async ({ close }) => {
             try {
                 if (allRowsSelected && filters.length === 0) {
-                    // Truncate – schnellste Variante wenn keine Filter aktiv
-                    await window.api.query(
-                        `DELETE FROM ${esc(table.schema)}.${esc(table.name)}`,
-                        dbId
-                    );
-                    setStatus(`Alle Zeilen aus "${table.name}" gelöscht.`, 'success');
+                    const sql = `DELETE FROM ${esc(schema)}.${esc(tableName)}`;
+                    console.debug('[confirmDeleteRows] DELETE all query:', sql);
+                    await runQuery(sql);
+                    setStatus(`Alle Zeilen aus "${tableName}" gelöscht.`, 'success');
+
                 } else if (allRowsSelected && filters.length > 0) {
-                    // WHERE-Klausel aus Filtern aufbauen
                     const where = buildWhereClause(filters);
-                    await window.api.query(
-                        `DELETE FROM ${esc(table.schema)}.${esc(table.name)} WHERE ${where}`,
-                        dbId
-                    );
-                    setStatus(`Gefilterte Zeilen aus "${table.name}" gelöscht.`, 'success');
+                    const sql = `DELETE FROM ${esc(schema)}.${esc(tableName)} WHERE ${where}`;
+                    console.debug('[confirmDeleteRows] DELETE filtered query:', sql);
+                    await runQuery(sql);
+                    setStatus(`Gefilterte Zeilen aus "${tableName}" gelöscht.`, 'success');
+
                 } else {
-                    // Einzelne Zeilen über Primärschlüssel löschen
-                    for (const row of rows) {
-                        const pkCol  = table.columns.find((c) => c.isPrimaryKey)?.name ?? table.columns[0]?.name;
-                        const pkVal  = row[pkCol];
-                        if (pkVal === undefined) continue;
-                        await window.api.query(
-                            `DELETE FROM ${esc(table.schema)}.${esc(table.name)} WHERE ${esc(pkCol)} = ${formatSqlValue(pkVal)}`,
-                            dbId
+                    // Primärschlüssel-Spalte ermitteln.
+                    // table.columns kann undefined sein wenn _currentEntity keine Spalten hat –
+                    // dann auf state.columnMetadata (von pgDescribe befüllt) zurückfallen.
+                    const cols = (table.columns?.length > 0)
+                        ? table.columns
+                        : (state.columnMetadata || []).map(c => ({
+                            name:         c.column_name || c.name,
+                            isPrimaryKey: c.is_primary_key || c.pk || false,
+                          }));
+
+                    // PK über isPrimaryKey, dann ersten Eintrag, dann ersten rowData-Key
+                    const pkCol = cols.find((c) => c.isPrimaryKey)?.name
+                                ?? cols[0]?.name
+                                ?? Object.keys(rows[0] || {})[0];
+
+                    if (!pkCol) {
+                        throw new Error(
+                            `Kein Primärschlüssel in "${tableName}" gefunden – ` +
+                            `keine Spalteninformationen verfügbar.`
                         );
+                    }
+
+                    for (const row of rows) {
+                        const pkVal = row[pkCol];
+                        if (pkVal === undefined || pkVal === null) {
+                            console.warn('[confirmDeleteRows] PK-Wert fehlt für Zeile:', row);
+                            continue;
+                        }
+                        const sql = `DELETE FROM ${esc(schema)}.${esc(tableName)} WHERE ${esc(pkCol)} = ${formatSqlValue(pkVal)}`;
+                        console.debug('[confirmDeleteRows] DELETE single row query:', sql);
+                        await runQuery(sql);
                     }
                     setStatus(`${rowLabel} erfolgreich gelöscht.`, 'success');
                 }
                 onSuccess?.();
             } catch (err) {
+                console.error('[confirmDeleteRows] Fehler bei:', { schema, tableName, dbMode: state.dbMode, isRemote, error: err });
                 setStatus(`Fehler beim Löschen: ${err.message}`, 'error');
             } finally {
                 close();
+                // Sidebar-Tabellenliste aktualisieren (z.B. Zeilenzahl)
+                refreshTableList().catch(() => {});
             }
         },
     });

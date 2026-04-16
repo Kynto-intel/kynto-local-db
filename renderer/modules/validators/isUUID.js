@@ -20,7 +20,13 @@ const uuidPatterns = {
 export function isUUID(str, version = 'all') {
     if (typeof str === 'number') str = String(str);
     if (!str || typeof str !== 'string') return { valid: false, version: null };
-    const clean = str.replace(/\s+/g, '');
+    
+    // Bereinige das Label falls vorhanden (z.B. " (v4)")
+    let clean = str.replace(/\s+/g, '');
+    if (/\(v[a-z0-9]+\)$/i.test(clean)) {
+        clean = clean.replace(/\(v[a-z0-9]+\)$/i, '');
+    }
+
     const pattern = uuidPatterns[version];
     if (!pattern) return { valid: false, version: null };
     return { valid: pattern.test(clean), version: version === 'all' ? detectUUIDVersion(clean) : version };
@@ -31,7 +37,13 @@ export function isUUID(str, version = 'all') {
 // Normalisiert + erkennt Version + formatiert
 export function formatUUID(str) {
     if (!str && str !== 0) return '';
-    const s = String(str).toLowerCase().trim();
+    let s = String(str).toLowerCase().trim();
+    
+    // Entferne Label falls schon da, um sauber zu validieren
+    if (/\(v[a-z0-9]+\)$/i.test(s)) {
+        s = s.replace(/\s*\(v[a-z0-9]+\)$/i, '');
+    }
+
     const clean = s.replace(/\s+/g, '');
     
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clean)) {
@@ -56,5 +68,5 @@ export function detectUUIDVersion(str) {
 
 // Kurzform: nur boolean (loose = jede gültige UUID-Struktur)
 export function isUUIDValid(str) {
-    return uuidPatterns.loose.test((str || '').replace(/\s+/g, ''));
+    return uuidPatterns.loose.test((str || '').replace(/\s+/g, '').replace(/\(v[a-z0-9]+\)$/i, ''));
 }

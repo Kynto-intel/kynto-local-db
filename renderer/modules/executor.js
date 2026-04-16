@@ -14,7 +14,7 @@
 import { state }                    from './state.js';
 import { esc, escH, setStatus, getEditorVal, setEditorVal } from './utils.js';
 import { addToHistory }             from './history.js';
-import { refreshTableList }         from './sidebar.js';
+import { refreshTableList }         from './sidebar/index.js';
 import { updateAutocomplete, setEditorError, clearEditorMarkers, getSelectedQuery, setSelectionCallback } from './editor.js';
 import { isNonNullable }            from '../../src/lib/isNonNullable.js';
 import { checkDestructiveQuery, suffixWithLimit } from './SQLEditor/SQLEditor.utils.js';
@@ -85,16 +85,54 @@ const warningModal = new RunQueryWarningModal({
 
 // ── Modus-aware Query-Funktion ─────────────────────────────────────────
 
+/**
+ * FIX: PGlite's db.query() akzeptiert NUR ein einzelnes Statement.
+ * Mehrere Statements (z.B. CREATE TABLE + INSERT) werfen:
+ *   "cannot insert multiple commands into a prepared statement"
+ *
+ * Lösung: Vor dem API-Call prüfen ob mehrere Statements vorhanden sind.
+ * Wenn ja → dbMultiQuery() nutzen (geht über db.exec() intern).
+ * Wenn nein → dbQuery() nutzen (schneller, gibt rows zurück).
+ */
+function _hasMultipleStatements(sql) {
+    // Sicherer Mini-Parser: ; innerhalb von Strings ignorieren
+    let inS = false, inD = false, inLine = false, inBlock = false;
+    let count = 0;
+    for (let i = 0; i < sql.length; i++) {
+        const c = sql[i], n = sql[i+1] || '';
+        if (inBlock)  { if (c==='*'&&n==='/') { inBlock=false; i++; } continue; }
+        if (inLine)   { if (c==='\n') inLine=false; continue; }
+        if (inS)      { if (c==="'"&&n!=="'") inS=false; else if(c==="'"&&n==="'") i++; continue; }
+        if (inD)      { if (c==='"') inD=false; continue; }
+        if (c==='-'&&n==='-') { inLine=true; i++; continue; }
+        if (c==='/'&&n==='*') { inBlock=true; i++; continue; }
+        if (c==="'")  { inS=true; continue; }
+        if (c==='"')  { inD=true; continue; }
+        if (c===';')  {
+            // Zähle nur wenn danach noch nicht-leerer Inhalt folgt
+            const rest = sql.slice(i+1).trim();
+            if (rest.length > 0) { count++; if (count >= 1) return true; }
+        }
+    }
+    return false;
+}
+
 async function runQuery(sql, signal) {
     const mode = state.dbMode || 'pglite';  // Standard: PGlite
 
     if (mode === 'pglite') {
-        // Local PGlite über neue database-engine
+        // FIX: Multi-Statement → dbMultiQuery (nutzt db.exec intern)
+        //      Single-Statement → dbQuery (gibt rows zurück)
+        if (_hasMultipleStatements(sql)) {
+            return await window.api.dbMultiQuery(sql, 'local');
+        }
         return await window.api.dbQuery(sql, null, 'local');
     }
     if (mode === 'remote') {
-        // Remote PostgreSQL über database-engine
         if (!state.serverConnectionString) throw new Error('Keine Remote-DB-Verbindung aktiv.');
+        if (_hasMultipleStatements(sql)) {
+            return await window.api.dbMultiQuery(sql, 'remote');
+        }
         return await window.api.dbQuery(sql, null, 'remote');
     }
     if (mode === 'duckdb_import') {
@@ -227,6 +265,11 @@ export async function execSQL(override) {
         console.warn('[executor] Query läuft bereits — abgebrochen.');
         return;
     }
+    // Ensure button is set to verify or execute text when checks start
+    const checkRunBtn = document.getElementById('run-btn');
+    if (checkRunBtn) {
+        checkRunBtn.textContent = window.i18n?.t?.('executor.button.verify') || '⚠️ Verify...';
+    }
 
     // Falls override genutzt wird (z.B. aus dem Dashboard), parsen wir ad-hoc
     const queryInfo = override 
@@ -269,7 +312,7 @@ async function proceedWithExecution(sql, startOffsetLine, override, queryInfo) {
 
     // Partial-Execution Feedback
     if (!override && state.editor && finalSql !== state.editor.getValue()) {
-        setStatus('Führe Auswahl aus…', 'info');
+        setStatus(window.i18n?.t?.('executor.status.executing_selection') || 'Execute selection…', 'info');
     }
 
     // ④ AbortController — vorherige Query abbrechen
@@ -281,20 +324,20 @@ async function proceedWithExecution(sql, startOffsetLine, override, queryInfo) {
     const runBtn = document.getElementById('run-btn');
     if (runBtn) {
         runBtn.disabled     = true;
-        runBtn.textContent  = '⏹ Abbrechen';
+        runBtn.textContent  = window.i18n?.t?.('executor.button.cancel') || '⏹ Cancel';
         
         // Abort-Listener nur einmal pro Ausführung hinzufügen
         if (!_abortListenerAdded) {
             const abortHandler = () => {
                 _abortController?.abort();
-                setStatus('Query abgebrochen.', 'info');
+                setStatus(window.i18n?.t?.('executor.status.query_cancelled') || 'Query cancelled.', 'info');
             };
             
             runBtn.addEventListener('click', abortHandler, { once: true });
             _abortListenerAdded = true;
         }
     }
-    setStatus('Lädt…');
+    setStatus(window.i18n?.t?.('executor.status.loading') || 'Loading…');
     const t0 = performance.now();
 
     try {
@@ -303,6 +346,32 @@ async function proceedWithExecution(sql, startOffsetLine, override, queryInfo) {
         if (signal.aborted) return; // User hat abgebrochen
 
         state.lastQueryDuration = performance.now() - t0;
+
+        // ── FIX: DDL-Ergebnis korrekt behandeln ──────────────────────────
+        // database-engine gibt { __kynto_ddl: true, command, message } zurück
+        // wenn PGlite exec() aufgerufen wurde (CREATE, INSERT, DROP etc.)
+        const _isDDL = result && result.length === 1 && result[0]?.__kynto_ddl === true;
+        const _isDDLFallback = (!result || result.length === 0) && /^\s*(CREATE|INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE)/i.test(finalSql.trimStart());
+
+        if (_isDDL || _isDDLFallback) {
+            let ddlMsg = window.i18n?.t?.('executor.success.ddl_executed') || 'Successfully executed.';
+            if (_isDDL && result[0].message) {
+                ddlMsg = result[0].message;
+            }
+            setStatus(`${modeIcon()}${ddlMsg}`, 'success');
+            _clearResults();
+            state.lastData = [];
+            // Sidebar aktualisieren — neue Tabellen erscheinen sofort
+            await _refreshTableList();
+            const events = (queryInfo && queryInfo.events) || [];
+            const createEvent = events.find(e => e.type === 'TABLE_CREATED');
+            if (createEvent?.tableName) state.currentTable = createEvent.tableName;
+            if (!override) addToHistory(finalSql.trim());
+            initActionBar();
+            window._updateFooterDisplay?.();
+            return;
+        }
+        // ─────────────────────────────────────────────────────────────────
 
         // ECHTE INTEGRATION: Privacy-Mode via MagicEye
         // Wenn MagicEye aktiv ist und auf 'privacy' steht, werden Daten redigiert
@@ -333,7 +402,7 @@ async function proceedWithExecution(sql, startOffsetLine, override, queryInfo) {
                 let cntSql = `SELECT COUNT(*) as cnt FROM ${qualified}`;
                 const cr = await runQuery(cntSql, signal);
                 if (cr?.[0]) {
-                    msg = `${modeIcon()}Zeige ${n.toLocaleString('de-DE')} von ${cr[0].cnt.toLocaleString('de-DE')} Zeilen.`;
+                    msg = (window.i18n?.t?.('executor.success.rows_displayed', { count: n, total: cr[0].cnt }) || `Showing ${n} of ${cr[0].cnt} rows.`).replace(/Showing/g, modeIcon() + 'Showing').substring(0, 200 + modeIcon().length);
                     totalCount = parseInt(cr[0].cnt);
                 }
             } catch {}
@@ -344,8 +413,8 @@ async function proceedWithExecution(sql, startOffsetLine, override, queryInfo) {
         if (!msg) {
             // Info mit Zeilen- und Spaltenanzahl
             const cols = state.currentTableCols?.length || 0;
-            const colInfo = cols > 0 ? ` (${cols} Spalte${cols !== 1 ? 'n' : ''})` : '';
-            msg = `${n.toLocaleString('de-DE')} Zeile${n !== 1 ? 'n' : ''}${colInfo} in ${state.lastQueryDuration.toFixed(2)}ms geladen.`;
+            const colInfo = cols > 0 ? ` (${cols} columns)` : '';
+            msg = window.i18n?.t?.('executor.success.rows_loaded', { count: n, columns: colInfo, duration: state.lastQueryDuration.toFixed(2) }) || `${n} row(s)${colInfo} loaded in ${state.lastQueryDuration.toFixed(2)}ms.`;
         }
         
 
@@ -413,7 +482,8 @@ async function proceedWithExecution(sql, startOffsetLine, override, queryInfo) {
             setEditorError(errorStr, absoluteLine, 1);
         }
 
-        setStatus('SQL Fehler: ' + err, 'error');
+        const sqlErrMsg = window.i18n?.t?.('executor.error.sql_error', { message: err.toString() }) || `SQL error: ${err}`;
+        setStatus(sqlErrMsg, 'error');
         const resultInfo = document.getElementById('result-info');
         if (resultInfo) resultInfo.textContent = 'Kein Ergebnis.';
         _clearResults();
@@ -429,7 +499,7 @@ async function proceedWithExecution(sql, startOffsetLine, override, queryInfo) {
         const currentRunBtn = document.getElementById('run-btn');
         if (currentRunBtn) {
             currentRunBtn.disabled    = false;
-            currentRunBtn.textContent = '▶ Ausführen';
+            currentRunBtn.textContent = window.i18n?.t?.('executor.button.execute') || '▶ Execute';
         }
     }
 }
@@ -437,8 +507,8 @@ async function proceedWithExecution(sql, startOffsetLine, override, queryInfo) {
 // ── Sidebar-Highlight ──────────────────────────────────────────────────
 
 function _highlightTableInSidebar(name) {
-    document.querySelectorAll('#table-list .table-item').forEach(el => {
-        const nameInEl = el.querySelector('.table-name')?.dataset.name;
+    document.querySelectorAll('.table-item').forEach(el => {
+        const nameInEl = el.dataset.name;
         el.classList.toggle('active', nameInEl === name);
     });
 }
@@ -449,7 +519,9 @@ export function initSelectionTracking() {
     setSelectionCallback((hasSelection) => {
         const runBtn = document.getElementById('run-btn');
         if (!runBtn || _isExecuting) return;
-        runBtn.textContent = hasSelection ? '▶ Auswahl ausführen' : '▶ Ausführen';
+        runBtn.textContent = hasSelection 
+            ? (window.i18n?.t?.('executor.button.execute_selection') || '▶ Execute selection')
+            : (window.i18n?.t?.('executor.button.execute') || '▶ Execute');
     });
 }
 

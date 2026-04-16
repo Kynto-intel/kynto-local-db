@@ -1,239 +1,852 @@
 <div id="settings-modal" class="modal">
     <style>
+        /* ╔════════════════════════════════════════════════════════════════╗ */
+        /* ║              SETTINGS MODAL - PREMIUM STYLING                 ║ */
+        /* ╚════════════════════════════════════════════════════════════════╝ */
+
         #settings-modal.modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: transparent; /* Hintergrund-Overlay komplett entfernt */
-            display: none; /* Standardmäßig versteckt */
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
             align-items: center;
             justify-content: center;
-            overflow: auto; /* Ermöglicht Scrollen, falls das Fenster kleiner als das Modal ist */
+            overflow: auto;
             z-index: 3000;
+            animation: backdropFadeIn 0.25s ease-out;
         }
+
+        @keyframes backdropFadeIn {
+            from { background-color: rgba(0, 0, 0, 0); backdrop-filter: blur(0px); }
+            to { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
+        }
+
         #settings-modal.modal.open {
-            display: flex; /* Wird nur bei .open angezeigt */
+            display: flex;
         }
+
         #settings-modal .settings-container {
             display: flex;
-            width: 850px;
-            height: 580px;
-            min-width: 850px; /* Verhindert horizontales Schrumpfen */
-            min-height: 580px; /* Verhindert vertikales Schrumpfen */
-            flex-shrink: 0;   /* Zwingt das Modal, seine Größe beizubehalten */
-            background: #18181b; /* Solider, dunkler Hintergrund ohne Transparenz */
-            border-radius: 12px;
+            width: calc(100% - 40px);
+            height: calc(100vh - 40px);
+            max-width: 1400px;
+            max-height: 850px;
+            flex-shrink: 0;
+            background: var(--bg);
+            border-radius: 16px;
             overflow: hidden;
-            border: 1px solid #333; /* Etwas deutlicherer Rand für bessere Trennung */
-            box-shadow: 0 10px 100px rgba(0,0,0,0.8); /* Stärkerer Schatten, da das Overlay fehlt */
+            border: 1px solid rgba(194, 154, 64, 0.3);
+            box-shadow: 
+                0 0 60px rgba(194, 154, 64, 0.15),
+                0 20px 60px rgba(0, 0, 0, 0.9);
+            animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+
+        @media (max-width: 1600px) {
+            #settings-modal .settings-container {
+                width: calc(100% - 30px);
+                height: calc(100vh - 30px);
+                max-width: 1200px;
+                max-height: 750px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            #settings-modal .settings-container {
+                width: calc(100% - 20px);
+                height: calc(100vh - 20px);
+                max-width: 100%;
+                max-height: 100%;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* SIDEBAR NAVIGATION                                              */
+        /* ═══════════════════════════════════════════════════════════════ */
+
         #settings-modal .settings-sidebar {
-            width: 220px;
-            background: #111114; /* Solider, dunkler Hintergrund für die Sidebar */
-            border-right: 1px solid var(--border);
+            width: 250px;
+            background: linear-gradient(180deg, #0f0f12 0%, #1a1a1d 100%);
+            border-right: 1px solid rgba(194, 154, 64, 0.2);
             display: flex;
             flex-direction: column;
-            padding: 20px 0;
+            padding: 0;
         }
+
+        #settings-modal .settings-sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(194, 154, 64, 0.1);
+            text-align: center;
+        }
+
+        #settings-modal .settings-sidebar-header h3 {
+            font-size: 14px;
+            color: var(--accent);
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
         #settings-modal .nav-item {
-            padding: 12px 25px;
+            padding: 14px 20px;
             cursor: pointer;
             color: var(--muted);
-            transition: 0.2s;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 13px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-weight: 500;
+            position: relative;
+            border-left: 3px solid transparent;
+            margin: 0 10px;
+            border-radius: 0 8px 8px 0;
         }
-        #settings-modal .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+        #settings-modal .nav-item svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        #settings-modal .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 0 4px 4px 0;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        #settings-modal .nav-item:hover {
+            color: var(--text);
+            background: rgba(194, 154, 64, 0.08);
+            transform: translateX(4px);
+        }
+
+        #settings-modal .nav-item:hover svg {
+            transform: scale(1.1);
+            color: var(--accent);
+        }
+
         #settings-modal .nav-item.active {
             color: var(--accent);
-            background: #27272a; /* Feste Farbe statt Transparenz für aktive Tabs */
-            border-right: 3px solid var(--accent);
+            background: rgba(194, 154, 64, 0.15);
+            border-left-color: var(--accent);
+            box-shadow: inset -1px 0 0 rgba(194, 154, 64, 0.2);
         }
+
+        #settings-modal .nav-item.active::before {
+            opacity: 1;
+        }
+
+        #settings-modal .settings-sidebar-footer {
+            margin-top: auto;
+            padding: 16px 10px;
+            border-top: 1px solid rgba(194, 154, 64, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* MAIN CONTENT AREA                                               */
+        /* ═══════════════════════════════════════════════════════════════ */
+
         #settings-modal .settings-content {
             flex: 1;
-            padding: 30px;
+            padding: 40px 45px;
             overflow-y: auto;
+            background: var(--bg);
+            scrollbar-width: thin;
+            scrollbar-color: rgba(194, 154, 64, 0.2) transparent;
         }
-        #settings-modal .settings-pane { display: none; }
-        #settings-modal .settings-pane.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        #settings-modal .settings-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #settings-modal .settings-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #settings-modal .settings-content::-webkit-scrollbar-thumb {
+            background: rgba(194, 154, 64, 0.3);
+            border-radius: 3px;
+        }
+
+        #settings-modal .settings-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(194, 154, 64, 0.5);
+        }
+
+        #settings-modal .settings-pane {
+            display: none;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        #settings-modal .settings-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
         
-        #settings-modal h2 { margin-top: 0; font-size: 1.5rem; color: var(--text); }
-        #settings-modal h3 { margin: 25px 0 15px; font-size: 0.9rem; text-transform: uppercase; color: var(--accent); letter-spacing: 1px; }
-        
-        .setting-row { margin-bottom: 20px; }
-        .setting-row label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--text); }
-        .setting-row .desc { font-size: 11px; color: var(--muted); margin-top: 4px; }
-        
-        .setting-controls { display: flex; align-items: center; gap: 15px; }
-        .setting-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 4px; width: 100%; }
-        
-        .settings-footer { margin-top: auto; padding: 20px 25px; display: flex; gap: 10px; border-top: 1px solid var(--border); }
-        
-        /* API Keys Styling */
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* TYPOGRAPHY & HEADINGS                                           */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        #settings-modal h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.5px;
+        }
+
+        #settings-modal h3 {
+            margin: 32px 0 16px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--accent);
+            letter-spacing: 1.2px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #settings-modal h4 {
+            margin: 20px 0 12px;
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* FORM ROWS & INPUTS                                              */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        .setting-row {
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-row.checkbox {
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .setting-row label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .setting-row.checkbox label {
+            margin-bottom: 0;
+            flex: 1;
+        }
+
+        .setting-row .desc {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .setting-input,
+        #settings-modal select {
+            background: var(--surface2);
+            border: 1px solid rgba(194, 154, 64, 0.2);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.25s ease;
+        }
+
+        .setting-input:hover,
+        #settings-modal select:hover {
+            border-color: rgba(194, 154, 64, 0.4);
+            background: var(--surface3);
+        }
+
+        .setting-input:focus,
+        #settings-modal select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--surface3);
+            box-shadow: 0 0 0 3px rgba(194, 154, 64, 0.1);
+        }
+
+        .setting-input::placeholder {
+            color: var(--muted);
+            opacity: 0.7;
+        }
+
+        /* Checkbox Styling - NUR IM SETTINGS MODAL */
+        #settings-modal .setting-row.checkbox input[type="checkbox"],
+        #settings-modal input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid rgba(194, 154, 64, 0.4);
+            border-radius: 4px;
+            background: var(--surface2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #settings-modal input[type="checkbox"]:hover {
+            border-color: var(--accent);
+            background: rgba(194, 154, 64, 0.05);
+        }
+
+        #settings-modal input[type="checkbox"]:checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        #settings-modal input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: #000;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* BUTTONS - NUR IM SETTINGS MODAL                                */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        #settings-modal .btn,
+        #settings-modal button.btn {
+            background: var(--surface2);
+            border: 1px solid rgba(194, 154, 64, 0.2);
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        #settings-modal .btn:hover,
+        #settings-modal button.btn:hover {
+            border-color: var(--accent);
+            background: rgba(194, 154, 64, 0.1);
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        #settings-modal .btn:active,
+        #settings-modal button.btn:active {
+            transform: translateY(0);
+        }
+
+        #settings-modal .btn-primary,
+        #settings-modal button.btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+        }
+
+        #settings-modal .btn-primary:hover,
+        #settings-modal button.btn-primary:hover {
+            background: #d4af57;
+            border-color: #d4af57;
+            box-shadow: 0 4px 12px rgba(194, 154, 64, 0.3);
+        }
+
+        #settings-modal .btn-delete {
+            border-color: #dc2626;
+            color: #f87171;
+        }
+
+        #settings-modal .btn-delete:hover {
+            background: rgba(220, 38, 38, 0.1);
+            border-color: #f87171;
+            color: #fca5a5;
+        }
+
+        #settings-modal .settings-footer {
+            margin-top: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 1px solid rgba(194, 154, 64, 0.1);
+        }
+
+        #settings-modal .settings-footer .btn {
+            width: 100%;
+            padding: 12px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* API KEYS STYLING                                                */
+        /* ═══════════════════════════════════════════════════════════════ */
+
         .api-key-card {
             background: var(--surface2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px;
+            border: 1px solid rgba(194, 154, 64, 0.2);
+            border-radius: 10px;
+            padding: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 16px;
             font-family: var(--font-mono);
             font-size: 11px;
+            transition: all 0.25s ease;
+            margin-bottom: 12px;
         }
+
+        .api-key-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(194, 154, 64, 0.1);
+        }
+
         .api-key-card .key-display {
             flex: 1;
             background: #000;
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 10px 12px;
+            border-radius: 6px;
             color: #a3be8c;
             word-break: break-all;
             user-select: all;
+            border: 1px solid rgba(163, 190, 140, 0.2);
         }
-        .api-key-card .key-label {
-            flex: 0 0 auto;
-            color: var(--muted);
-            font-size: 10px;
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+
         .api-key-card .btn {
-            padding: 6px 12px;
-            font-size: 10px;
-            white-space: nowrap;
+            flex-shrink: 0;
         }
-        .api-key-card .btn-copy { background: var(--accent); color: #000; }
-        .api-key-card .btn-delete { background: #dc2626; color: white; }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* SECTIONS & CARDS                                                */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        .sync-status-card,
+        .sync-storage-card {
+            background: linear-gradient(135deg, rgba(194, 154, 64, 0.05) 0%, rgba(194, 154, 64, 0.02) 100%);
+            border: 1px solid rgba(194, 154, 64, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* CODE BLOCKS - NUR IM SETTINGS MODAL                             */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        #settings-modal code,
+        #settings-modal pre {
+            background: #000;
+            border-radius: 6px;
+            padding: 2px 6px;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        #settings-modal .code-block {
+            background: #000;
+            border-radius: 8px;
+            padding: 14px;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            border: 1px solid rgba(194, 154, 64, 0.2);
+            overflow-x: auto;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* MAINTENANCE STYLING                                             */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        .maint-root {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        .maint-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .maint-stat {
+            background: linear-gradient(135deg, rgba(194, 154, 64, 0.1) 0%, rgba(194, 154, 64, 0.05) 100%);
+            border: 1px solid rgba(194, 154, 64, 0.2);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: center;
+        }
+
+        .maint-stat-val {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .maint-stat-lbl {
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .maint-section {
+            background: var(--surface2);
+            border-radius: 10px;
+            padding: 18px;
+            border: 1px solid rgba(194, 154, 64, 0.15);
+        }
+
+        .maint-section-title {
+            font-size: 10px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 14px;
+            font-weight: 700;
+        }
+
+        .maint-table-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .maint-table-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            background: var(--bg);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .maint-table-item:hover {
+            border-color: var(--accent);
+            background: rgba(194, 154, 64, 0.05);
+        }
+
+        .maint-preset-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            background: var(--bg);
+            border: 1px solid rgba(194, 154, 64, 0.2);
+            color: var(--text);
+            transition: all 0.2s ease;
+        }
+
+        .maint-preset-btn.active {
+            border-color: var(--accent);
+            background: rgba(194, 154, 64, 0.15);
+            color: var(--accent);
+        }
+
+        .maint-preview {
+            padding: 12px;
+            background: #000;
+            border-radius: 8px;
+            font-size: 12px;
+            min-height: 50px;
+            border: 1px solid rgba(194, 154, 64, 0.2);
+            color: var(--accent);
+            font-family: var(--font-mono);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* DOCUMENTATION MODAL                                             */
+        /* ═══════════════════════════════════════════════════════════════ */
+
+        #api-keys-docs-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3001;
+        }
+
+        #api-keys-docs-modal.open {
+            display: flex !important;
+        }
+
+        #api-keys-docs-modal .docs-container {
+            background: var(--bg);
+            border: 1px solid rgba(194, 154, 64, 0.3);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow:
+                0 0 40px rgba(194, 154, 64, 0.2),
+                0 20px 50px rgba(0, 0, 0, 0.9);
+        }
+
+        #api-keys-docs-modal .docs-header {
+            padding: 24px;
+            border-bottom: 1px solid rgba(194, 154, 64, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #api-keys-docs-modal .close-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #api-keys-docs-modal .close-btn:hover {
+            color: var(--text);
+        }
+
+        #api-keys-docs-modal .docs-content {
+            padding: 24px;
+        }
     </style>
 
     <div class="settings-container">
         <aside class="settings-sidebar">
-            <div class="nav-item active" data-target="pane-general">⚙️ Allgemein</div>
-            <div class="nav-item" data-target="pane-editor">📝 Editor & UI</div>
-            <div class="nav-item" data-target="pane-db">💾 Datenbank</div>
-            <div class="nav-item" data-target="pane-api-keys">🔑 API Keys</div>
-            <div class="nav-item" data-target="pane-sync">🔄 Sync-Center</div>
-            <div class="nav-item" data-target="pane-ai">🤖 KI-Assistent</div>
-            <div class="nav-item" data-target="pane-templates">📋 Vorlagen</div>
-            
-            <div class="settings-footer">
-                <button id="settings-save" class="btn btn-primary">Speichern</button>
-                <button id="settings-cancel" class="btn">Abbrechen</button>
+            <div class="settings-sidebar-header">
+                <h3>⚙️ Settings</h3>
+            </div>
+
+            <nav style="flex: 1; overflow-y: auto;">
+                <div class="nav-item active" data-target="pane-general">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span data-i18n="settings.nav.general">General</span>
+                </div>
+                <div class="nav-item" data-target="pane-editor">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    <span data-i18n="settings.nav.editor">Editor & UI</span>
+                </div>
+                <div class="nav-item" data-target="pane-db">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                    <span data-i18n="settings.nav.database">Database</span>
+                </div>
+                <div class="nav-item" data-target="pane-api-keys">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                    <span data-i18n="settings.nav.api_keys">API Keys</span>
+                </div>
+                <div class="nav-item" data-target="pane-sync">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4v5h5"></path><path d="M20 20v-5h-5"></path><path d="M2.03 13A9 9 0 0015 21.3L20 15"></path><path d="M21.97 11A9 9 0 019 2.7L4 9"></path></svg>
+                    <span data-i18n="settings.nav.sync">Sync-Center</span>
+                </div>
+                <div class="nav-item" data-target="pane-ai">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                    <span data-i18n="settings.nav.ai">AI Assistant</span>
+                </div>
+                <div class="nav-item" data-target="pane-templates">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    <span data-i18n="settings.nav.templates">Templates</span>
+                </div>
+                <div class="nav-item" data-target="pane-shortcuts">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"></path></svg>
+                    <span data-i18n="settings.nav.shortcuts">Shortcuts</span>
+                </div>
+                <div class="nav-item" data-target="pane-maintenance">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <span data-i18n="settings.nav.maintenance">Maintenance</span>
+                </div>
+            </nav>
+
+            <div class="settings-sidebar-footer">
+                <button id="settings-save" class="btn btn-primary" data-i18n="settings.footer.save">✔ Save Changes</button>
+                <button id="settings-cancel" class="btn" data-i18n="settings.footer.cancel">✖ Cancel</button>
             </div>
         </aside>
 
         <main class="settings-content">
             <!-- Allgemein -->
             <div id="pane-general" class="settings-pane active">
-                <h2>Allgemein</h2>
+                <h2 data-i18n="settings.general.heading">General</h2>
                 <div class="setting-row">
-                    <label>Erscheinungsbild</label>
+                    <label data-i18n="settings.general.appearance">Appearance</label>
                     <select id="setting-theme" class="setting-input">
-                        <option value="dark">Dark Mode (Standard)</option>
-                        <option value="light">Light Mode</option>
+                        <option value="dark" data-i18n="settings.general.dark_mode">Dark Mode (Default)</option>
+                        <option value="light" data-i18n="settings.general.light_mode">Light Mode</option>
                     </select>
                 </div>
-                <h3>Standard-Ansichten</h3>
+                <div class="setting-row">
+                    <label data-i18n="settings.general.language">Language</label>
+                    <select id="setting-language" class="setting-input">
+                        <option value="en">English</option>
+                        <option value="de">Deutsch</option>
+                    </select>
+                </div>
+                <h3 data-i18n="settings.general.default_views">Default Views</h3>
                 <div class="setting-row checkbox">
                     <input type="checkbox" id="setting-sidebar">
-                    <label for="setting-sidebar">Sidebar links beim Start öffnen</label>
+                    <label for="setting-sidebar" data-i18n="settings.general.sidebar_open">Open sidebar on startup</label>
                 </div>
-                <button id="settings-create-db" class="btn" style="margin-top:20px;">Neue Datenbank erstellen...</button>
+                <button id="settings-create-db" class="btn" data-i18n="settings.general.create_database" style="margin-top:20px;">Create Database...</button>
             </div>
 
             <!-- Editor & UI -->
             <div id="pane-editor" class="settings-pane">
-                <h2>Editor & UI</h2>
+                <h2 data-i18n="settings.editor.heading">Editor & UI</h2>
                 <div class="setting-row">
-                    <label>Schriftgröße (px)</label>
+                    <label data-i18n="settings.editor.font_size">Font size (px)</label>
                     <input type="number" id="setting-editor-fontSize" class="setting-input" min="8" max="32">
                 </div>
                 <div class="setting-row checkbox">
                     <input type="checkbox" id="setting-editor-lineNumbers">
-                    <label for="setting-editor-lineNumbers">Zeilennummern anzeigen</label>
+                    <label for="setting-editor-lineNumbers" data-i18n="settings.editor.line_numbers">Show line numbers</label>
                 </div>
                 <div class="setting-row checkbox">
                     <input type="checkbox" id="setting-editor-autocomplete">
-                    <label for="setting-editor-autocomplete">Intelligente Autovervollständigung (SQL)</label>
+                    <label for="setting-editor-autocomplete" data-i18n="settings.editor.autocomplete">Intelligent autocomplete (SQL)</label>
                 </div>
-                <h3>Daten-Tabelle</h3>
+                <h3 data-i18n="settings.editor.data_table">Data Table</h3>
                 <div class="setting-row checkbox">
                     <input type="checkbox" id="setting-ui-virtualScrolling">
-                    <label for="setting-ui-virtualScrolling">Virtual Scrolling (für große Datenmengen)</label>
-                    <div class="desc">Erhöht die Performance bei > 10.000 Zeilen massiv.</div>
+                    <label for="setting-ui-virtualScrolling" data-i18n="settings.editor.virtual_scrolling">Virtual scrolling (for large datasets)</label>
+                    <div class="desc" data-i18n="settings.editor.virtual_scrolling_desc">Massively increases performance for > 10,000 rows.</div>
                 </div>
             </div>
 
             <!-- Datenbank -->
             <div id="pane-db" class="settings-pane">
-                <h2>Datenbank</h2>
+                <h2 data-i18n="settings.database.heading">Database</h2>
                 <div class="setting-row">
-                    <label>Standard-Limit für Abfragen</label>
+                    <label data-i18n="settings.database.query_limit">Default query limit</label>
                     <input type="number" id="setting-db-autoLimit" class="setting-input" step="100">
-                    <div class="desc">Verhindert Abstürze bei Millionen von Datensätzen.</div>
+                    <div class="desc" data-i18n="settings.database.query_limit_desc">Prevents crashes with millions of records.</div>
                 </div>
 
                 <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
-                    <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:1px;">Server-Verbindung</h4>
-                    <button class="btn" id="btn-open-sync-center" style="width:100%; display:flex; align-items:center; gap:10px; justify-content:center; padding:10px; font-weight:600;">
-                        ☁️ PostgreSQL für Server
+                    <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:1px;" data-i18n="settings.database.server_connection">Server Connection</h4>
+                    <button class="btn" id="btn-open-sync-center" data-i18n="settings.database.postgres_server" style="width:100%; display:flex; align-items:center; gap:10px; justify-content:center; padding:10px; font-weight:600;">
+                        ☁️ PostgreSQL for Server
                     </button>
-                    <p style="font-size:11px; color:var(--muted); margin-top:8px; line-height:1.4;">
-                        Öffnet das Sync-Center, um eine Verbindung zu einem externen PostgreSQL-Server herzustellen.
+                    <p style="font-size:11px; color:var(--muted); margin-top:8px; line-height:1.4;" data-i18n="settings.database.postgres_desc">
+                        Opens the Sync-Center to connect to an external PostgreSQL server.
                     </p>
                 </div>
             </div>
 
+            <!-- Instant API (Server) -->
+            <div id="pane-api-config" class="settings-pane">
+                <h2 data-i18n="api.title">Instant API</h2>
+                <p style="color: var(--muted); font-size: 12px; margin-bottom: 20px;" data-i18n="api.subtitle">REST API for all your PostgreSQL tables</p>
+                <!-- Content injected via settings-api-tab.js -->
+            </div>
+
             <!-- API Keys -->
             <div id="pane-api-keys" class="settings-pane">
-                <h2>API Keys & Authentifizierung</h2>
-                <p style="color: var(--muted); font-size: 12px; margin-bottom: 20px;">
-                    Generiere API Keys, um externe Projekte mit dieser Kynto-Instanz zu verbinden.
-                    Teile diese Tokens sicher mit anderen Entwicklern.
+                <h2 data-i18n="settings.apikeys.heading">API Keys & Authentication</h2>
+                <p style="color: var(--muted); font-size: 12px; margin-bottom: 20px;" data-i18n="settings.apikeys.description">
+                    Generate API Keys to connect external projects with this Kynto instance. Share tokens securely with other developers.
                 </p>
 
                 <div class="setting-row">
-                    <button id="btn-generate-api-key" class="btn btn-primary" style="width: 100%; padding: 12px; font-weight: 600;">
-                        ➕ Neuen API Key generieren
+                    <button id="btn-generate-api-key" class="btn btn-primary" data-i18n="settings.apikeys.generate_button" style="width: 100%; padding: 12px; font-weight: 600;">
+                        ➕ Generate new API Key
                     </button>
                 </div>
 
-                <h3 style="margin-top: 30px;">Aktive API Keys</h3>
+                <h3 data-i18n="settings.apikeys.active_keys" style="margin-top: 30px;">Active API Keys</h3>
                 <div id="api-keys-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto;">
-                    <div style="color: var(--muted); font-size: 12px; text-align: center; padding: 40px 20px;">
-                        Noch keine API Keys generiert.
+                    <div style="color: var(--muted); font-size: 12px; text-align: center; padding: 40px 20px;" data-i18n="settings.apikeys.no_keys">
+                        No API Keys generated yet.
                     </div>
                 </div>
 
                 <div style="margin-top: 16px; text-align: center;">
-                    <button id="btn-api-keys-documentation" class="btn" style="padding: 8px 16px; font-size: 12px; background: var(--surface2); border: 1px solid var(--border);">
-                        📚 API Keys Dokumentation
+                    <button id="btn-api-keys-documentation" class="btn" data-i18n="settings.apikeys.documentation" style="padding: 8px 16px; font-size: 12px; background: var(--surface2); border: 1px solid var(--border);">
+                        📚 API Keys Documentation
                     </button>
                 </div>
 
                 <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
-                    <h3>Verwendung in Projekten</h3>
-                    <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
-                        <strong>Wichtig:</strong> Jeder API Key wird nach Verwendung mit [VERWENDET] gekennzeichnet. Du kannst ihn dann manuell löschen wenn er nicht mehr nötig ist.
+                    <h3 data-i18n="settings.apikeys.usage_heading">Usage in Projects</h3>
+                    <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;" data-i18n="settings.apikeys.usage_note">
+                        <strong>Important:</strong> Each API Key is marked as [USED] after usage. You can then manually delete it when it is no longer needed.
                     </p>
                     
-                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;">
-                        <strong>1. Als Bearer Token im Header:</strong>
+                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;" data-i18n="settings.apikeys.bearer_header">
+                        <strong>1. As Bearer Token in Header:</strong>
                     </p>
                     <div style="background: #000; border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--accent); overflow-x: auto; border: 1px solid var(--border); margin-bottom: 16px;">
                         <div>Authorization: Bearer [dein_api_key]</div>
                     </div>
 
-                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;">
-                        <strong>2. JavaScript Fetch Beispiel:</strong>
+                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;" data-i18n="settings.apikeys.js_example">
+                        <strong>2. JavaScript Fetch Example:</strong>
                     </p>
                     <div style="background: #000; border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 10px; color: var(--accent); overflow-x: auto; border: 1px solid var(--border); line-height: 1.4; margin-bottom: 16px;">
                         <div>const response = await fetch('http://localhost:54321/data/users', {</div>
@@ -244,34 +857,34 @@
                         <div>});</div>
                     </div>
 
-                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;">
-                        <strong>3. cURL Beispiel:</strong>
+                    <p style="font-size: 12px; color: var(--muted); margin: 16px 0 8px 0;" data-i18n="settings.apikeys.curl_example">
+                        <strong>3. cURL Example:</strong>
                     </p>
                     <div style="background: #000; border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 10px; color: var(--accent); overflow-x: auto; border: 1px solid var(--border); margin-bottom: 16px;">
                         <div>curl -H "Authorization: Bearer ABC123DEF..." \</div>
                         <div>&nbsp;&nbsp;http://localhost:54321/data/users</div>
                     </div>
 
-                    <p style="font-size: 11px; color: #dc2626; margin-top: 16px; padding: 12px; background: rgba(220, 38, 38, 0.1); border-radius: 4px; border-left: 3px solid #dc2626;">
-                        ⚠️ <strong>Sicherheit:</strong> Teile deinen API Key niemals öffentlich! Der Key funktioniert wie ein Passwort. Wenn die Verwendung verdächtig aussieht, lösche den Key und generiere einen neuen.
+                    <p style="font-size: 11px; color: #dc2626; margin-top: 16px; padding: 12px; background: rgba(220, 38, 38, 0.1); border-radius: 4px; border-left: 3px solid #dc2626;" data-i18n="settings.apikeys.security_warning">
+                        ⚠️ <strong>Security:</strong> Never share your API Key publicly! The key works like a password. If usage looks suspicious, delete the key and generate a new one.
                     </p>
                 </div>
             </div>
 
             <!-- Sync-Center -->
             <div id="pane-sync" class="settings-pane">
-                <h2>Sync-Center</h2>
+                <h2 data-i18n="settings.sync.heading">Sync-Center</h2>
                 <div class="sync-body" style="display: flex; flex-direction: column; gap: 20px;">
                     <!-- Verbindungsstatus -->
                     <div class="sync-status-card">
-                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;">ProgressSQL-Verbindung</h4>
+                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;" data-i18n="settings.sync.connection_label">PostgreSQL Connection</h4>
                         <div class="conn-input-wrap" style="display:flex; gap:8px; margin-bottom:8px;">
-                            <input id="sync-conn-input" class="setting-input" placeholder="postgresql://user:pass@host:5432/db" type="text">
-                            <button class="btn" id="btn-sync-connect" style="padding:0 15px;">Verbinden</button>
+                            <input id="sync-conn-input" class="setting-input" data-i18n="placeholder:settings.sync.placeholder" placeholder="postgresql://user:pass@host:5432/db" type="text">
+                            <button class="btn" id="btn-sync-connect" data-i18n="settings.sync.connect_button" style="padding:0 15px;">Connect</button>
                         </div>
                         <div class="status-row" style="margin-top:12px; display:flex; align-items:center; gap:10px; font-size:12px;">
                             <span class="status-dot" id="sync-status-dot" style="width:8px; height:8px; border-radius:50%; background:var(--muted);"></span>
-                            <span id="sync-status-text" style="color:var(--muted);">Nicht verbunden</span>
+                            <span id="sync-status-text" style="color:var(--muted);" data-i18n="settings.sync.not_connected">Not connected</span>
                             <span id="sync-latency" style="font-size:10px; color:var(--muted); margin-left: auto;"></span>
                         </div>
                         <div id="sync-server-version" style="font-size:10px; color:var(--muted); margin-top:4px; display:none; border-top: 1px solid rgba(255,255,255,0.05); padding-top:4px;"></div>
@@ -279,22 +892,22 @@
 
                     <!-- Fortschritt -->
                     <div id="sync-progress-wrap" style="display:none; background: var(--surface2); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
-                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;">Sync läuft…</h4>
+                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;" data-i18n="settings.sync.syncing">Syncing...</h4>
                         <div style="background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; margin-bottom: 8px;">
                             <div id="sync-progress-fill" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease;"></div>
                         </div>
-                        <div id="sync-progress-msg" style="font-size: 11px; color: var(--muted);">Bereit...</div>
+                        <div id="sync-progress-msg" style="font-size: 11px; color: var(--muted);" data-i18n="settings.sync.ready">Ready...</div>
                     </div>
 
                     <!-- Lagerung -->
                     <div class="sync-storage-card">
-                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;">Lagerung für Bilder und Videos</h4>
+                        <h4 style="font-size:11px; color:var(--muted); margin-bottom:12px; text-transform:uppercase;" data-i18n="settings.sync.storage_label">Storage for Images and Videos</h4>
                         <div class="setting-row">
                             <div style="display:flex; gap:8px;">
                                 <input id="setting-storage-mediaPath" class="setting-input" placeholder="C:/Pfad/zu/deinen/Medien" type="text">
-                                <button class="btn" id="btn-browse-storage" style="padding:0 15px;">Durchsuchen</button>
+                                <button class="btn" id="btn-browse-storage" data-i18n="settings.sync.browse_button" style="padding:0 15px;">Browse</button>
                             </div>
-                            <div class="desc">Bestimme den Pfad, an dem Medien lokal gespeichert werden sollen.</div>
+                            <div class="desc" data-i18n="settings.sync.storage_desc">Determine where media should be stored locally.</div>
                         </div>
                     </div>
 
@@ -305,41 +918,152 @@
 
             <!-- AI / KI -->
             <div id="pane-ai" class="settings-pane">
-                <h2>KI-Assistent</h2>
+                <h2 data-i18n="settings.ai.heading">AI Assistant</h2>
                 <div class="setting-row checkbox">
                     <input type="checkbox" id="setting-ai-enabled">
-                    <label for="setting-ai-enabled">Natural Language to SQL aktivieren</label>
+                    <label for="setting-ai-enabled" data-i18n="settings.ai.enable">Enable Natural Language to SQL</label>
                 </div>
                 <div class="setting-row">
-                    <label>Provider</label>
+                    <label data-i18n="settings.ai.provider">Provider</label>
                     <select id="setting-ai-provider" class="setting-input">
-                        <option value="ollama">Ollama (Lokal - empfohlen)</option>
-                        <option value="openai">OpenAI (Cloud)</option>
-                        <option value="anthropic">Anthropic Claude (Cloud)</option>
+                        <option value="ollama" data-i18n="settings.ai.ollama">Ollama (Local - recommended)</option>
+                        <option value="openai" data-i18n="settings.ai.openai">OpenAI (Cloud)</option>
+                        <option value="anthropic" data-i18n="settings.ai.anthropic">Anthropic Claude (Cloud)</option>
                     </select>
                 </div>
                 <div class="setting-row">
-                    <label>API Key / Endpoint</label>
+                    <label data-i18n="settings.ai.api_key">API Key / Endpoint</label>
                     <input type="password" id="setting-ai-apiKey" class="setting-input" placeholder="sk-...">
                 </div>
                 <div class="setting-row">
-                    <label>Modell-Name</label>
-                    <input type="text" id="setting-ai-model" class="setting-input" placeholder="duckdb-nsql oder llama3">
+                    <label data-i18n="settings.ai.model_name">Model Name</label>
+                    <input type="text" id="setting-ai-model" class="setting-input" data-i18n="placeholder:settings.ai.model_placeholder" placeholder="duckdb-nsql oder llama3">
                 </div>
             </div>
 
             <!-- SQL Vorlagen -->
             <div id="pane-templates" class="settings-pane">
-                <h2>SQL Vorlagen</h2>
+                <h2 data-i18n="settings.templates.heading">SQL Templates</h2>
                 <div class="setting-row checkbox">
                     <input type="checkbox" id="setting-tpl-showQuickstarts">
-                    <label for="setting-tpl-showQuickstarts">Quickstarts im Dashboard anzeigen</label>
-                    <div class="desc">Legt fest, ob die vordefinierten SQL-Skripte (Quickstarts) auf der Startseite eingeblendet werden sollen.</div>
+                    <label for="setting-tpl-showQuickstarts" data-i18n="settings.templates.quickstarts">Show quickstarts in dashboard</label>
+                    <div class="desc" data-i18n="settings.templates.quickstarts_desc">Determines whether the predefined SQL scripts (Quickstarts) are displayed on the start page.</div>
                 </div>
 
-                <h3>Verbundene Vorlagen</h3>
-                <div class="desc" style="margin-bottom: 10px;">Diese Vorlagen werden aktuell aus der <code>SQLEditor.queries.js</code> geladen:</div>
+                <h3 data-i18n="settings.templates.connected">Connected Templates</h3>
+                <div class="desc" style="margin-bottom: 10px;" data-i18n="settings.templates.loaded_from">These templates are currently loaded from <code>SQLEditor.queries.js</code>:</div>
                 <div id="settings-tpl-list" style="background: #111; border-radius: 8px; padding: 10px; max-height: 200px; overflow-y: auto; border: 1px solid var(--border);"></div>
+            </div>
+
+            <!-- Shortcuts -->
+            <div id="pane-shortcuts" class="settings-pane">
+                <h2 data-i18n="settings.shortcuts.heading">Keyboard Shortcuts</h2>
+                <p style="color: var(--muted); font-size: 12px; margin-bottom: 20px;" data-i18n="settings.shortcuts.description">
+                    Configure your global keyboard shortcuts for faster workflow.
+                </p>
+
+                <div class="setting-row">
+                    <label data-i18n="settings.shortcuts.execute">Execute SQL</label>
+                    <input type="text" id="shortcut-execute" class="setting-input" placeholder="F5">
+                </div>
+
+                <div class="setting-row">
+                    <label data-i18n="settings.shortcuts.format">Format SQL</label>
+                    <input type="text" id="shortcut-format" class="setting-input" placeholder="Shift+Alt+F">
+                </div>
+
+                <div class="setting-row">
+                    <label data-i18n="settings.shortcuts.save">Save File/Query</label>
+                    <input type="text" id="shortcut-save" class="setting-input" placeholder="Ctrl+S">
+                </div>
+
+                <div class="setting-row">
+                    <label data-i18n="settings.shortcuts.magic_search">Magik Search</label>
+                    <input type="text" id="shortcut-magic-search" class="setting-input" placeholder="Ctrl+K">
+                </div>
+
+                <h3 style="margin-top: 32px;">Editor Navigation</h3>
+
+                <div class="setting-row">
+                    <label>Find / Search</label>
+                    <input type="text" id="shortcut-find" class="setting-input" placeholder="Ctrl+F">
+                </div>
+
+                <div class="setting-row">
+                    <label>Replace</label>
+                    <input type="text" id="shortcut-replace" class="setting-input" placeholder="Ctrl+H">
+                </div>
+
+                <div class="setting-row">
+                    <label>Toggle Sidebar</label>
+                    <input type="text" id="shortcut-sidebar" class="setting-input" placeholder="Ctrl+B">
+                </div>
+
+                <div class="setting-row">
+                    <label>New Query Tab</label>
+                    <input type="text" id="shortcut-new-query" class="setting-input" placeholder="Ctrl+N">
+                </div>
+            </div>
+
+            <!-- Datenbank-Wartung -->
+            <div id="pane-maintenance" class="settings-pane">
+                <h2 data-i18n="settings.maintenance.heading">Database Maintenance</h2>
+                <p style="color: var(--muted); font-size: 12px; margin-bottom: 20px;" data-i18n="settings.maintenance.description">
+                    Optimize local database performance by cleaning up old logs and caches.
+                </p>
+
+                <div class="maint-root">
+                    <div class="maint-stats" id="maintStats">
+                        <div class="maint-stat"><span class="maint-stat-val" id="maintStatCache">–</span><span class="maint-stat-lbl" data-i18n="settings.maintenance.stats.cache">Cache</span></div>
+                        <div class="maint-stat"><span class="maint-stat-val" id="maintStatLogs">–</span><span class="maint-stat-lbl" data-i18n="settings.maintenance.stats.logs">Logs</span></div>
+                        <div class="maint-stat"><span class="maint-stat-val" id="maintStatArchive">–</span><span class="maint-stat-lbl" data-i18n="settings.maintenance.stats.archive">Archive</span></div>
+                        <div class="maint-stat"><span class="maint-stat-val" id="maintStatSize">–</span><span class="maint-stat-lbl" data-i18n="settings.maintenance.stats.size">Size</span></div>
+                    </div>
+
+                    <div class="maint-section">
+                        <div class="maint-section-title" data-i18n="settings.maintenance.select_tables">Select Tables</div>
+                        <div class="maint-table-grid" id="maintTableGrid">
+                            <label class="maint-table-item"><input type="checkbox" value="api_cache" checked><div><div class="maint-table-name" data-i18n="settings.maintenance.api_cache">API Cache</div></div><span class="maint-table-count" id="maintCnt_api_cache">–</span></label>
+                            <label class="maint-table-item"><input type="checkbox" value="request_logs" checked><div><div class="maint-table-name" data-i18n="settings.maintenance.request_logs">Logs</div></div><span class="maint-table-count" id="maintCnt_request_logs">–</span></label>
+                        </div>
+                    </div>
+
+                    <div class="maint-section">
+                        <div class="maint-section-title" data-i18n="settings.maintenance.timeframe">Timeframe</div>
+                        <div class="maint-preset-row" id="maintPresetRow">
+                            <button class="maint-preset-btn" data-preset="last_24h" data-i18n="settings.maintenance.24h">24h</button>
+                            <button class="maint-preset-btn active" data-preset="older_30d" data-i18n="settings.maintenance.30d">30 Days</button>
+                            <button class="maint-preset-btn" data-preset="older_90d" data-i18n="settings.maintenance.90d">90 Days</button>
+                            <button class="maint-preset-btn danger" data-preset="wipe_all" data-i18n="settings.maintenance.delete_all">Delete all</button>
+                        </div>
+                    </div>
+
+                    <div class="maint-section">
+                        <div class="maint-section-title" data-i18n="settings.maintenance.cleanup">Cleanup</div>
+                        <div class="maint-preview" id="maintPreview">
+                            <div style="color:var(--muted);" data-i18n="settings.maintenance.preview_prompt">Click Preview...</div>
+                        </div>
+                        <div class="maint-action-row">
+                            <button class="btn" id="maintBtnPreview" data-i18n="settings.maintenance.preview_button" style="flex:1">🔍 Calculate preview</button>
+                            <button class="btn btn-delete" id="maintBtnRun" disabled data-i18n="settings.maintenance.delete_button" style="flex:1">🗑 Delete now</button>
+                        </div>
+                        <div id="maintResult" style="margin-top:10px; font-size:11px; display:none; padding:8px; border-radius:4px;"></div>
+                    </div>
+
+                    <div class="maint-section">
+                        <div class="maint-section-title" data-i18n="settings.maintenance.auto_cleanup">Automatic Cleanup</div>
+                        <div class="maint-sched-row">
+                            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+                                <input type="checkbox" id="maintSchedEnabled" checked> <span data-i18n="settings.maintenance.auto_enabled">Enabled</span>
+                            </label>
+                            <span>all</span>
+                            <input type="number" id="maintSchedInterval" value="24" style="width:50px; background:var(--bg); border:1px solid var(--border); color:white; padding:2px 5px; border-radius:3px;">
+                            <span data-i18n="settings.maintenance.auto_interval_hours">hours</span>
+                            <button class="btn" id="maintSchedSave" data-i18n="settings.maintenance.auto_save" style="padding:4px 10px; font-size:11px">Save</button>
+                            <span class="maint-sched-status" id="maintSchedStatus" data-i18n="settings.maintenance.auto_inactive">Inactive</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>

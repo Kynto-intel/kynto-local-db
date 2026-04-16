@@ -11,6 +11,8 @@ const { registerSettingsHandlers } = require('./settings-handler');
 const { registerSyncHandlers } = require('./sync-handler');
 const { registerInstantAPIHandlers } = require('./instant-api-handler');
 const { registerEditorHandlers } = require('./editor-handler');
+const { registerApiBridgeHandlers } = require('./api-bridge-handler');
+const { registerMaintenanceHandlers } = require('./maintenance-handler');
 
 /**
  * 🔧 Registriere ALLE Handler in der IPC
@@ -53,7 +55,17 @@ function registerAllHandlers(win, app, databaseEngine, pgManager, remote, syncEn
     registerEditorHandlers(app);
 
     // =========================================================================
-    // 💬 Storage Manager Events
+    // � Sovereign API-Bridge
+    // =========================================================================
+    registerApiBridgeHandlers();
+
+    // =========================================================================
+    // 🧹 Maintenance Handlers (Stats, Preview, Run, Scheduler)
+    // =========================================================================
+    registerMaintenanceHandlers();
+
+    // =========================================================================
+    // �💬 Storage Manager Events
     // =========================================================================
     let storageManagerOpen = false;
 
@@ -85,6 +97,7 @@ function registerAllHandlers(win, app, databaseEngine, pgManager, remote, syncEn
     console.log('  - Sync: sync:*');
     console.log('  - Instant API: instant-api:*');
     console.log('  - Editor: editor:*');
+    console.log('  - API-Bridge: apiBridge:* (weather, search, news, geocode, etc.)');
     console.log('  - Storage Manager: open/close-storage-manager');
 }
 

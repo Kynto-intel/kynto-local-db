@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #18181b;
+      --accent: #c29a40;
+      --accent-light: #d4af57;
+      --surface: #1f1f23;
+      --text: #e8e8ee;
+      --text-fade: #7a7a8c;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--bg) 0%, #1a1a1f 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Animated background glow */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(194, 154, 64, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: glowPulse 4s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      animation: fadeInUp 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Logo Section */
+    .logo-wrapper {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Orbiting rings around logo */
+    .orbit {
+      position: absolute;
+      border: 1px solid rgba(194, 154, 64, 0.2);
+      border-radius: 50%;
+      animation: rotate 8s linear infinite;
+    }
+
+    .orbit:nth-child(1) {
+      width: 240px;
+      height: 240px;
+      animation-duration: 8s;
+    }
+
+    .orbit:nth-child(2) {
+      width: 280px;
+      height: 280px;
+      animation-duration: 12s;
+      animation-direction: reverse;
+    }
+
+    .logo {
+      width: 160px;
+      height: auto;
+      position: relative;
+      z-index: 2;
+      animation: logoFloat 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(194, 154, 64, 0.3)) 
+              drop-shadow(0 0 40px rgba(194, 154, 64, 0.1));
+      transition: filter 0.3s ease;
+    }
+
+    .logo:hover {
+      filter: drop-shadow(0 0 30px rgba(194, 154, 64, 0.5)) 
+              drop-shadow(0 0 60px rgba(194, 154, 64, 0.2));
+    }
+
+    /* Title & Subtitle */
+    .title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.5px;
+      margin: 20px 0 10px;
+      animation: slideDown 0.8s ease-out 0.2s both;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-fade);
+      font-weight: 500;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      animation: slideDown 0.8s ease-out 0.3s both;
+    }
+
+    /* Dots Loader */
+    .loader {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      animation: slideDown 0.8s ease-out 0.4s both;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.4;
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    /* Loading status text */
+    .status {
+      margin-top: 25px;
+      font-size: 11px;
+      color: var(--text-fade);
+      letter-spacing: 0.3px;
+      opacity: 0.7;
+      animation: fadeInUp 1s ease-out 0.6s both;
+    }
+
+    .status::after {
+      content: "";
+      animation: dots 1.5s steps(4, end) infinite;
+      display: inline-block;
+      width: 1.2em;
+    }
+
+    /* ═══════════════════════════════════════ ANIMATIONS ═══════════════════════════════════════ */
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes logoFloat {
+      0%, 100% {
+        transform: translateY(0px) scale(1);
+      }
+      50% {
+        transform: translateY(-8px) scale(1.02);
+      }
+    }
+
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        opacity: 0.5;
+        filter: blur(40px);
+      }
+      50% {
+        opacity: 1;
+        filter: blur(50px);
+      }
+    }
+
+    @keyframes dotPulse {
+      0%, 60%, 100% {
+        opacity: 0.4;
+        transform: scale(1);
+      }
+      30% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+    }
+
+    @keyframes dots {
+      0%, 20% {
+        content: "";
+      }
+      40% {
+        content: ".";
+      }
+      60% {
+        content: "..";
+      }
+      80%, 100% {
+        content: "...";
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .logo-wrapper {
+        width: 180px;
+        height: 180px;
+      }
+
+      .logo {
+        width: 120px;
+      }
+
+      .title {
+        font-size: 22px;
+      }
+
+      .orbit {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-wrapper">
+      <div class="orbit"></div>
+      <div class="orbit"></div>
+      <img src="../../image/LOGO.png" class="logo" alt="Kynto Logo">
+    </div>
+
+    <h1 class="title">Kynto Intel</h1>
+    <p class="subtitle">Loading</p>
+
+    <div class="loader">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+
+    <div class="status">Initializing database engine</div>
+  </div>
+</body>
+</html>
