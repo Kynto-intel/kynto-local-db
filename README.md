@@ -1,116 +1,122 @@
-# 🚀 Kynto – Your Local Database Companion
+# Kynto – Local Database Platform
 
-> **SQL Management.** Done locally. No cloud. No bills. Just your data.
+> **Your data. Your machine. No cloud. No bills. No bullshit.**
 
-Kynto is a lightweight database client built for developers who want control. Run PostgreSQL queries, explore your data, and build REST APIs—all on your machine. **Still early, but growing.**
+Kynto is a local-first database platform built by one developer who got tired of cloud dependency. It's not finished. It's not perfect. But it works — and it's growing every day.
 
-**[→ Getting Started](#quick-start)** • [→ Why Kynto?](#why-local-first) • Development Stage: **Beta**
+![Kynto Demo](image/Animation.gif)
 
-![Kynto Screenshot](image/Screenshot%202026-04-12%20025651.png)
-
----
-
-## The Freedom of Development: Kynto
-Kynto combines the power of enterprise-grade open source with the absolute independence of a local infrastructure. We transform the principles of cloud-based services like Firebase or Supabase into an open ecosystem that remains entirely under your control.
-
-What Drives Us:
-Open Source at the Core: We orchestrate world-class tools and actively support their communities. We rely on permissive licenses that guarantee maximum flexibility without vendor lock-in.
-
-Innovation through Initiative: Where standards are missing, we create them. We develop the missing pieces ourselves and share them with the world as open source.
-
-Local Sovereignty: While others rely on the cloud, Kynto is designed from the ground up for local operation. We provide a workflow as intuitive as Firebase, but one that lives directly on your own hardware.
-
-Maximum Database Flexibility
-The heart of your data stays flexible at all times. With Kynto, you decide how you want to leverage PostgreSQL:
-
-Self-Hosted Power: Run PostgreSQL traditionally on your own server or locally within your preferred environment.
-
-Native Local-First Experience: For an uncompromising local experience, we support PGlite. This allows your database to run directly and light-weight—perfect for seamless development without any hurdles.
-
-Kynto is more than just a toolbox. It is the promise to make modern app development fast, straightforward, and, above all, completely autonomous.
+**[→ Quick Start](#quick-start)** • **[→ Features](#what-can-you-do)** • **[→ Roadmap](#roadmap)** • Status: **Beta (actively building)**
 
 ---
 
-## Why Local First?
+## Why I built this
 
-Firebase is a black box. We are local and open source.
+Every time I started a new project I had the same problem: Firebase wants my data, Supabase wants a credit card, and everything lives on someone else's server.
 
-**Kynto vs Supabase.** Simple story:
+So I built Kynto. It runs locally. Completely. Forever free.
 
 | | Kynto | Supabase | Firebase |
 |---|---|---|---|
-| **Data Lives Where?** | Your laptop | Their servers | Google's servers |
-| **Query Speed** | Instant (same machine) | Network latency | Network latency |
-| **Cost** | Free | Pay per query | Pay per operation |
-| **Need Internet?** | Nope | Yep | Yep |
-| **Who Owns Your Data?** | You | Technically you, but... | Google |
-
-No cloud lock-in. No monthly surprises. Your database, your rules.
+| **Data lives where?** | Your machine | Their servers | Google's servers |
+| **Speed** | ~0.7ms (local) | Network latency | Network latency |
+| **Cost** | Free | Pay per use | Pay per use |
+| **Needs internet?** | Nope | Yep | Yep |
+| **Who owns your data?** | You | Technically you, but... | Google |
 
 ---
 
 ## What Can You Do?
 
-✨ **Write SQL.** See results instantly. No waiting for cloud responses.
+These features are built and working. Not perfect — but real.
 
-📊 **Visualize Data.** Charts, type highlighting, entity relationships—enough to understand your schema.
+✨ **SQL Editor** — Write queries, see results instantly. No waiting for cloud.
 
-🔄 **Sync It.** Connect a remote PostgreSQL, sync local changes. Still building this one.
+📊 **Data Visualization** — Tables, type highlighting, entity relationships, schema overview.
 
-🤖 **Ask the AI.** Tell it what you need. It generates SQL. (Requires local Ollama, but hey—free LLM.)
+⚡ **Realtime Engine** — Native PostgreSQL `LISTEN/NOTIFY` with automatic trigger installation. Changes push to the UI instantly — no polling.
 
-🌐 **Generate APIs.** Auto-create REST endpoints from your tables. Local server, instant.
+🕷️ **AI Web Scraper** — Give it a URL, get clean structured data. Handles JavaScript-heavy sites and bot detection. Powered by Crawlee. Track progress in realtime.
 
-📥 **Import Data.** CSV, JSON, SQL dumps. Drag, drop, done.
+📖 **AI Schema Docs** — Automatically generates descriptions and insights for your tables. Turns raw schemas into readable Markdown documentation.
 
-**That's it.** We're not trying to be everything. We're trying to be fast and yours.
+🛡️ **Security & RLS** — Manage Row-Level Security policies directly in the UI. Built-in protection against destructive queries (`DELETE` without `WHERE`). Automatic redaction of secrets like API keys and passwords.
+
+🌐 **Auto REST API** — Generate REST endpoints directly from your tables. Local server, zero config.
+
+🤖 **AI Assistant** *(in progress)* — Ask it what you need, it writes SQL. Runs on local Ollama — your data never leaves your machine.
+
+📥 **Import** — CSV, JSON, SQL dumps. Drag, drop, done.
+
+**Engines supported:** PostgreSQL · DuckDB · PGlite
 
 ---
 
 ## Quick Start
 
-### What You Need
-- **Node.js** 18+  
-- **npm** (comes with Node.js)
-
-### Run It
-
 ```bash
-git clone <repo>
-cd kynto
+git clone https://github.com/Kynto-intel/kynto-local-db
+cd kynto-local-db
 npm install
 npm start
 ```
 
-**That's it.** Open the app, pick a database, write SQL.
+**Requirements:** Node.js 18+ · npm
+
+That's it. No account. No setup wizard. No cloud.
 
 ---
 
-## Roadmap (Beta)
+## What's honest about the current state
 
-- ✅ Query editor
-- ✅ Local data visualization  
-- ✅ Basic REST API generation
-- 🚧 Better sync (PostgreSQL ↔ Local)
+I want to be upfront:
+
+- ✅ Core features work and I use them daily
+- ✅ PostgreSQL local + remote, DuckDB, PGlite all connected
+- 🚧 AI SQL assistant is functional but not polished yet
+- 🚧 Sync between local ↔ remote still needs work
+- 🚧 Windows tested, Linux/Mac not fully tested yet
+- ❌ No automated tests yet (working on it)
+
+This is a real project, not a demo. But it's still early. Bugs exist. If you find one — open an issue, I'll actually fix it.
+
+---
+
+## Roadmap
+
+- ✅ SQL editor with syntax highlighting
+- ✅ Local data visualization
+- ✅ REST API generation
+- ✅ Realtime engine
+- ✅ AI Web Scraper
+- ✅ RLS policy manager
+- ✅ AI schema documentation
+- 🚧 AI SQL assistant (polishing)
+- 🚧 Better local ↔ remote sync
 - 🚧 Advanced charts
-- 🚧 Collaborative features
-
-We're building this in the open. What do **you** need?
+- 🚧 Cross-platform builds (Mac/Linux)
+- 💡 Collaborative features (later)
 
 ---
 
 ## Contribute
 
-This is **my project.** I own it completely. But I'd love your help.
+This is my solo project. I built everything here — and I'd genuinely love help.
 
-Found a bug? Got an idea? Want to build something? Send a PR or reach out. No complicated processes. Just real collaboration.
+Found a bug? Have an idea? Want to add something? Open an issue or send a PR. No complicated processes. No bureaucracy. Just build.
+
+---
+
+## Tech Stack
+
+`Electron` · `PostgreSQL` · `DuckDB` · `PGlite` · `PostgREST` · `Crawlee` · `Ollama`
 
 ---
 
 <div align="center">
 
-Made with ❤️ by someone tired of cloud bills.
+Built by one developer. Tired of cloud bills.
 
-**Still in beta. Still improving. Always honest.**
+**[@KyntoIntel](https://twitter.com/KyntoIntel)**
 
 </div>
